@@ -846,6 +846,77 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Computes several single-value aggregate measures - different columns, different functions - over one shared partition and filter in one request, served as one database command on one connection (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+        /// <para>The answers arrive as a JSON array in the request's measure order; a SQL <c>NULL</c> aggregate (for example <c>Avg</c> over zero rows) is preserved as JSON <c>null</c>. An empty <c>Measures</c> list, a list above the cap of <see cref="Constants.BuildingData.MaximumAggregateSummariesMeasureCount"/>, or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result. Multi-value measures and histograms are out of scope here (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// </summary>
+        /// <param name="aggregateSummariesRequestParameter">The parameter containing the shared county identifier, the shared filter, and the ordered list of measures.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>A task representing the asynchronous operation, returning the measures as a JSON array in request order.</returns>
+        [HttpPost("aggregatesummary/batch", Name = $"{nameof(BuildingDataController)}_{nameof(GetAggregateSummariesAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(JsonNode), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "Measures is missing, empty, or above the cap, or a measure or filter names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAggregateSummariesAsync([FromBody] AggregateSummariesRequestParameter aggregateSummariesRequestParameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingDataController), nameof(GetAggregateSummariesAsync));
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            if (aggregateSummariesRequestParameter.Measures is null || aggregateSummariesRequestParameter.Measures.Count == 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Measures cannot be null or empty");
+                return BadRequest();
+            }
+
+            if (aggregateSummariesRequestParameter.Measures.Count > Constants.BuildingData.MaximumAggregateSummariesMeasureCount)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Measures exceeds the cap");
+                return BadRequest();
+            }
+
+            try
+            {
+                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummariesAsync(aggregateSummariesRequestParameter.Measures, aggregateSummariesRequestParameter.CountyId, aggregateSummariesRequestParameter.FilterGroup, commandTimeout, cancellationToken);
+
+                if (resultNode is null)
+                {
+                    return NotFound();
+                }
+
+                string json = resultNode.ToJsonString();
+                return Content(json, "application/json");
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingDataController), nameof(GetAggregateSummariesAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetAggregateSummariesAsync));
+                return Problem(detail: exception.Message, statusCode: 400);
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetAggregateSummariesAsync));
+                return StatusCode(500, "Internal server error during database query");
+            }
+        }
+
+        /// <summary>
         /// Retrieves one page of a county part's building data, following a cursor from page to page.
         /// <para><b>Reference order</b> (default, <see cref="BuildingDataByPagingParameter.PhysicalOrder"/> false): rows ordered by <c>reference</c>. The cursor is the previous page's last <c>reference</c>, and a page shorter than <c>PageSize</c> ends the part. Every row is one random heap read, which on a large part is slow: part 55417 (155 307 rows) took 368-654 s cold (DiGi.GIS.WebAPI.UI#29).</para>
         /// <para><b>Physical order</b> (<see cref="BuildingDataByPagingParameter.PhysicalOrder"/> true): rows in heap order, read sequentially. The next cursor is returned in the <c>DiGi-Next-Cursor</c> response header (<see cref="Constants.Header.NextCursor"/>), and a response without the header ends the part. The page may still carry the part's last rows. Row order is unspecified. When the physical read is unavailable - a database older than PostgreSQL 14, or a <c>Cursor</c> that is not a physical position - the same request is answered by the reference-ordered page for that <c>Cursor</c>, without the header. A client that keeps asking for physical order and follows the last row's <c>reference</c> whenever the header is absent from a full page therefore pages correctly either way.</para>

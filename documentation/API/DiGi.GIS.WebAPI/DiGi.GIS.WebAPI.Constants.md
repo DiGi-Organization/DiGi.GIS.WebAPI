@@ -31,6 +31,21 @@ public static readonly int MaximumAdministrativeAreal2DCountyCount;
 #### Field Value
 [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount'></a>
+
+## BuildingData\.MaximumAggregateSummariesMeasureCount Field
+
+The largest number of single\-value aggregate measures one `aggregatesummary/batch` request may carry\.
+
+The measures share one filter, one connection and one SQL command, so the cost follows the measure count. The ceiling of 100 is a guardrail against pathological requests - far above any realistic client - and stays at the converter's own cap so the 400 pre-check and the converter's refusal agree (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+
+```csharp
+public static readonly int MaximumAggregateSummariesMeasureCount;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Constants.Compression'></a>
 
 ## Compression Class

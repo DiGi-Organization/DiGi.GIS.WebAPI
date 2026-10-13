@@ -1054,6 +1054,94 @@ public AdministrativeAreal2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager G
 
 The GIS PostgreSQL Web API manager used to handle database operations\.
 
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter'></a>
+
+## AggregateSummariesRequestParameter Class
+
+Parameter class containing options for a batch of single\-value database aggregation queries: several measures over one shared partition and filter, served in one request \(ZiolkowskiJakub/DiGi\.GIS\.WebAPI\#56\)\.
+
+```csharp
+public class AggregateSummariesRequestParameter : DiGi.WebAPI.Classes.Parameter
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [DiGi\.Core\.Classes\.Object](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.object 'DiGi\.Core\.Classes\.Object') → [DiGi\.Core\.Classes\.SerializableObject](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.serializableobject 'DiGi\.Core\.Classes\.SerializableObject') → [DiGi\.WebAPI\.Classes\.Parameter](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.parameter 'DiGi\.WebAPI\.Classes\.Parameter') → AggregateSummariesRequestParameter
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.AggregateSummariesRequestParameter()'></a>
+
+## AggregateSummariesRequestParameter\(\) Constructor
+
+Initializes a new instance of the [AggregateSummariesRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.AggregateSummariesRequestParameter') class\.
+
+```csharp
+public AggregateSummariesRequestParameter();
+```
+
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.AggregateSummariesRequestParameter(System.Text.Json.Nodes.JsonObject)'></a>
+
+## AggregateSummariesRequestParameter\(JsonObject\) Constructor
+
+Initializes a new instance of the [AggregateSummariesRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.AggregateSummariesRequestParameter') class using a [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject') object\.
+
+```csharp
+public AggregateSummariesRequestParameter(System.Text.Json.Nodes.JsonObject jsonObject);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.AggregateSummariesRequestParameter(System.Text.Json.Nodes.JsonObject).jsonObject'></a>
+
+`jsonObject` [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
+The JSON object containing data used to initialize the parameter\.
+### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.CountyId'></a>
+
+## AggregateSummariesRequestParameter\.CountyId Property
+
+Gets or sets the target partition identifier \(County ID\)\. If null, aggregation is performed across all partitions\.
+
+```csharp
+public System.Nullable<int> CountyId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+10365
+
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.FilterGroup'></a>
+
+## AggregateSummariesRequestParameter\.FilterGroup Property
+
+Gets or sets the optional dynamic hierarchical filters applied to every measure\.
+
+```csharp
+public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; set; }
+```
+
+#### Property Value
+[DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
+
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.Measures'></a>
+
+## AggregateSummariesRequestParameter\.Measures Property
+
+Gets or sets the single\-value aggregate measures to compute, each pairing a target column with its function\.
+
+The answers arrive in this order, one value per measure; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. Multi-value measures and histograms are not accepted here. An empty list, or a list above the cap, is refused with 400 (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+
+```csharp
+public System.Collections.Generic.List<DiGi.PostgreSQL.Table.Classes.AggregateMeasure> Measures { get; set; }
+```
+
+#### Property Value
+[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.PostgreSQL\.Table\.Classes\.AggregateMeasure](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.aggregatemeasure 'DiGi\.PostgreSQL\.Table\.Classes\.AggregateMeasure')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+### Example
+\[\{ "ColumnUniqueId": "floor\_area", "SinglevalueAggregateFunction": "Avg" \}\]
+
 <a name='DiGi.GIS.WebAPI.Classes.Building2DController'></a>
 
 ## Building2DController Class
@@ -3019,6 +3107,41 @@ private const int referenceCount_Maximum = 10000;
 #### Field Value
 [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 ### Methods
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter,int,System.Threading.CancellationToken)'></a>
+
+## BuildingDataController\.GetAggregateSummariesAsync\(AggregateSummariesRequestParameter, int, CancellationToken\) Method
+
+Computes several single\-value aggregate measures \- different columns, different functions \- over one shared partition and filter in one request, served as one database command on one connection \(ZiolkowskiJakub/DiGi\.GIS\.WebAPI\#56\)\.
+
+The answers arrive as a JSON array in the request's measure order; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. An empty `Measures` list, a list above the cap of [MaximumAggregateSummariesMeasureCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAggregateSummariesMeasureCount'), or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result. Multi-value measures and histograms are out of scope here (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter aggregateSummariesRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter,int,System.Threading.CancellationToken).aggregateSummariesRequestParameter'></a>
+
+`aggregateSummariesRequestParameter` [AggregateSummariesRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.AggregateSummariesRequestParameter')
+
+The parameter containing the shared county identifier, the shared filter, and the ordered list of measures\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task representing the asynchronous operation, returning the measures as a JSON array in request order\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCategoriesAsync(int,System.Threading.CancellationToken)'></a>
 
