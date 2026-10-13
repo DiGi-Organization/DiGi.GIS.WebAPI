@@ -3188,6 +3188,47 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByAdministrativeAreal2DIdAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter,int,System.Threading.CancellationToken)'></a>
+
+## BuildingDataController\.GetCountByAdministrativeAreal2DIdAsync\(BuildingDataCountByAdministrativeAreal2DIdParameter, int, CancellationToken\) Method
+
+Asynchronously counts the building data rows of an administrative area, optionally narrowed by a dynamic hierarchical filter group, in one call\.
+
+Resolution: (1) the area reference is read by id, and a missing one answers 404. (2) An area <b>above</b> the Subdivision level (Country, Voivodeship, County, Municipality) is resolved to its Subdivision children, grouped by the county partition they sit in. (3) An area that <b>is</b> a Subdivision is counted by membership, `subdivision_id = id`. (4) Per distinct county - the `building_data` partition key - one count runs with `subdivision_id IN (that county's subdivisions)` plus the caller's filters, and the counts are <b>summed</b>. The counties are counted strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s. (5) An area above the Subdivision level that resolves to no Subdivision answers 204.
+
+What the count is not. `subdivision_id` files a building under its <b>smallest</b> containing subdivision and the Subdivision layer nests, so for a nested Subdivision (a district whose neighbourhoods are also subdivisions) the count covers only the buildings filed under that exact id and undercounts the district (DiGi.GIS.PostgreSQL#75, #77); a polygon-based count is a follow-up. Rows with `subdivision_id IS NULL` are excluded, so the count of an area is not the count of every building inside its polygon. A building filed in a county partition other than the one its subdivision belongs to (a subdivision of a neighbouring county) is not reached, because each county is counted with only its own subdivisions.
+
+An unfiltered body is valid (`FilterGroup` omitted counts every building the area resolves to). At most [MaximumAdministrativeAreal2DCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAdministrativeAreal2DCountyCount') distinct counties are iterated; an area spanning more answers 400 naming that limit and nothing is counted. 204 means <b>the resolution found no subdivision to filter by - not evidence that the area holds no buildings</b>. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.
+
+A client that sends the same `In` filter shape as a JSON array is subject to ZiolkowskiJakub/DiGi.PostgreSQL#10; this endpoint builds its own subdivision list server-side and does not depend on that fix.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetCountByAdministrativeAreal2DIdAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter parameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByAdministrativeAreal2DIdAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter,int,System.Threading.CancellationToken).parameter'></a>
+
+`parameter` [BuildingDataCountByAdministrativeAreal2DIdParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataCountByAdministrativeAreal2DIdParameter')
+
+The parameter containing the administrative area identifier and the optional dynamic hierarchical filters\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByAdministrativeAreal2DIdAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of each command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByAdministrativeAreal2DIdAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the count as a bare JSON integer, 204 NoContent when no subdivision was found, 404 NotFound, or 400/503/500 on the guarded and failure paths\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByCountyIdAsync(int,bool,bool,int,System.Threading.CancellationToken)'></a>
 
 ## BuildingDataController\.GetCountByCountyIdAsync\(int, bool, bool, int, CancellationToken\) Method
@@ -3777,6 +3818,78 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task representing the asynchronous operation with an [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') containing an [UpdateItemsResult](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UpdateItemsResult 'DiGi\.GIS\.WebAPI\.Classes\.UpdateItemsResult')\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter'></a>
+
+## BuildingDataCountByAdministrativeAreal2DIdParameter Class
+
+Parameter class containing options for counting the building data rows of an administrative area matching an optional dynamic hierarchical filter group\.
+
+```csharp
+public class BuildingDataCountByAdministrativeAreal2DIdParameter : DiGi.WebAPI.Classes.Parameter
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [DiGi\.Core\.Classes\.Object](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.object 'DiGi\.Core\.Classes\.Object') → [DiGi\.Core\.Classes\.SerializableObject](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.serializableobject 'DiGi\.Core\.Classes\.SerializableObject') → [DiGi\.WebAPI\.Classes\.Parameter](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.parameter 'DiGi\.WebAPI\.Classes\.Parameter') → BuildingDataCountByAdministrativeAreal2DIdParameter
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter.BuildingDataCountByAdministrativeAreal2DIdParameter()'></a>
+
+## BuildingDataCountByAdministrativeAreal2DIdParameter\(\) Constructor
+
+Initializes a new instance of the [BuildingDataCountByAdministrativeAreal2DIdParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataCountByAdministrativeAreal2DIdParameter') class\.
+
+```csharp
+public BuildingDataCountByAdministrativeAreal2DIdParameter();
+```
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter.BuildingDataCountByAdministrativeAreal2DIdParameter(System.Text.Json.Nodes.JsonObject)'></a>
+
+## BuildingDataCountByAdministrativeAreal2DIdParameter\(JsonObject\) Constructor
+
+Initializes a new instance of the [BuildingDataCountByAdministrativeAreal2DIdParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataCountByAdministrativeAreal2DIdParameter') class using an [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject') object\.
+
+```csharp
+public BuildingDataCountByAdministrativeAreal2DIdParameter(System.Text.Json.Nodes.JsonObject jsonObject);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter.BuildingDataCountByAdministrativeAreal2DIdParameter(System.Text.Json.Nodes.JsonObject).jsonObject'></a>
+
+`jsonObject` [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
+The JSON object containing data used to initialize the parameter\.
+### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter.AdministrativeAreal2DId'></a>
+
+## BuildingDataCountByAdministrativeAreal2DIdParameter\.AdministrativeAreal2DId Property
+
+Gets or sets the identifier of the administrative area whose buildings are counted\.
+
+Nullable so that an omitted property is distinguishable from a legitimate value and can be refused with HTTP 400 rather than silently meaning `0`.
+
+```csharp
+public System.Nullable<int> AdministrativeAreal2DId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+53469
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter.FilterGroup'></a>
+
+## BuildingDataCountByAdministrativeAreal2DIdParameter\.FilterGroup Property
+
+Gets or sets the optional dynamic hierarchical filters applied on top of the area; `null` \(or an empty group\) counts every building the area resolves to\.
+
+```csharp
+public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; set; }
+```
+
+#### Property Value
+[DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter'></a>
 

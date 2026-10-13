@@ -3,6 +3,34 @@
 ## DiGi\.GIS\.WebAPI\.Constants Namespace
 ### Classes
 
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData'></a>
+
+## BuildingData Class
+
+Provides the limits applied to building data queries served by the GIS PostgreSQL Web API\.
+
+```csharp
+public static class BuildingData
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → BuildingData
+### Fields
+
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount'></a>
+
+## BuildingData\.MaximumAdministrativeAreal2DCountyCount Field
+
+The largest number of distinct counties one area count may iterate\.
+
+An area above the subdivision level is counted one county partition at a time, sequentially, so the cost follows the counties its subdivisions sit in. The ceiling of 500 allows a whole-country count across all 406 county parts, while protecting the database connection pool against unbounded input.
+
+```csharp
+public static readonly int MaximumAdministrativeAreal2DCountyCount;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Constants.Compression'></a>
 
 ## Compression Class

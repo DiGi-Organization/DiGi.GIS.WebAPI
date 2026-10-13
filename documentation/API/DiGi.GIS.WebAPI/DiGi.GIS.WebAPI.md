@@ -290,6 +290,35 @@ public static System.IServiceProvider ServiceProvider();
 [System\.IServiceProvider](https://learn.microsoft.com/en-us/dotnet/api/system.iserviceprovider 'System\.IServiceProvider')  
 An [System\.IServiceProvider](https://learn.microsoft.com/en-us/dotnet/api/system.iserviceprovider 'System\.IServiceProvider') containing the registered services\.
 
+<a name='DiGi.GIS.WebAPI.Create.SubdivisionFilterGroup(DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Collections.Generic.IEnumerable_int_)'></a>
+
+## Create\.SubdivisionFilterGroup\(FilterGroup, IEnumerable\<int\>\) Method
+
+Creates the filter group that confines a building data count to a set of subdivisions, and applies the caller's own filters on top\.
+
+The result is an `And` group holding one `In` condition on the subdivision column, with the caller's group nested beside it as a whole so that its own logical operator is kept (an `Or` group is not flattened into the subdivision condition). The list reaches the `In` branch as a collection, not as a deserialized JSON array.
+
+```csharp
+public static DiGi.PostgreSQL.Table.Classes.FilterGroup? SubdivisionFilterGroup(DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup, System.Collections.Generic.IEnumerable<int>? subdivisionIds);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Create.SubdivisionFilterGroup(DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Collections.Generic.IEnumerable_int_).filterGroup'></a>
+
+`filterGroup` [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
+
+The optional filters of the caller; `null` or empty adds nothing\.
+
+<a name='DiGi.GIS.WebAPI.Create.SubdivisionFilterGroup(DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Collections.Generic.IEnumerable_int_).subdivisionIds'></a>
+
+`subdivisionIds` [System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
+
+The identifiers of the subdivisions the count is confined to\.
+
+#### Returns
+[DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')  
+The combined filter group, or null when there is no subdivision identifier to confine the count to\.
+
 <a name='DiGi.GIS.WebAPI.Create.Table(System.Text.Json.Nodes.JsonObject)'></a>
 
 ## Create\.Table\(JsonObject\) Method
@@ -2229,6 +2258,67 @@ public static class Query
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → Query
 ### Methods
 
+<a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken)'></a>
+
+## Query\.CountByAdministrativeAreal2DIdAsync\(int, FilterGroup, Func\<int,CancellationToken,Task\<AdministrativeAreal2DReference\>\>, Func\<int,CancellationToken,Task\<List\<AdministrativeAreal2DReference\>\>\>, Func\<FilterGroup,int,CancellationToken,Task\<Nullable\<long\>\>\>, int, CancellationToken\) Method
+
+Asynchronously counts the building data rows of an administrative area, optionally narrowed by a filter group\.
+
+An area above the subdivision level is resolved to its Subdivision children, which are grouped by the county partition they sit in; each county is then counted with `subdivision_id IN (that county's subdivisions)` plus the caller's filters, and the counts are summed. A Subdivision is counted by membership of its own id, so a nested subdivision counts only the buildings filed under that exact id (DiGi.GIS.PostgreSQL#75).
+
+Every step is awaited in turn - the reads are never fanned out, because concurrent requests exhaust the Npgsql pool. The three steps are taken as delegates so the orchestration is separate from the converters that perform them.
+
+```csharp
+public static System.Threading.Tasks.Task<(DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus Status,long Count)> CountByAdministrativeAreal2DIdAsync(int administrativeAreal2DId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup, System.Func<int,System.Threading.CancellationToken,System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference?>> readReferenceAsync, System.Func<int,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference>?>> readSubdivisionsAsync, System.Func<DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task<System.Nullable<long>>> countAsync, int maximumCountyCount, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken).administrativeAreal2DId'></a>
+
+`administrativeAreal2DId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The identifier of the administrative area\.
+
+<a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken).filterGroup'></a>
+
+`filterGroup` [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
+
+The optional filters applied on top of the area\.
+
+<a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken).readReferenceAsync'></a>
+
+`readReferenceAsync` [System\.Func&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.func-3 'System\.Func\`3')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[,](https://learn.microsoft.com/en-us/dotnet/api/system.func-3 'System\.Func\`3')[System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')[,](https://learn.microsoft.com/en-us/dotnet/api/system.func-3 'System\.Func\`3')[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dreference 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.func-3 'System\.Func\`3')
+
+Reads the area reference by identifier; returns null when there is none\.
+
+<a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken).readSubdivisionsAsync'></a>
+
+`readSubdivisionsAsync` [System\.Func&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.func-3 'System\.Func\`3')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[,](https://learn.microsoft.com/en-us/dotnet/api/system.func-3 'System\.Func\`3')[System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')[,](https://learn.microsoft.com/en-us/dotnet/api/system.func-3 'System\.Func\`3')[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dreference 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.func-3 'System\.Func\`3')
+
+Reads the Subdivision references below the area, given the area identifier\.
+
+<a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken).countAsync'></a>
+
+`countAsync` [System\.Func&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.func-4 'System\.Func\`4')[DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')[,](https://learn.microsoft.com/en-us/dotnet/api/system.func-4 'System\.Func\`4')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[,](https://learn.microsoft.com/en-us/dotnet/api/system.func-4 'System\.Func\`4')[System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')[,](https://learn.microsoft.com/en-us/dotnet/api/system.func-4 'System\.Func\`4')[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.func-4 'System\.Func\`4')
+
+Counts the rows of one county partition matching a filter group, given the filter group and the county identifier; returns null when the count could not be made\.
+
+<a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken).maximumCountyCount'></a>
+
+`maximumCountyCount` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The largest number of counties that may be iterated; exceeding it counts nothing\.
+
+<a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[AdministrativeAreal2DCountStatus](DiGi.GIS.WebAPI.Enums.md#DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus 'DiGi\.GIS\.WebAPI\.Enums\.AdministrativeAreal2DCountStatus')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The result carries how the count ended and, for [Counted](DiGi.GIS.WebAPI.Enums.md#DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus.Counted 'DiGi\.GIS\.WebAPI\.Enums\.AdministrativeAreal2DCountStatus\.Counted'), the summed count\.
+
 <a name='DiGi.GIS.WebAPI.Query.GetUserEmail(DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,string)'></a>
 
 ## Query\.GetUserEmail\(SecurityKeyManager, TokenRevocationStore, string\) Method
@@ -2370,6 +2460,29 @@ The maximum number of rejections to include\. Defaults to 20\.
 #### Returns
 [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')  
 A comma\-separated list of `reference (reason)` entries, empty when there is nothing to render\.
+
+<a name='DiGi.GIS.WebAPI.Query.SubdivisionIdsByCountyId(thisSystem.Collections.Generic.IEnumerable_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference_)'></a>
+
+## Query\.SubdivisionIdsByCountyId\(this IEnumerable\<AdministrativeAreal2DReference\>\) Method
+
+Groups the identifiers of subdivision references by the county partition they sit in\.
+
+The groups come out in the order a county was first met, so a caller that caps or iterates them does so in a stable, documented order. References without a county identifier, and identifiers already seen, are skipped.
+
+```csharp
+public static System.Collections.Generic.Dictionary<int,System.Collections.Generic.List<int>> SubdivisionIdsByCountyId(this System.Collections.Generic.IEnumerable<DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference>? administrativeAreal2DReferences);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.SubdivisionIdsByCountyId(thisSystem.Collections.Generic.IEnumerable_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference_).administrativeAreal2DReferences'></a>
+
+`administrativeAreal2DReferences` [System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dreference 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
+
+The subdivision references to group\.
+
+#### Returns
+[System\.Collections\.Generic\.Dictionary&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[,](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')  
+The subdivision identifiers keyed by county identifier; empty when there is nothing to group\.
 
 <a name='DiGi.GIS.WebAPI.Query.YearBuiltDataCountAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,bool,bool,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
 

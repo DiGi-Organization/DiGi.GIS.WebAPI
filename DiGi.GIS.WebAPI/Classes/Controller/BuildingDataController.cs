@@ -1203,6 +1203,93 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Asynchronously counts the building data rows of an administrative area, optionally narrowed by a dynamic hierarchical filter group, in one call.
+        /// <para>Resolution: (1) the area reference is read by id, and a missing one answers 404. (2) An area <b>above</b> the Subdivision level (Country, Voivodeship, County, Municipality) is resolved to its Subdivision children, grouped by the county partition they sit in. (3) An area that <b>is</b> a Subdivision is counted by membership, <c>subdivision_id = id</c>. (4) Per distinct county - the <c>building_data</c> partition key - one count runs with <c>subdivision_id IN (that county's subdivisions)</c> plus the caller's filters, and the counts are <b>summed</b>. The counties are counted strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s. (5) An area above the Subdivision level that resolves to no Subdivision answers 204.</para>
+        /// <para>What the count is not. <c>subdivision_id</c> files a building under its <b>smallest</b> containing subdivision and the Subdivision layer nests, so for a nested Subdivision (a district whose neighbourhoods are also subdivisions) the count covers only the buildings filed under that exact id and undercounts the district (DiGi.GIS.PostgreSQL#75, #77); a polygon-based count is a follow-up. Rows with <c>subdivision_id IS NULL</c> are excluded, so the count of an area is not the count of every building inside its polygon. A building filed in a county partition other than the one its subdivision belongs to (a subdivision of a neighbouring county) is not reached, because each county is counted with only its own subdivisions.</para>
+        /// <para>An unfiltered body is valid (<c>FilterGroup</c> omitted counts every building the area resolves to). At most <see cref="Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount"/> distinct counties are iterated; an area spanning more answers 400 naming that limit and nothing is counted. 204 means <b>the resolution found no subdivision to filter by - not evidence that the area holds no buildings</b>. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.</para>
+        /// <para>A client that sends the same <c>In</c> filter shape as a JSON array is subject to ZiolkowskiJakub/DiGi.PostgreSQL#10; this endpoint builds its own subdivision list server-side and does not depend on that fix.</para>
+        /// </summary>
+        /// <param name="parameter">The parameter containing the administrative area identifier and the optional dynamic hierarchical filters.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of each command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>An <see cref="IActionResult"/> carrying the count as a bare JSON integer, 204 NoContent when no subdivision was found, 404 NotFound, or 400/503/500 on the guarded and failure paths.</returns>
+        [HttpPost("countbyadministrativeareal2did", Name = $"{nameof(BuildingDataController)}_{nameof(GetCountByAdministrativeAreal2DIdAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        public async Task<IActionResult> GetCountByAdministrativeAreal2DIdAsync([FromBody] BuildingDataCountByAdministrativeAreal2DIdParameter parameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingDataController), nameof(GetCountByAdministrativeAreal2DIdAsync));
+
+            if (parameter is null || parameter.AdministrativeAreal2DId is null || parameter.AdministrativeAreal2DId.Value <= 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "AdministrativeAreal2DId is missing or not positive");
+                return BadRequest();
+            }
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            (Enums.AdministrativeAreal2DCountStatus Status, long Count) result;
+            try
+            {
+                result = await Query.CountByAdministrativeAreal2DIdAsync(
+                    parameter.AdministrativeAreal2DId.Value,
+                    parameter.FilterGroup,
+                    (id, token) => administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DReferenceByIdAsync(id, commandTimeout, token),
+                    (id, token) => administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DReferencesByAdministrativeArealTypeAsync(PostgreSQL.Enums.AdministrativeArealType.Subdivision, id, commandTimeout: commandTimeout, cancellationToken: token),
+                    (filterGroup, countyId, token) => buildingDataPostgreSQLConverter.GetCountByFilterGroupAsync(filterGroup, countyId, commandTimeout, token),
+                    Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount,
+                    cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingDataController), nameof(GetCountByAdministrativeAreal2DIdAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetCountByAdministrativeAreal2DIdAsync));
+                return BadRequest(exception.Message);
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetCountByAdministrativeAreal2DIdAsync));
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            switch (result.Status)
+            {
+                case Enums.AdministrativeAreal2DCountStatus.Counted:
+                    return Content(result.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), "application/json");
+
+                case Enums.AdministrativeAreal2DCountStatus.NoSubdivisions:
+                    Serilog.Modify.Log("Resolution found no subdivision to filter by; answering NoContent");
+                    return NoContent();
+
+                case Enums.AdministrativeAreal2DCountStatus.TooManyCounties:
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Area spans more counties than the limit of {Maximum}", Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount);
+                    return BadRequest($"The administrative area spans more than {Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount} counties; narrow the area.");
+
+                default:
+                    Serilog.Modify.Log("Area not found, no connection, or a filter column could not be resolved; answering NotFound");
+                    return NotFound();
+            }
+        }
+
+        /// <summary>
         /// Retrieves a building data table for one specific building.
         /// </summary>
         /// <param name="reference">Building reference</param>
