@@ -3194,6 +3194,8 @@ A task that represents the asynchronous operation\.
 
 Asynchronously counts the building data rows of an administrative area, optionally narrowed by a dynamic hierarchical filter group, in one call\.
 
+An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+
 Resolution: (1) the area reference is read by id, and a missing one answers 404. (2) An area <b>above</b> the Subdivision level (Country, Voivodeship, County, Municipality) is resolved to its Subdivision children, grouped by the county partition they sit in. (3) An area that <b>is</b> a Subdivision is counted by membership, `subdivision_id = id`. (4) Per distinct county - the `building_data` partition key - one count runs with `subdivision_id IN (that county's subdivisions)` plus the caller's filters, and the counts are <b>summed</b>. The counties are counted strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s. (5) An area above the Subdivision level that resolves to no Subdivision answers 204.
 
 What the count is not. `subdivision_id` files a building under its <b>smallest</b> containing subdivision and the Subdivision layer nests, so for a nested Subdivision (a district whose neighbourhoods are also subdivisions) the count covers only the buildings filed under that exact id and undercounts the district (DiGi.GIS.PostgreSQL#75, #77); a polygon-based count is a follow-up. Rows with `subdivision_id IS NULL` are excluded, so the count of an area is not the count of every building inside its polygon. A building filed in a county partition other than the one its subdivision belongs to (a subdivision of a neighbouring county) is not reached, because each county is counted with only its own subdivisions.
@@ -3283,6 +3285,8 @@ An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us
 Asynchronously counts the building data rows of a county partition, or of the whole table, matching an optional dynamic hierarchical filter group\.
 
 The answer is a bare JSON integer: the `COUNT(*)` of the scope, so it does not depend on any column being non-null and it never needs the magic `reference` column or an aggregate function. A `null` or empty filter group counts the whole partition scope; a filter that matches nothing answers `0` with a `200`, not an error status.
+
+An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
 
 De-duplication across county parts is a separate concern (`referenceuniquenesssummary`) and is not applied here.
 
@@ -3428,6 +3432,8 @@ Generates a value range distribution histogram for a specific building data colu
 
 Each row of the answer is one bucket - `{bucket, rangeStart, rangeEnd, count}`, the actual minimum and maximum of the values the bucket holds and their count. The buckets are of equal value width unless the body asks for [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalcount 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount') (`HistogramBucketing: 1`), which gives every bucket the same number of rows and keeps a skewed column's resolution where its rows are (ZiolkowskiJakub/DiGi.GIS.WebAPI#35).
 
+An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator. A scope that holds no non-NULL values keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetHistogramSummaryAsync(DiGi.GIS.WebAPI.Classes.HistogramRequestParameter histogramRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -3461,6 +3467,8 @@ A task representing the asynchronous operation, returning the histogram bucket l
 
 Computes multi\-value statistical summaries \(SplitDistinctCount, SplitValueDistribution\) on a partition column\.
 
+An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetMultivalueAggregateSummaryAsync(DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter multivalueAggregateRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -3493,6 +3501,8 @@ A task representing the asynchronous operation, returning the aggregate result a
 ## BuildingDataController\.GetSinglevalueAggregateSummaryAsync\(SinglevalueAggregateRequestParameter, int, CancellationToken\) Method
 
 Computes single\-value statistical summaries \(Avg, Sum, Min, Max, Count, DistinctCount\) on a partition column\.
+
+An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a valid filter that matches nothing keeps its 200 empty aggregate (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSinglevalueAggregateSummaryAsync(DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter singlevalueAggregateRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3632,6 +3642,8 @@ A task that represents the asynchronous operation\.
 
 Retrieves a building data table filtered by the specified dynamic hierarchical filters\.
 
+An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTableByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -3704,6 +3716,8 @@ A task representing the asynchronous operation, returning the populated filtered
 
 Retrieves unique values for a specified column unique identifier and an optional county identifier\.
 
+An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetUniqueValuesAsync(string columnUniqueId, System.Nullable<int> countyId=null, int commandTimeout=90, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -3742,6 +3756,8 @@ A task that represents the asynchronous operation\.
 ## BuildingDataController\.GetUniqueValuesByColumnUniqueIdParameterAsync\(UniqueValuesByColumnUniqueIdParameter, int, CancellationToken\) Method
 
 Retrieves unique values for a given [UniqueValuesByColumnUniqueIdParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter 'DiGi\.GIS\.WebAPI\.Classes\.UniqueValuesByColumnUniqueIdParameter') \(column unique id and optionally county id\), applying optional dynamic filters\.
+
+An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetUniqueValuesByColumnUniqueIdParameterAsync(DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter uniqueValuesByColumnUniqueIdParameter, int commandTimeout=90, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));

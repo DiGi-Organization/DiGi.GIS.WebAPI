@@ -670,6 +670,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Generates a value range distribution histogram for a specific building data column inside a county partition, applying optional dynamic filters.
         /// <para>Each row of the answer is one bucket - <c>{bucket, rangeStart, rangeEnd, count}</c>, the actual minimum and maximum of the values the bucket holds and their count. The buckets are of equal value width unless the body asks for <see cref="DiGi.PostgreSQL.Table.Enums.HistogramBucketing.EqualCount"/> (<c>HistogramBucketing: 1</c>), which gives every bucket the same number of rows and keeps a skewed column's resolution where its rows are (ZiolkowskiJakub/DiGi.GIS.WebAPI#35).</para>
+        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator. A scope that holds no non-NULL values keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
         /// </summary>
         /// <param name="histogramRequestParameter">The parameter containing the target column, county identifier, desired bucket count, bucketing rule, and optional dynamic filters.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -679,7 +680,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(JsonArray), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetHistogramSummaryAsync([FromBody] HistogramRequestParameter histogramRequestParameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
@@ -714,6 +715,11 @@ namespace DiGi.GIS.WebAPI.Classes
                 HttpContext.Response.Headers["Retry-After"] = "30";
                 return StatusCode(503, "Database temporarily unavailable; retry shortly");
             }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetHistogramSummaryAsync));
+                return Problem(detail: exception.Message, statusCode: 400);
+            }
             catch (Exception exception)
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetHistogramSummaryAsync));
@@ -723,6 +729,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Computes multi-value statistical summaries (SplitDistinctCount, SplitValueDistribution) on a partition column.
+        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
         /// </summary>
         /// <param name="multivalueAggregateRequestParameter">The parameter containing target column, multi-value aggregate function, county identifier, and optional separator.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -732,7 +739,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(JsonNode), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetMultivalueAggregateSummaryAsync([FromBody] MultivalueAggregateRequestParameter multivalueAggregateRequestParameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
@@ -767,6 +774,11 @@ namespace DiGi.GIS.WebAPI.Classes
                 HttpContext.Response.Headers["Retry-After"] = "30";
                 return StatusCode(503, "Database temporarily unavailable; retry shortly");
             }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetMultivalueAggregateSummaryAsync));
+                return Problem(detail: exception.Message, statusCode: 400);
+            }
             catch (Exception exception)
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetMultivalueAggregateSummaryAsync));
@@ -776,6 +788,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Computes single-value statistical summaries (Avg, Sum, Min, Max, Count, DistinctCount) on a partition column.
+        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a valid filter that matches nothing keeps its 200 empty aggregate (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
         /// </summary>
         /// <param name="singlevalueAggregateRequestParameter">The parameter containing target column, single-value aggregate function, and county identifier.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -785,7 +798,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(JsonNode), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetSinglevalueAggregateSummaryAsync([FromBody] SinglevalueAggregateRequestParameter singlevalueAggregateRequestParameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
@@ -819,6 +832,11 @@ namespace DiGi.GIS.WebAPI.Classes
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingDataController), nameof(GetSinglevalueAggregateSummaryAsync));
                 HttpContext.Response.Headers["Retry-After"] = "30";
                 return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetSinglevalueAggregateSummaryAsync));
+                return Problem(detail: exception.Message, statusCode: 400);
             }
             catch (Exception exception)
             {
@@ -1077,6 +1095,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Retrieves a building data table filtered by the specified dynamic hierarchical filters.
+        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
         /// </summary>
         /// <param name="buildingDataByFilterGroupParameter">The parameter containing the dynamic filter group and optional column unique identifiers.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -1086,7 +1105,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(DiGi.Core.IO.Table.Classes.Table), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetTableByFilterGroupAsync([FromBody] BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
@@ -1139,6 +1158,11 @@ namespace DiGi.GIS.WebAPI.Classes
                 HttpContext.Response.Headers["Retry-After"] = "30";
                 return StatusCode(503, "Database temporarily unavailable; retry shortly");
             }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetTableByFilterGroupAsync));
+                return Problem(detail: exception.Message, statusCode: 400);
+            }
             catch (Exception exception)
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetTableByFilterGroupAsync));
@@ -1149,6 +1173,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Asynchronously counts the building data rows of a county partition, or of the whole table, matching an optional dynamic hierarchical filter group.
         /// <para>The answer is a bare JSON integer: the <c>COUNT(*)</c> of the scope, so it does not depend on any column being non-null and it never needs the magic <c>reference</c> column or an aggregate function. A <c>null</c> or empty filter group counts the whole partition scope; a filter that matches nothing answers <c>0</c> with a <c>200</c>, not an error status.</para>
+        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
         /// <para>De-duplication across county parts is a separate concern (<c>referenceuniquenesssummary</c>) and is not applied here.</para>
         /// </summary>
         /// <param name="parameter">The parameter containing the optional partition (county) and the optional dynamic hierarchical filters.</param>
@@ -1159,7 +1184,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCountByFilterGroupAsync([FromBody] BuildingDataCountByFilterGroupParameter parameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
@@ -1187,6 +1212,11 @@ namespace DiGi.GIS.WebAPI.Classes
                 HttpContext.Response.Headers["Retry-After"] = "30";
                 return StatusCode(503, "Database temporarily unavailable; retry shortly");
             }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetCountByFilterGroupAsync));
+                return Problem(detail: exception.Message, statusCode: 400);
+            }
             catch (Exception exception)
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetCountByFilterGroupAsync));
@@ -1204,6 +1234,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Asynchronously counts the building data rows of an administrative area, optionally narrowed by a dynamic hierarchical filter group, in one call.
+        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
         /// <para>Resolution: (1) the area reference is read by id, and a missing one answers 404. (2) An area <b>above</b> the Subdivision level (Country, Voivodeship, County, Municipality) is resolved to its Subdivision children, grouped by the county partition they sit in. (3) An area that <b>is</b> a Subdivision is counted by membership, <c>subdivision_id = id</c>. (4) Per distinct county - the <c>building_data</c> partition key - one count runs with <c>subdivision_id IN (that county's subdivisions)</c> plus the caller's filters, and the counts are <b>summed</b>. The counties are counted strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s. (5) An area above the Subdivision level that resolves to no Subdivision answers 204.</para>
         /// <para>What the count is not. <c>subdivision_id</c> files a building under its <b>smallest</b> containing subdivision and the Subdivision layer nests, so for a nested Subdivision (a district whose neighbourhoods are also subdivisions) the count covers only the buildings filed under that exact id and undercounts the district (DiGi.GIS.PostgreSQL#75, #77); a polygon-based count is a follow-up. Rows with <c>subdivision_id IS NULL</c> are excluded, so the count of an area is not the count of every building inside its polygon. A building filed in a county partition other than the one its subdivision belongs to (a subdivision of a neighbouring county) is not reached, because each county is counted with only its own subdivisions.</para>
         /// <para>An unfiltered body is valid (<c>FilterGroup</c> omitted counts every building the area resolves to). At most <see cref="Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount"/> distinct counties are iterated; an area spanning more answers 400 naming that limit and nothing is counted. 204 means <b>the resolution found no subdivision to filter by - not evidence that the area holds no buildings</b>. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.</para>
@@ -1217,7 +1248,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
@@ -1262,7 +1293,7 @@ namespace DiGi.GIS.WebAPI.Classes
             catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetCountByAdministrativeAreal2DIdAsync));
-                return BadRequest(exception.Message);
+                return Problem(detail: exception.Message, statusCode: 400);
             }
             catch (Exception exception)
             {
@@ -1350,7 +1381,10 @@ namespace DiGi.GIS.WebAPI.Classes
             }
         }
 
-        /// <summary> Retrieves unique values for a specified column unique identifier and an optional county identifier. </summary>
+        /// <summary>
+        /// Retrieves unique values for a specified column unique identifier and an optional county identifier.
+        /// <para>An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// </summary>
         /// <param name="columnUniqueId">The unique identifier of the column from which to retrieve unique values.</param>
         /// <param name="countyId">The optional integer identifier of the county used to filter the results.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 90 seconds; a national (unfiltered) unique-values scan runs well past that and should pass <c>commandtimeout=600</c> explicitly.</param>
@@ -1360,7 +1394,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUniqueValuesAsync([BindRequired, FromQuery(Name = "columnuniqueid")] string columnUniqueId, [FromQuery(Name = "countyid")] int? countyId = null, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 90, CancellationToken cancellationToken = default)
@@ -1416,6 +1450,11 @@ namespace DiGi.GIS.WebAPI.Classes
                 HttpContext.Response.Headers["Retry-After"] = "30";
                 return StatusCode(503, "Database temporarily unavailable; retry shortly");
             }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetUniqueValuesAsync));
+                return Problem(detail: exception.Message, statusCode: 400);
+            }
             catch (Exception exception)
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetUniqueValuesAsync));
@@ -1423,7 +1462,10 @@ namespace DiGi.GIS.WebAPI.Classes
             }
         }
 
-        /// <summary> Retrieves unique values for a given <see cref="UniqueValuesByColumnUniqueIdParameter" /> (column unique id and optionally county id), applying optional dynamic filters. </summary>
+        /// <summary>
+        /// Retrieves unique values for a given <see cref="UniqueValuesByColumnUniqueIdParameter" /> (column unique id and optionally county id), applying optional dynamic filters.
+        /// <para>An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// </summary>
         /// <param name="uniqueValuesByColumnUniqueIdParameter">The parameter containing the column unique identifier, optional county identifier, and optional dynamic filters.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 90 seconds; a national (unfiltered) unique-values scan runs well past that and should pass <c>commandtimeout=600</c> explicitly.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -1432,7 +1474,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUniqueValuesByColumnUniqueIdParameterAsync([FromBody] UniqueValuesByColumnUniqueIdParameter uniqueValuesByColumnUniqueIdParameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 90, CancellationToken cancellationToken = default)
@@ -1494,6 +1536,11 @@ namespace DiGi.GIS.WebAPI.Classes
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingDataController), nameof(GetUniqueValuesByColumnUniqueIdParameterAsync));
                 HttpContext.Response.Headers["Retry-After"] = "30";
                 return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (DiGi.PostgreSQL.Table.Classes.InvalidFilterException exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} refused an invalid filter", nameof(BuildingDataController), nameof(GetUniqueValuesByColumnUniqueIdParameterAsync));
+                return Problem(detail: exception.Message, statusCode: 400);
             }
             catch (Exception exception)
             {
