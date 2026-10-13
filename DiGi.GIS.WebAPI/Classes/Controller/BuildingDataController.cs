@@ -1147,6 +1147,62 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Asynchronously counts the building data rows of a county partition, or of the whole table, matching an optional dynamic hierarchical filter group.
+        /// <para>The answer is a bare JSON integer: the <c>COUNT(*)</c> of the scope, so it does not depend on any column being non-null and it never needs the magic <c>reference</c> column or an aggregate function. A <c>null</c> or empty filter group counts the whole partition scope; a filter that matches nothing answers <c>0</c> with a <c>200</c>, not an error status.</para>
+        /// <para>De-duplication across county parts is a separate concern (<c>referenceuniquenesssummary</c>) and is not applied here.</para>
+        /// </summary>
+        /// <param name="parameter">The parameter containing the optional partition (county) and the optional dynamic hierarchical filters.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>An <see cref="IActionResult"/> carrying the count as a bare JSON integer, 404 NotFound when no connection could be built or a filter column could not be resolved, or 400/503/500 on the guarded and failure paths.</returns>
+        [HttpPost("countbyfiltergroup", Name = $"{nameof(BuildingDataController)}_{nameof(GetCountByFilterGroupAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCountByFilterGroupAsync([FromBody] BuildingDataCountByFilterGroupParameter parameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingDataController), nameof(GetCountByFilterGroupAsync));
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            long? count;
+            try
+            {
+                count = await buildingDataPostgreSQLConverter.GetCountByFilterGroupAsync(parameter.FilterGroup, parameter.CountyId, commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingDataController), nameof(GetCountByFilterGroupAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetCountByFilterGroupAsync));
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            if (count is null)
+            {
+                Serilog.Modify.Log("No connection, or a filter column could not be resolved; answering NotFound");
+                return NotFound();
+            }
+
+            return Content(count.Value.ToString(), "application/json");
+        }
+
+        /// <summary>
         /// Retrieves a building data table for one specific building.
         /// </summary>
         /// <param name="reference">Building reference</param>

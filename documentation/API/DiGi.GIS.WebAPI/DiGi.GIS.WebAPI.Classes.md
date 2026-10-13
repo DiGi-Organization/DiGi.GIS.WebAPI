@@ -3235,6 +3235,43 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the count, 204 NoContent when the partition exists but is unanalysed, or 404 NotFound when the county has no partition\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter,int,System.Threading.CancellationToken)'></a>
+
+## BuildingDataController\.GetCountByFilterGroupAsync\(BuildingDataCountByFilterGroupParameter, int, CancellationToken\) Method
+
+Asynchronously counts the building data rows of a county partition, or of the whole table, matching an optional dynamic hierarchical filter group\.
+
+The answer is a bare JSON integer: the `COUNT(*)` of the scope, so it does not depend on any column being non-null and it never needs the magic `reference` column or an aggregate function. A `null` or empty filter group counts the whole partition scope; a filter that matches nothing answers `0` with a `200`, not an error status.
+
+De-duplication across county parts is a separate concern (`referenceuniquenesssummary`) and is not applied here.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetCountByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter parameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter,int,System.Threading.CancellationToken).parameter'></a>
+
+`parameter` [BuildingDataCountByFilterGroupParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataCountByFilterGroupParameter')
+
+The parameter containing the optional partition \(county\) and the optional dynamic hierarchical filters\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the count as a bare JSON integer, 404 NotFound when no connection could be built or a filter column could not be resolved, or 400/503/500 on the guarded and failure paths\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountyIdsByReferenceAsync(string,int,System.Threading.CancellationToken)'></a>
 
 ## BuildingDataController\.GetCountyIdsByReferenceAsync\(string, int, CancellationToken\) Method
@@ -3740,6 +3777,76 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task representing the asynchronous operation with an [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') containing an [UpdateItemsResult](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UpdateItemsResult 'DiGi\.GIS\.WebAPI\.Classes\.UpdateItemsResult')\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter'></a>
+
+## BuildingDataCountByFilterGroupParameter Class
+
+Parameter class containing options for counting building data rows matching an optional dynamic hierarchical filter group\.
+
+```csharp
+public class BuildingDataCountByFilterGroupParameter : DiGi.WebAPI.Classes.Parameter
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [DiGi\.Core\.Classes\.Object](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.object 'DiGi\.Core\.Classes\.Object') → [DiGi\.Core\.Classes\.SerializableObject](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.serializableobject 'DiGi\.Core\.Classes\.SerializableObject') → [DiGi\.WebAPI\.Classes\.Parameter](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.parameter 'DiGi\.WebAPI\.Classes\.Parameter') → BuildingDataCountByFilterGroupParameter
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter.BuildingDataCountByFilterGroupParameter()'></a>
+
+## BuildingDataCountByFilterGroupParameter\(\) Constructor
+
+Initializes a new instance of the [BuildingDataCountByFilterGroupParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataCountByFilterGroupParameter') class\.
+
+```csharp
+public BuildingDataCountByFilterGroupParameter();
+```
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter.BuildingDataCountByFilterGroupParameter(System.Text.Json.Nodes.JsonObject)'></a>
+
+## BuildingDataCountByFilterGroupParameter\(JsonObject\) Constructor
+
+Initializes a new instance of the [BuildingDataCountByFilterGroupParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataCountByFilterGroupParameter') class using an [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject') object\.
+
+```csharp
+public BuildingDataCountByFilterGroupParameter(System.Text.Json.Nodes.JsonObject jsonObject);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter.BuildingDataCountByFilterGroupParameter(System.Text.Json.Nodes.JsonObject).jsonObject'></a>
+
+`jsonObject` [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
+The JSON object containing data used to initialize the parameter\.
+### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter.CountyId'></a>
+
+## BuildingDataCountByFilterGroupParameter\.CountyId Property
+
+Gets or sets the optional partition \(county\) to count; `null` counts across all partitions\.
+
+```csharp
+public System.Nullable<int> CountyId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+10365
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataCountByFilterGroupParameter.FilterGroup'></a>
+
+## BuildingDataCountByFilterGroupParameter\.FilterGroup Property
+
+Gets or sets the optional dynamic hierarchical filters to apply prior to counting; `null` \(or an empty group\) counts the whole partition scope\.
+
+```csharp
+public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; set; }
+```
+
+#### Property Value
+[DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingModelController'></a>
 
