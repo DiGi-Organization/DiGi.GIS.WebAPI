@@ -3114,7 +3114,9 @@ private const int referenceCount_Maximum = 10000;
 
 Computes several single\-value aggregate measures \- different columns, different functions \- over one shared partition and filter in one request, served as one database command on one connection \(ZiolkowskiJakub/DiGi\.GIS\.WebAPI\#56\)\.
 
-The answers arrive as a JSON array in the request's measure order; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. An empty `Measures` list, a list above the cap of [MaximumAggregateSummariesMeasureCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAggregateSummariesMeasureCount'), or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result. Multi-value measures and histograms are out of scope here (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+The answers arrive as a JSON array in the request's measure order; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. An empty `Measures` list, a list above the cap of [MaximumAggregateSummariesMeasureCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAggregateSummariesMeasureCount'), or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+
+Out of scope by design: per-measure filters, multi-value measures (`SplitValueDistribution`, `SplitDistinctCount`) and histograms (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter aggregateSummariesRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
