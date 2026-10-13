@@ -1095,9 +1095,10 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Retrieves a building data table filtered by the specified dynamic hierarchical filters.
+        /// <para>The table is partitioned by <c>county_id</c>. Supply <see cref="BuildingDataByFilterGroupParameter.CountyId"/> to scope the read to one county partition; omitting it (and not filtering <c>county_id</c> in the filter group) makes the read span every partition of the national table, which is the cost of an unscoped cross-partition read. A caller <c>county_id</c> condition in the filter group is left as-is and the <c>CountyId</c> condition is ANDed with it, so a conflicting pair answers empty.</para>
         /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
         /// </summary>
-        /// <param name="buildingDataByFilterGroupParameter">The parameter containing the dynamic filter group and optional column unique identifiers.</param>
+        /// <param name="buildingDataByFilterGroupParameter">The parameter containing the dynamic filter group, the optional county partition, and the optional column unique identifiers.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>A task representing the asynchronous operation, returning the populated filtered table.</returns>
@@ -1134,7 +1135,30 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 Table table_Result = new Table(columns);
 
-                bool isSuccess = await buildingDataPostgreSQLConverter.PullAsync(table_Result, buildingDataByFilterGroupParameter.FilterGroup, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                // The county partition is folded into the filter rather than written into the statement, so the read still
+                // goes through the base PullAsync: it resolves county_id against the stored column list and rejects anything
+                // not on it before a statement is built. A caller county_id condition is left as-is and this one is ANDed
+                // with it, so a conflicting pair answers empty (ZiolkowskiJakub/DiGi.GIS.WebAPI#55).
+                DiGi.PostgreSQL.Table.Classes.FilterGroup filterGroup_Effective = buildingDataByFilterGroupParameter.FilterGroup;
+                if (buildingDataByFilterGroupParameter.CountyId is int countyId)
+                {
+                    filterGroup_Effective = new DiGi.PostgreSQL.Table.Classes.FilterGroup
+                    {
+                        LogicalOperator = DiGi.PostgreSQL.Table.Enums.FilterLogicalOperator.And,
+                        FilterConditions =
+                        [
+                            new DiGi.PostgreSQL.Table.Classes.FilterCondition
+                            {
+                                ColumnUniqueId = IO.Constants.Column.CountyId.UniqueId(),
+                                FilterOperator = DiGi.PostgreSQL.Table.Enums.FilterOperator.Equals,
+                                Value = countyId,
+                            },
+                        ],
+                        FilterGroups = buildingDataByFilterGroupParameter.FilterGroup is null ? [] : [buildingDataByFilterGroupParameter.FilterGroup],
+                    };
+                }
+
+                bool isSuccess = await buildingDataPostgreSQLConverter.PullAsync(table_Result, filterGroup_Effective, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
                 if (!isSuccess)
                 {
                     return NotFound();

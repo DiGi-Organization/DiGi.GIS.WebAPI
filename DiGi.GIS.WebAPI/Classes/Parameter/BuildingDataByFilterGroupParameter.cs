@@ -22,6 +22,13 @@ namespace DiGi.GIS.WebAPI.Classes
         public List<string>? ColumnUniqueIds { get; set; }
 
         /// <summary>
+        /// Gets or sets the county partition to read; <c>null</c> reads across all partitions.
+        /// <para>The table is partitioned by <c>county_id</c>. Omitting this (and not filtering <c>county_id</c> in <see cref="FilterGroup"/>) makes the read span every partition of the national table; supply it unless a cross-partition read is intended.</para>
+        /// </summary>
+        /// <example>10365</example>
+        public int? CountyId { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BuildingDataByFilterGroupParameter"/> class.
         /// </summary>
         public BuildingDataByFilterGroupParameter()

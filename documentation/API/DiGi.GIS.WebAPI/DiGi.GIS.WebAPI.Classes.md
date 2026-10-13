@@ -2611,6 +2611,24 @@ public System.Collections.Generic.List<string>? ColumnUniqueIds { get; set; }
 #### Property Value
 [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.CountyId'></a>
+
+## BuildingDataByFilterGroupParameter\.CountyId Property
+
+Gets or sets the county partition to read; `null` reads across all partitions\.
+
+The table is partitioned by `county_id`. Omitting this (and not filtering `county_id` in [FilterGroup](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.FilterGroup 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter\.FilterGroup')) makes the read span every partition of the national table; supply it unless a cross-partition read is intended.
+
+```csharp
+public System.Nullable<int> CountyId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+10365
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.FilterGroup'></a>
 
 ## BuildingDataByFilterGroupParameter\.FilterGroup Property
@@ -3642,6 +3660,8 @@ A task that represents the asynchronous operation\.
 
 Retrieves a building data table filtered by the specified dynamic hierarchical filters\.
 
+The table is partitioned by `county_id`. Supply [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter\.CountyId') to scope the read to one county partition; omitting it (and not filtering `county_id` in the filter group) makes the read span every partition of the national table, which is the cost of an unscoped cross-partition read. A caller `county_id` condition in the filter group is left as-is and the `CountyId` condition is ANDed with it, so a conflicting pair answers empty.
+
 An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
 
 ```csharp
@@ -3653,7 +3673,7 @@ public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTa
 
 `buildingDataByFilterGroupParameter` [BuildingDataByFilterGroupParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter')
 
-The parameter containing the dynamic filter group and optional column unique identifiers\.
+The parameter containing the dynamic filter group, the optional county partition, and the optional column unique identifiers\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter,int,System.Threading.CancellationToken).commandTimeout'></a>
 
