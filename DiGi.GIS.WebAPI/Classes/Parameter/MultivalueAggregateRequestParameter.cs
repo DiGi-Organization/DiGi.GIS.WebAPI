@@ -52,6 +52,15 @@ namespace DiGi.GIS.WebAPI.Classes
         public string? Separator { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum number of distinct-value groups a <see cref="MultivalueAggregateFunction.SplitValueDistribution"/> may return. Defaults to 1000.
+        /// <para>For <see cref="MultivalueAggregateFunction.SplitValueDistribution"/> only: the result carries at most this many groups plus one trailing truncation marker, so a result longer than this means the distribution was cut and the caller drops the last element. Ignored by <see cref="MultivalueAggregateFunction.SplitDistinctCount"/>.</para>
+        /// <para>Capped because the group count is a <c>GROUP BY</c> divisor rather than a page size: the server builds and returns one row per distinct value whatever the table holds, so an unbounded value turns a cheap aggregate into an arbitrarily large response.</para>
+        /// </summary>
+        /// <example>20</example>
+        [Range(1, 1000)]
+        public int MaxGroups { get; set; } = 1000;
+
+        /// <summary>
         /// Gets or sets the optional dynamic hierarchical filters to apply prior to aggregation.
         /// </summary>
         public FilterGroup? FilterGroup { get; set; }

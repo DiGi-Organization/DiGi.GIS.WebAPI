@@ -757,7 +757,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
             try
             {
-                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummaryAsync(multivalueAggregateRequestParameter.ColumnUniqueId, multivalueAggregateRequestParameter.MultivalueAggregateFunction, multivalueAggregateRequestParameter.CountyId, multivalueAggregateRequestParameter.Separator, multivalueAggregateRequestParameter.FilterGroup, commandTimeout, cancellationToken);
+                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummaryAsync(multivalueAggregateRequestParameter.ColumnUniqueId, multivalueAggregateRequestParameter.MultivalueAggregateFunction, multivalueAggregateRequestParameter.CountyId, multivalueAggregateRequestParameter.Separator, multivalueAggregateRequestParameter.FilterGroup, maxGroups: multivalueAggregateRequestParameter.MaxGroups, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
 
                 if (resultNode is null)
                 {

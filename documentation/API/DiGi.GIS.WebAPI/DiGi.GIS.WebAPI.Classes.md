@@ -5844,6 +5844,26 @@ public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; set; }
 #### Property Value
 [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
 
+<a name='DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter.MaxGroups'></a>
+
+## MultivalueAggregateRequestParameter\.MaxGroups Property
+
+Gets or sets the maximum number of distinct\-value groups a [DiGi\.PostgreSQL\.Table\.Enums\.MultivalueAggregateFunction\.SplitValueDistribution](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.multivalueaggregatefunction.splitvaluedistribution 'DiGi\.PostgreSQL\.Table\.Enums\.MultivalueAggregateFunction\.SplitValueDistribution') may return\. Defaults to 1000\.
+
+For [DiGi\.PostgreSQL\.Table\.Enums\.MultivalueAggregateFunction\.SplitValueDistribution](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.multivalueaggregatefunction.splitvaluedistribution 'DiGi\.PostgreSQL\.Table\.Enums\.MultivalueAggregateFunction\.SplitValueDistribution') only: the result carries at most this many groups plus one trailing truncation marker, so a result longer than this means the distribution was cut and the caller drops the last element. Ignored by [DiGi\.PostgreSQL\.Table\.Enums\.MultivalueAggregateFunction\.SplitDistinctCount](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.multivalueaggregatefunction.splitdistinctcount 'DiGi\.PostgreSQL\.Table\.Enums\.MultivalueAggregateFunction\.SplitDistinctCount').
+
+Capped because the group count is a `GROUP BY` divisor rather than a page size: the server builds and returns one row per distinct value whatever the table holds, so an unbounded value turns a cheap aggregate into an arbitrarily large response.
+
+```csharp
+public int MaxGroups { get; set; }
+```
+
+#### Property Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+### Example
+20
+
 <a name='DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter.MultivalueAggregateFunction'></a>
 
 ## MultivalueAggregateRequestParameter\.MultivalueAggregateFunction Property
