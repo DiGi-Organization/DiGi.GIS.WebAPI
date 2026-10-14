@@ -3678,6 +3678,12 @@ Computes multi\-value statistical summaries \(SplitDistinctCount, SplitValueDist
 
 An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
 
+Group-by count: `SplitValueDistribution` (`multivalueAggregateFunction = 1`) on a single-value column returns one `{ "item", "count" }` object per distinct value, ordered `count` descending. Worked example (2026-10-12, partition `countyId 53477`, gmina Łomianki): `columnUniqueId "municipality_name"` answers `[{ "item": "Łomianki", "count": 10502 }, { "item": "Stare Babice", "count": 7976 }, …]`.
+
+The result is capped at 1000 groups plus one trailing truncation-marker row (drop the last element when the array is that long). A non-text column is cast to its text form and distributed over it, so a boolean such as `is_residential` yields `true`/`false` items rather than a failure (ZiolkowskiJakub/DiGi.PostgreSQL#11).
+
+`SplitDistinctCount` (`multivalueAggregateFunction = 0`) counts the distinct split sub-items instead of returning them. For the plain distinct-value list (no split, no count), use `uniquevalues`.
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetMultivalueAggregateSummaryAsync(DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter multivalueAggregateRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -3712,6 +3718,10 @@ A task representing the asynchronous operation, returning the aggregate result a
 Computes single\-value statistical summaries \(Avg, Sum, Min, Max, Count, DistinctCount\) on a partition column\.
 
 An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a valid filter that matches nothing keeps its 200 empty aggregate (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+
+Row count: to count the matching rows, set `columnUniqueId "reference"` and `singlevalueAggregateFunction 4` (`Count`) - `reference` is the always-present column and `Count` tallies the non-null rows, so the pair is the plain "how many rows" recipe. `singlevalueAggregateFunction` values: 0 `Avg` (mean of a numeric column), 1 `Sum` (total), 2 `Min`, 3 `Max`, 4 `Count` (non-null row count), 5 `DistinctCount` (unique values).
+
+Count with a filter - "residential buildings over 100 m² in gmina Łomianki" (2026-10-12, partition `countyId 53477`): `{ "columnUniqueId": "reference", "singlevalueAggregateFunction": 4, "countyId": 53477, "filterGroup": { "logicalOperator": 0, "filterConditions": [ { "columnUniqueId": "is_residential", "filterOperator": 0, "value": true }, { "columnUniqueId": "floor_area", "filterOperator": 2, "value": 100 } ] } }` answers `6798` (unfiltered anchor `13719`; ZiolkowskiJakub/DiGi.GIS.WebAPI#53).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSinglevalueAggregateSummaryAsync(DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter singlevalueAggregateRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3854,6 +3864,8 @@ Retrieves a building data table filtered by the specified dynamic hierarchical f
 The table is partitioned by `county_id`. Supply [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter\.CountyId') to scope the read to one county partition; omitting it (and not filtering `county_id` in the filter group) makes the read span every partition of the national table, which is the cost of an unscoped cross-partition read. A caller `county_id` condition in the filter group is left as-is and the `CountyId` condition is ANDed with it, so a conflicting pair answers empty.
 
 An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+
+Per-operator value shapes: each `FilterCondition`'s `Value` takes a scalar for the comparison operators, a JSON array for `In`/`NotIn`, and a case-insensitive substring for `Contains`; an unconvertible value is refused with 400 (see `FilterCondition.Value` for the full contract; ZiolkowskiJakub/DiGi.PostgreSQL#13).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTableByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
