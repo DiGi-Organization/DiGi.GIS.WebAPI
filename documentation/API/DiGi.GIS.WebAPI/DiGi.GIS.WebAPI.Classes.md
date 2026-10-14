@@ -1124,7 +1124,7 @@ The GIS PostgreSQL Web API manager used to handle database operations\.
 
 ## AggregateSummariesRequestParameter Class
 
-Parameter class containing options for a batch of single\-value database aggregation queries: several measures over one shared partition and filter, served in one request \(DiGi-Organization/DiGi\.GIS\.WebAPI\#56\)\.
+Parameter class containing options for a batch of single\-value database aggregation queries: several measures over one shared partition and filter, served in one request \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#56\)\.
 
 ```csharp
 public class AggregateSummariesRequestParameter : DiGi.WebAPI.Classes.Parameter
@@ -3178,7 +3178,7 @@ private const int referenceCount_Maximum = 10000;
 
 ## BuildingDataController\.GetAggregateSummariesAsync\(AggregateSummariesRequestParameter, int, CancellationToken\) Method
 
-Computes several single\-value aggregate measures \- different columns, different functions \- over one shared partition and filter in one request, served as one database command on one connection \(DiGi-Organization/DiGi\.GIS\.WebAPI\#56\)\.
+Computes several single\-value aggregate measures \- different columns, different functions \- over one shared partition and filter in one request, served as one database command on one connection \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#56\)\.
 
 The answers arrive as a JSON array in the request's measure order; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. An empty `Measures` list, a list above the cap of [MaximumAggregateSummariesMeasureCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAggregateSummariesMeasureCount'), or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result (DiGi-Organization/DiGi.GIS.WebAPI#56).
 
@@ -5653,7 +5653,7 @@ public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; set; }
 
 ## HistogramRequestParameter\.HistogramBucketing Property
 
-Gets or sets the bucketing rule\. Defaults to [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualWidth](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalwidth 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualWidth') \(`width_bucket` over the scope's \[min, max\], the maximum in the overflow bucket [BucketCount](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.BucketCount 'DiGi\.GIS\.WebAPI\.Classes\.HistogramRequestParameter\.BucketCount') \+ 1\); [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalcount 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount') \(`ntile`\) gives every bucket the same number of rows, so a skewed column keeps its resolution where its rows are \- what a consumer placing quantiles needs \(DiGi-Organization/DiGi\.PostgreSQL\#7\)\.
+Gets or sets the bucketing rule\. Defaults to [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualWidth](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalwidth 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualWidth') \(`width_bucket` over the scope's \[min, max\], the maximum in the overflow bucket [BucketCount](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.BucketCount 'DiGi\.GIS\.WebAPI\.Classes\.HistogramRequestParameter\.BucketCount') \+ 1\); [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalcount 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount') \(`ntile`\) gives every bucket the same number of rows, so a skewed column keeps its resolution where its rows are \- what a consumer placing quantiles needs \(DiGi\-Organization/DiGi\.PostgreSQL\#7\)\.
 
 Sent as the integer value; an omitted property keeps equal width, so clients written against the earlier contract are unaffected.
 
@@ -7312,7 +7312,7 @@ The manager that handles conversion processes for GIS data within a PostgreSQL d
 
 ## ParameterMinimumSchemaFilter Class
 
-Carries the floor a [MinimumAttribute](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MinimumAttribute 'DiGi\.GIS\.WebAPI\.Classes\.MinimumAttribute') declares on an action parameter into that parameter's OpenAPI schema, so the served document states the domain with a `minimum` and no `maximum` \(DiGi-Organization/DiGi\.GIS\.WebAPI\#47\)\.
+Carries the floor a [MinimumAttribute](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MinimumAttribute 'DiGi\.GIS\.WebAPI\.Classes\.MinimumAttribute') declares on an action parameter into that parameter's OpenAPI schema, so the served document states the domain with a `minimum` and no `maximum` \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#47\)\.
 
 Swashbuckle maps only the DataAnnotations it knows, so a custom attribute is invisible to it; but the pass that generates a query parameter's schema runs every registered schema filter with the parameter in the context, which is where this one reads the floor from. Registered through the host's `IWebAPISchemaFilter` hook, the same way as [TableWireFormatSchemaFilter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TableWireFormatSchemaFilter 'DiGi\.GIS\.WebAPI\.Classes\.TableWireFormatSchemaFilter').
 
