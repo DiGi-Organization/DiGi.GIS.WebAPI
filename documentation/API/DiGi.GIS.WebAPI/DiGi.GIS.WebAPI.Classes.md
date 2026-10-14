@@ -154,6 +154,9 @@ A cancellation token that can be used by other objects or threads to receive not
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\.
 
+### Remarks
+Use `GET referencepathsbyname?text=...` for a simpler query\-string form without the `_type` body discriminator\.
+
 <a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetAdministrativeAreal2DReferencePathsByNameParameterAsync(DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DReferencePathsByNameParameter,System.Threading.CancellationToken)'></a>
 
 ## AdministrativeAreal2DController\.GetAdministrativeAreal2DReferencePathsByNameParameterAsync\(AdministrativeAreal2DReferencePathsByNameParameter, CancellationToken\) Method
@@ -306,6 +309,9 @@ A cancellation token that can be used by other objects or threads to receive not
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\.
+
+### Remarks
+Use `GET referencesbyname?text=...` for a simpler query\-string form without the `_type` body discriminator\.
 
 <a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetBoundingBox2DAsync(System.Threading.CancellationToken)'></a>
 
@@ -788,6 +794,66 @@ A cancellation token that can be used by other objects or threads to receive not
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetReferencePathsByNameAsync(string,System.Threading.CancellationToken)'></a>
+
+## AdministrativeAreal2DController\.GetReferencePathsByNameAsync\(string, CancellationToken\) Method
+
+Retrieves administrative area reference paths by name as a query string\.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetReferencePathsByNameAsync(string text, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetReferencePathsByNameAsync(string,System.Threading.CancellationToken).text'></a>
+
+`text` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The search text used to find matching administrative area reference paths\. Required\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetReferencePathsByNameAsync(string,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+A cancellation token that can be used by other objects or threads to receive notice of cancellation\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\.
+
+### Remarks
+Case\-insensitive substring match on the administrative area name\. Equivalent to `POST administrativeareal2Dreferencepathsbynameparameter` without the `_type` discriminator\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetReferencesByNameAsync(string,System.Threading.CancellationToken)'></a>
+
+## AdministrativeAreal2DController\.GetReferencesByNameAsync\(string, CancellationToken\) Method
+
+Retrieves administrative area references by name as a query string\.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetReferencesByNameAsync(string text, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetReferencesByNameAsync(string,System.Threading.CancellationToken).text'></a>
+
+`text` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The search text used to find matching administrative area references\. Required\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetReferencesByNameAsync(string,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+A cancellation token that can be used by other objects or threads to receive notice of cancellation\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\.
+
+### Remarks
+Case\-insensitive substring match on the administrative area name\. Equivalent to `POST administrativeareal2Dreferencesbynameparameter` without the `_type` discriminator\.
 
 <a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController.GetSubCodesAsync(string,System.Threading.CancellationToken)'></a>
 

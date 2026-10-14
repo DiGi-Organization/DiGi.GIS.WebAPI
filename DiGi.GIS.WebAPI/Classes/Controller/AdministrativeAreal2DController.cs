@@ -142,7 +142,110 @@ namespace DiGi.GIS.WebAPI.Classes
             return Content(json, "application/json");
         }
 
+        /// <summary> Retrieves administrative area reference paths by name as a query string. </summary>
+        /// <remarks> Case-insensitive substring match on the administrative area name. Equivalent to <c>POST administrativeareal2Dreferencepathsbynameparameter</c> without the <c>_type</c> discriminator. </remarks>
+        /// <param name="text">The search text used to find matching administrative area reference paths. Required.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [HttpGet("referencepathsbyname", Name = $"{nameof(AdministrativeAreal2DController)}_{nameof(GetReferencePathsByNameAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<AdministrativeAreal2DReferencePath>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetReferencePathsByNameAsync([BindRequired, FromQuery(Name = "text")] string text, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(AdministrativeAreal2DController), nameof(GetReferencePathsByNameAsync));
+            Serilog.Modify.Log("Text provided: {Text}", text ?? string.Empty);
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Empty or whitespace text provided");
+                return BadRequest();
+            }
+
+            if (administrativeAreal2DPostgreSQLConverter is null)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                List<AdministrativeAreal2DReferencePath>? administrativeAreal2DReferencePaths = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DReferencePathsByNameAsync(text, cancellationToken: cancellationToken);
+
+                if (administrativeAreal2DReferencePaths is null)
+                {
+                    return NotFound();
+                }
+
+                string? json = Core.Convert.ToSystem_String(administrativeAreal2DReferencePaths);
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    return NotFound();
+                }
+
+                return Content(json, "application/json");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "Error in GetReferencePathsByNameAsync");
+                return StatusCode(500, "An error occurred while processing the geospatial data.");
+            }
+        }
+
+        /// <summary> Retrieves administrative area references by name as a query string. </summary>
+        /// <remarks> Case-insensitive substring match on the administrative area name. Equivalent to <c>POST administrativeareal2Dreferencesbynameparameter</c> without the <c>_type</c> discriminator. </remarks>
+        /// <param name="text">The search text used to find matching administrative area references. Required.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        [HttpGet("referencesbyname", Name = $"{nameof(AdministrativeAreal2DController)}_{nameof(GetReferencesByNameAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<AdministrativeAreal2DReference>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetReferencesByNameAsync([BindRequired, FromQuery(Name = "text")] string text, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(AdministrativeAreal2DController), nameof(GetReferencesByNameAsync));
+            Serilog.Modify.Log("Text provided: {Text}", text ?? string.Empty);
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Empty or whitespace text provided");
+                return BadRequest();
+            }
+
+            if (administrativeAreal2DPostgreSQLConverter is null)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                List<AdministrativeAreal2DReference>? administrativeAreal2DReferences = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DReferencesByNameAsync(text, cancellationToken: cancellationToken);
+
+                if (administrativeAreal2DReferences is null)
+                {
+                    return NotFound();
+                }
+
+                string? json = Core.Convert.ToSystem_String(administrativeAreal2DReferences);
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    return NotFound();
+                }
+
+                return Content(json, "application/json");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "Error in GetReferencesByNameAsync");
+                return StatusCode(500, "An error occurred while processing the geospatial data.");
+            }
+        }
+
         /// <summary> Retrieves administrative area reference paths by name. </summary>
+        /// <remarks> Use <c>GET referencepathsbyname?text=...</c> for a simpler query-string form without the <c>_type</c> body discriminator. </remarks>
         /// <param name="text">The search text used to find matching administrative area reference paths.</param>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
@@ -239,6 +342,7 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary> Retrieves administrative area references by name parameter. </summary>
+        /// <remarks> Use <c>GET referencesbyname?text=...</c> for a simpler query-string form without the <c>_type</c> body discriminator. </remarks>
         /// <param name="administrativeAreal2DReferencesByNameParameter">The parameter containing the search term for querying administrative area references by name.</param>
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
