@@ -14,7 +14,7 @@ namespace DiGi.GIS.WebAPI.Constants
         /// <summary>
         /// The largest number of references a subdivision comparison may name back per category.
         /// <para>The comparison itself walks a whole county, and the counts it returns are exact whatever this is set to. The samples exist to make a disagreement actionable without returning a hundred thousand strings, so the ceiling bounds the response rather than the work.</para>
-        /// <para><c>const</c> rather than <c>static readonly</c> so <c>subdivisionlinksbycountyid</c> can carry it as the maximum of a <see cref="System.ComponentModel.DataAnnotations.RangeAttribute"/>, whose argument has to be a compile-time constant (ZiolkowskiJakub/DiGi.GIS.WebAPI#47).</para>
+        /// <para><c>const</c> rather than <c>static readonly</c> so <c>subdivisionlinksbycountyid</c> can carry it as the maximum of a <see cref="System.ComponentModel.DataAnnotations.RangeAttribute"/>, whose argument has to be a compile-time constant (DiGi-Organization/DiGi.GIS.WebAPI#47).</para>
         /// </summary>
         public const int MaximumSampleCount = 1000;
 

@@ -668,7 +668,7 @@ namespace DiGi.GIS.WebAPI.Classes
             // its own, so a point can be filed under a part whose polygon is nowhere near it; pruning to
             // the overlapping parts alone then answers nothing and reads as "nothing sampled here". This
             // is the same resolution the building reads use - see
-            // https://github.com/ZiolkowskiJakub/DiGi.GIS.PostgreSQL/issues/64.
+            // https://github.com/DiGi-Organization/DiGi.GIS.PostgreSQL/issues/64.
             HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetCountyIdsByBoundingBox2DAsync(boundingBox2D, tolerance, cancellationToken: cancellationToken);
 
             return countyIds is null || countyIds.Count == 0 ? null : countyIds;

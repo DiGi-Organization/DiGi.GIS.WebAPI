@@ -48,7 +48,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public int BucketCount { get; set; } = 10;
 
         /// <summary>
-        /// Gets or sets the bucketing rule. Defaults to <see cref="HistogramBucketing.EqualWidth"/> (<c>width_bucket</c> over the scope's [min, max], the maximum in the overflow bucket <see cref="BucketCount"/> + 1); <see cref="HistogramBucketing.EqualCount"/> (<c>ntile</c>) gives every bucket the same number of rows, so a skewed column keeps its resolution where its rows are - what a consumer placing quantiles needs (ZiolkowskiJakub/DiGi.PostgreSQL#7).
+        /// Gets or sets the bucketing rule. Defaults to <see cref="HistogramBucketing.EqualWidth"/> (<c>width_bucket</c> over the scope's [min, max], the maximum in the overflow bucket <see cref="BucketCount"/> + 1); <see cref="HistogramBucketing.EqualCount"/> (<c>ntile</c>) gives every bucket the same number of rows, so a skewed column keeps its resolution where its rows are - what a consumer placing quantiles needs (DiGi-Organization/DiGi.PostgreSQL#7).
         /// <para>Sent as the integer value; an omitted property keeps equal width, so clients written against the earlier contract are unaffected.</para>
         /// </summary>
         /// <example>1</example>

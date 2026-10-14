@@ -1124,7 +1124,7 @@ The GIS PostgreSQL Web API manager used to handle database operations\.
 
 ## AggregateSummariesRequestParameter Class
 
-Parameter class containing options for a batch of single\-value database aggregation queries: several measures over one shared partition and filter, served in one request \(ZiolkowskiJakub/DiGi\.GIS\.WebAPI\#56\)\.
+Parameter class containing options for a batch of single\-value database aggregation queries: several measures over one shared partition and filter, served in one request \(DiGi-Organization/DiGi\.GIS\.WebAPI\#56\)\.
 
 ```csharp
 public class AggregateSummariesRequestParameter : DiGi.WebAPI.Classes.Parameter
@@ -1196,7 +1196,7 @@ public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; set; }
 
 Gets or sets the single\-value aggregate measures to compute, each pairing a target column with its function\.
 
-The answers arrive in this order, one value per measure; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. Multi-value measures and histograms are not accepted here. An empty list, or a list above the cap, is refused with 400 (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+The answers arrive in this order, one value per measure; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. Multi-value measures and histograms are not accepted here. An empty list, or a list above the cap, is refused with 400 (DiGi-Organization/DiGi.GIS.WebAPI#56).
 
 ```csharp
 public System.Collections.Generic.List<DiGi.PostgreSQL.Table.Classes.AggregateMeasure> Measures { get; set; }
@@ -3178,11 +3178,11 @@ private const int referenceCount_Maximum = 10000;
 
 ## BuildingDataController\.GetAggregateSummariesAsync\(AggregateSummariesRequestParameter, int, CancellationToken\) Method
 
-Computes several single\-value aggregate measures \- different columns, different functions \- over one shared partition and filter in one request, served as one database command on one connection \(ZiolkowskiJakub/DiGi\.GIS\.WebAPI\#56\)\.
+Computes several single\-value aggregate measures \- different columns, different functions \- over one shared partition and filter in one request, served as one database command on one connection \(DiGi-Organization/DiGi\.GIS\.WebAPI\#56\)\.
 
-The answers arrive as a JSON array in the request's measure order; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. An empty `Measures` list, a list above the cap of [MaximumAggregateSummariesMeasureCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAggregateSummariesMeasureCount'), or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+The answers arrive as a JSON array in the request's measure order; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. An empty `Measures` list, a list above the cap of [MaximumAggregateSummariesMeasureCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAggregateSummariesMeasureCount'), or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result (DiGi-Organization/DiGi.GIS.WebAPI#56).
 
-Out of scope by design: per-measure filters, multi-value measures (`SplitValueDistribution`, `SplitDistinctCount`) and histograms (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+Out of scope by design: per-measure filters, multi-value measures (`SplitValueDistribution`, `SplitDistinctCount`) and histograms (DiGi-Organization/DiGi.GIS.WebAPI#56).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter aggregateSummariesRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3403,7 +3403,7 @@ A task that represents the asynchronous operation\.
 
 Asynchronously counts the building data rows of an administrative area, optionally narrowed by a dynamic hierarchical filter group, in one call\.
 
-An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
 Resolution: (1) the area reference is read by id, and a missing one answers 404. (2) An area <b>above</b> the Subdivision level (Country, Voivodeship, County, Municipality) is resolved to its Subdivision children, grouped by the county partition they sit in. (3) An area that <b>is</b> a Subdivision is counted by membership, `subdivision_id = id`. (4) Per distinct county - the `building_data` partition key - one count runs with `subdivision_id IN (that county's subdivisions)` plus the caller's filters, and the counts are <b>summed</b>. The counties are counted strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s. (5) An area above the Subdivision level that resolves to no Subdivision answers 204.
 
@@ -3411,7 +3411,7 @@ What the count is not. `subdivision_id` files a building under its <b>smallest</
 
 An unfiltered body is valid (`FilterGroup` omitted counts every building the area resolves to). At most [MaximumAdministrativeAreal2DCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAdministrativeAreal2DCountyCount') distinct counties are iterated; an area spanning more answers 400 naming that limit and nothing is counted. 204 means <b>the resolution found no subdivision to filter by - not evidence that the area holds no buildings</b>. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.
 
-A client that sends the same `In` filter shape as a JSON array is subject to ZiolkowskiJakub/DiGi.PostgreSQL#10; this endpoint builds its own subdivision list server-side and does not depend on that fix.
+A client that sends the same `In` filter shape as a JSON array is subject to DiGi-Organization/DiGi.PostgreSQL#10; this endpoint builds its own subdivision list server-side and does not depend on that fix.
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetCountByAdministrativeAreal2DIdAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter parameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3495,7 +3495,7 @@ Asynchronously counts the building data rows of a county partition, or of the wh
 
 The answer is a bare JSON integer: the `COUNT(*)` of the scope, so it does not depend on any column being non-null and it never needs the magic `reference` column or an aggregate function. A `null` or empty filter group counts the whole partition scope; a filter that matches nothing answers `0` with a `200`, not an error status.
 
-An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
 De-duplication across county parts is a separate concern (`referenceuniquenesssummary`) and is not applied here.
 
@@ -3639,9 +3639,9 @@ An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us
 
 Generates a value range distribution histogram for a specific building data column inside a county partition, applying optional dynamic filters\.
 
-Each row of the answer is one bucket - `{bucket, rangeStart, rangeEnd, count}`, the actual minimum and maximum of the values the bucket holds and their count. The buckets are of equal value width unless the body asks for [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalcount 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount') (`HistogramBucketing: 1`), which gives every bucket the same number of rows and keeps a skewed column's resolution where its rows are (ZiolkowskiJakub/DiGi.GIS.WebAPI#35).
+Each row of the answer is one bucket - `{bucket, rangeStart, rangeEnd, count}`, the actual minimum and maximum of the values the bucket holds and their count. The buckets are of equal value width unless the body asks for [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalcount 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount') (`HistogramBucketing: 1`), which gives every bucket the same number of rows and keeps a skewed column's resolution where its rows are (DiGi-Organization/DiGi.GIS.WebAPI#35).
 
-An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator. A scope that holds no non-NULL values keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator. A scope that holds no non-NULL values keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetHistogramSummaryAsync(DiGi.GIS.WebAPI.Classes.HistogramRequestParameter histogramRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3676,11 +3676,11 @@ A task representing the asynchronous operation, returning the histogram bucket l
 
 Computes multi\-value statistical summaries \(SplitDistinctCount, SplitValueDistribution\) on a partition column\.
 
-An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
 Group-by count: `SplitValueDistribution` (`multivalueAggregateFunction = 1`) on a single-value column returns one `{ "item", "count" }` object per distinct value, ordered `count` descending. Worked example (2026-10-12, partition `countyId 53477`, gmina Łomianki): `columnUniqueId "municipality_name"` answers `[{ "item": "Łomianki", "count": 10502 }, { "item": "Stare Babice", "count": 7976 }, …]`.
 
-The result is capped at 1000 groups plus one trailing truncation-marker row (drop the last element when the array is that long). A non-text column is cast to its text form and distributed over it, so a boolean such as `is_residential` yields `true`/`false` items rather than a failure (ZiolkowskiJakub/DiGi.PostgreSQL#11).
+The result is capped at 1000 groups plus one trailing truncation-marker row (drop the last element when the array is that long). A non-text column is cast to its text form and distributed over it, so a boolean such as `is_residential` yields `true`/`false` items rather than a failure (DiGi-Organization/DiGi.PostgreSQL#11).
 
 `SplitDistinctCount` (`multivalueAggregateFunction = 0`) counts the distinct split sub-items instead of returning them. For the plain distinct-value list (no split, no count), use `uniquevalues`.
 
@@ -3717,11 +3717,11 @@ A task representing the asynchronous operation, returning the aggregate result a
 
 Computes single\-value statistical summaries \(Avg, Sum, Min, Max, Count, DistinctCount\) on a partition column\.
 
-An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a valid filter that matches nothing keeps its 200 empty aggregate (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a valid filter that matches nothing keeps its 200 empty aggregate (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
 Row count: to count the matching rows, set `columnUniqueId "reference"` and `singlevalueAggregateFunction 4` (`Count`) - `reference` is the always-present column and `Count` tallies the non-null rows, so the pair is the plain "how many rows" recipe. `singlevalueAggregateFunction` values: 0 `Avg` (mean of a numeric column), 1 `Sum` (total), 2 `Min`, 3 `Max`, 4 `Count` (non-null row count), 5 `DistinctCount` (unique values).
 
-Count with a filter - "residential buildings over 100 m² in gmina Łomianki" (2026-10-12, partition `countyId 53477`): `{ "columnUniqueId": "reference", "singlevalueAggregateFunction": 4, "countyId": 53477, "filterGroup": { "logicalOperator": 0, "filterConditions": [ { "columnUniqueId": "is_residential", "filterOperator": 0, "value": true }, { "columnUniqueId": "floor_area", "filterOperator": 2, "value": 100 } ] } }` answers `6798` (unfiltered anchor `13719`; ZiolkowskiJakub/DiGi.GIS.WebAPI#53).
+Count with a filter - "residential buildings over 100 m² in gmina Łomianki" (2026-10-12, partition `countyId 53477`): `{ "columnUniqueId": "reference", "singlevalueAggregateFunction": 4, "countyId": 53477, "filterGroup": { "logicalOperator": 0, "filterConditions": [ { "columnUniqueId": "is_residential", "filterOperator": 0, "value": true }, { "columnUniqueId": "floor_area", "filterOperator": 2, "value": 100 } ] } }` answers `6798` (unfiltered anchor `13719`; DiGi-Organization/DiGi.GIS.WebAPI#53).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSinglevalueAggregateSummaryAsync(DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter singlevalueAggregateRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3863,9 +3863,9 @@ Retrieves a building data table filtered by the specified dynamic hierarchical f
 
 The table is partitioned by `county_id`. Supply [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter\.CountyId') to scope the read to one county partition; omitting it (and not filtering `county_id` in the filter group) makes the read span every partition of the national table, which is the cost of an unscoped cross-partition read. A caller `county_id` condition in the filter group is left as-is and the `CountyId` condition is ANDed with it, so a conflicting pair answers empty.
 
-An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
-Per-operator value shapes: each `FilterCondition`'s `Value` takes a scalar for the comparison operators, a JSON array for `In`/`NotIn`, and a case-insensitive substring for `Contains`; an unconvertible value is refused with 400 (see `FilterCondition.Value` for the full contract; ZiolkowskiJakub/DiGi.PostgreSQL#13).
+Per-operator value shapes: each `FilterCondition`'s `Value` takes a scalar for the comparison operators, a JSON array for `In`/`NotIn`, and a case-insensitive substring for `Contains`; an unconvertible value is refused with 400 (see `FilterCondition.Value` for the full contract; DiGi-Organization/DiGi.PostgreSQL#13).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTableByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3939,7 +3939,7 @@ A task representing the asynchronous operation, returning the populated filtered
 
 Retrieves unique values for a specified column unique identifier and an optional county identifier\.
 
-An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetUniqueValuesAsync(string columnUniqueId, System.Nullable<int> countyId=null, int commandTimeout=90, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3980,7 +3980,7 @@ A task that represents the asynchronous operation\.
 
 Retrieves unique values for a given [UniqueValuesByColumnUniqueIdParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter 'DiGi\.GIS\.WebAPI\.Classes\.UniqueValuesByColumnUniqueIdParameter') \(column unique id and optionally county id\), applying optional dynamic filters\.
 
-An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).
+An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetUniqueValuesByColumnUniqueIdParameterAsync(DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter uniqueValuesByColumnUniqueIdParameter, int commandTimeout=90, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -5653,7 +5653,7 @@ public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; set; }
 
 ## HistogramRequestParameter\.HistogramBucketing Property
 
-Gets or sets the bucketing rule\. Defaults to [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualWidth](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalwidth 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualWidth') \(`width_bucket` over the scope's \[min, max\], the maximum in the overflow bucket [BucketCount](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.BucketCount 'DiGi\.GIS\.WebAPI\.Classes\.HistogramRequestParameter\.BucketCount') \+ 1\); [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalcount 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount') \(`ntile`\) gives every bucket the same number of rows, so a skewed column keeps its resolution where its rows are \- what a consumer placing quantiles needs \(ZiolkowskiJakub/DiGi\.PostgreSQL\#7\)\.
+Gets or sets the bucketing rule\. Defaults to [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualWidth](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalwidth 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualWidth') \(`width_bucket` over the scope's \[min, max\], the maximum in the overflow bucket [BucketCount](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.BucketCount 'DiGi\.GIS\.WebAPI\.Classes\.HistogramRequestParameter\.BucketCount') \+ 1\); [DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.enums.histogrambucketing.equalcount 'DiGi\.PostgreSQL\.Table\.Enums\.HistogramBucketing\.EqualCount') \(`ntile`\) gives every bucket the same number of rows, so a skewed column keeps its resolution where its rows are \- what a consumer placing quantiles needs \(DiGi-Organization/DiGi\.PostgreSQL\#7\)\.
 
 Sent as the integer value; an omitted property keeps equal width, so clients written against the earlier contract are unaffected.
 
@@ -5673,7 +5673,7 @@ public DiGi.PostgreSQL.Table.Enums.HistogramBucketing HistogramBucketing { get; 
 
 Declares the smallest value a numeric action parameter may carry, without the ceiling a [System\.ComponentModel\.DataAnnotations\.RangeAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations.rangeattribute 'System\.ComponentModel\.DataAnnotations\.RangeAttribute') would force into the served document\.
 
-Applied to a query parameter it is enforced by MVC model validation, so `[ApiController]` answers a violation with HTTP 400 before the action runs - the same rejection the action's own guard already produced, now at binding (ZiolkowskiJakub/DiGi.GIS.WebAPI#47). A null value passes, so an optional parameter (an `int?` county filter) keeps its "omitted means no filter" meaning; a mandatory one is refused by `[BindRequired]`, not here.
+Applied to a query parameter it is enforced by MVC model validation, so `[ApiController]` answers a violation with HTTP 400 before the action runs - the same rejection the action's own guard already produced, now at binding (DiGi-Organization/DiGi.GIS.WebAPI#47). A null value passes, so an optional parameter (an `int?` county filter) keeps its "omitted means no filter" meaning; a mandatory one is refused by `[BindRequired]`, not here.
 
 A floor states the guard it mirrors exactly: 0 for `commandTimeout < 0`, 1 for `countyId <= 0`, so the attribute never rejects a value the action accepts nor accepts one it rejects. A non-numeric or [System\.Double\.NaN](https://learn.microsoft.com/en-us/dotnet/api/system.double.nan 'System\.Double\.NaN') value is refused, matching the actions' own finiteness guards.
 
@@ -7312,7 +7312,7 @@ The manager that handles conversion processes for GIS data within a PostgreSQL d
 
 ## ParameterMinimumSchemaFilter Class
 
-Carries the floor a [MinimumAttribute](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MinimumAttribute 'DiGi\.GIS\.WebAPI\.Classes\.MinimumAttribute') declares on an action parameter into that parameter's OpenAPI schema, so the served document states the domain with a `minimum` and no `maximum` \(ZiolkowskiJakub/DiGi\.GIS\.WebAPI\#47\)\.
+Carries the floor a [MinimumAttribute](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MinimumAttribute 'DiGi\.GIS\.WebAPI\.Classes\.MinimumAttribute') declares on an action parameter into that parameter's OpenAPI schema, so the served document states the domain with a `minimum` and no `maximum` \(DiGi-Organization/DiGi\.GIS\.WebAPI\#47\)\.
 
 Swashbuckle maps only the DataAnnotations it knows, so a custom attribute is invisible to it; but the pass that generates a query parameter's schema runs every registered schema filter with the parameter in the context, which is where this one reads the floor from. Registered through the host's `IWebAPISchemaFilter` hook, the same way as [TableWireFormatSchemaFilter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TableWireFormatSchemaFilter 'DiGi\.GIS\.WebAPI\.Classes\.TableWireFormatSchemaFilter').
 
@@ -7636,7 +7636,7 @@ Sum
 
 Removes the Core\.IO [DiGi\.Core\.IO\.Table\.Classes\.Row](https://learn.microsoft.com/en-us/dotnet/api/digi.core.io.table.classes.row 'DiGi\.Core\.IO\.Table\.Classes\.Row') component a generated document no longer references\.
 
-Swashbuckle registers that component while it generates a table's schema - a Core.IO table is an `IEnumerable<Row>`, so the array items reference it - and [TableWireFormatSchemaFilter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TableWireFormatSchemaFilter 'DiGi\.GIS\.WebAPI\.Classes\.TableWireFormatSchemaFilter') then replaces those items with the `TableConverter` format, whose rows are positional value arrays (ZiolkowskiJakub/DiGi.GIS.WebAPI#44). Nothing else can reference the Core.IO `Row`, so without this filter the served document would keep advertising a row object schema the wire never carries.
+Swashbuckle registers that component while it generates a table's schema - a Core.IO table is an `IEnumerable<Row>`, so the array items reference it - and [TableWireFormatSchemaFilter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TableWireFormatSchemaFilter 'DiGi\.GIS\.WebAPI\.Classes\.TableWireFormatSchemaFilter') then replaces those items with the `TableConverter` format, whose rows are positional value arrays (DiGi-Organization/DiGi.GIS.WebAPI#44). Nothing else can reference the Core.IO `Row`, so without this filter the served document would keep advertising a row object schema the wire never carries.
 
 Registered through the host's `IWebAPIDocumentFilter` hook, after the host's own document filters, mirroring how `DiGi.WebAPI.WindowsService` removes its unreferenced enum components.
 
@@ -7726,7 +7726,7 @@ The reference being visited\.
 
 Rewrites the schema of a Core\.IO table payload so that it describes the format the DiGi `TableConverter` writes, not what the MVC JSON options would\.
 
-Every `buildingdata/table*` operation answers with `Core.IO.Table.Convert.ToSystem_String<Table, Column, Row>`: a root object carrying exactly `Columns`, an array of DiGi-serialized column objects, and `Rows`, an array of positional value arrays - one value per column, in column order - with no root `_type` (ZiolkowskiJakub/DiGi.GIS.WebAPI#44).
+Every `buildingdata/table*` operation answers with `Core.IO.Table.Convert.ToSystem_String<Table, Column, Row>`: a root object carrying exactly `Columns`, an array of DiGi-serialized column objects, and `Rows`, an array of positional value arrays - one value per column, in column order - with no root `_type` (DiGi-Organization/DiGi.GIS.WebAPI#44).
 
 Registered through the host's `IWebAPISchemaFilter` hook, so it runs after `DiGi.WebAPI.WindowsService`'s `WireFormatSchemaFilter` and fully replaces whatever that filter produced for the type. A Core.IO table is not an `ISerializableObject`, so without this filter the host would describe the type's public members in camelCase, which matches neither writer.
 

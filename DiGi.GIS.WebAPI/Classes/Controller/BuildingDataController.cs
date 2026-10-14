@@ -669,8 +669,8 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Generates a value range distribution histogram for a specific building data column inside a county partition, applying optional dynamic filters.
-        /// <para>Each row of the answer is one bucket - <c>{bucket, rangeStart, rangeEnd, count}</c>, the actual minimum and maximum of the values the bucket holds and their count. The buckets are of equal value width unless the body asks for <see cref="DiGi.PostgreSQL.Table.Enums.HistogramBucketing.EqualCount"/> (<c>HistogramBucketing: 1</c>), which gives every bucket the same number of rows and keeps a skewed column's resolution where its rows are (ZiolkowskiJakub/DiGi.GIS.WebAPI#35).</para>
-        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator. A scope that holds no non-NULL values keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// <para>Each row of the answer is one bucket - <c>{bucket, rangeStart, rangeEnd, count}</c>, the actual minimum and maximum of the values the bucket holds and their count. The buckets are of equal value width unless the body asks for <see cref="DiGi.PostgreSQL.Table.Enums.HistogramBucketing.EqualCount"/> (<c>HistogramBucketing: 1</c>), which gives every bucket the same number of rows and keeps a skewed column's resolution where its rows are (DiGi-Organization/DiGi.GIS.WebAPI#35).</para>
+        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator. A scope that holds no non-NULL values keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// </summary>
         /// <param name="histogramRequestParameter">The parameter containing the target column, county identifier, desired bucket count, bucketing rule, and optional dynamic filters.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -729,9 +729,9 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Computes multi-value statistical summaries (SplitDistinctCount, SplitValueDistribution) on a partition column.
-        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// <para>Group-by count: <c>SplitValueDistribution</c> (<c>multivalueAggregateFunction = 1</c>) on a single-value column returns one <c>{ "item", "count" }</c> object per distinct value, ordered <c>count</c> descending. Worked example (2026-10-12, partition <c>countyId 53477</c>, gmina Łomianki): <c>columnUniqueId "municipality_name"</c> answers <c>[{ "item": "Łomianki", "count": 10502 }, { "item": "Stare Babice", "count": 7976 }, …]</c>.</para>
-        /// <para>The result is capped at 1000 groups plus one trailing truncation-marker row (drop the last element when the array is that long). A non-text column is cast to its text form and distributed over it, so a boolean such as <c>is_residential</c> yields <c>true</c>/<c>false</c> items rather than a failure (ZiolkowskiJakub/DiGi.PostgreSQL#11).</para>
+        /// <para>The result is capped at 1000 groups plus one trailing truncation-marker row (drop the last element when the array is that long). A non-text column is cast to its text form and distributed over it, so a boolean such as <c>is_residential</c> yields <c>true</c>/<c>false</c> items rather than a failure (DiGi-Organization/DiGi.PostgreSQL#11).</para>
         /// <para><c>SplitDistinctCount</c> (<c>multivalueAggregateFunction = 0</c>) counts the distinct split sub-items instead of returning them. For the plain distinct-value list (no split, no count), use <c>uniquevalues</c>.</para>
         /// </summary>
         /// <param name="multivalueAggregateRequestParameter">The parameter containing target column, multi-value aggregate function, county identifier, and optional separator.</param>
@@ -791,9 +791,9 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Computes single-value statistical summaries (Avg, Sum, Min, Max, Count, DistinctCount) on a partition column.
-        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a valid filter that matches nothing keeps its 200 empty aggregate (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a valid filter that matches nothing keeps its 200 empty aggregate (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// <para>Row count: to count the matching rows, set <c>columnUniqueId "reference"</c> and <c>singlevalueAggregateFunction 4</c> (<c>Count</c>) - <c>reference</c> is the always-present column and <c>Count</c> tallies the non-null rows, so the pair is the plain "how many rows" recipe. <c>singlevalueAggregateFunction</c> values: 0 <c>Avg</c> (mean of a numeric column), 1 <c>Sum</c> (total), 2 <c>Min</c>, 3 <c>Max</c>, 4 <c>Count</c> (non-null row count), 5 <c>DistinctCount</c> (unique values).</para>
-        /// <para>Count with a filter - "residential buildings over 100 m² in gmina Łomianki" (2026-10-12, partition <c>countyId 53477</c>): <c>{ "columnUniqueId": "reference", "singlevalueAggregateFunction": 4, "countyId": 53477, "filterGroup": { "logicalOperator": 0, "filterConditions": [ { "columnUniqueId": "is_residential", "filterOperator": 0, "value": true }, { "columnUniqueId": "floor_area", "filterOperator": 2, "value": 100 } ] } }</c> answers <c>6798</c> (unfiltered anchor <c>13719</c>; ZiolkowskiJakub/DiGi.GIS.WebAPI#53).</para>
+        /// <para>Count with a filter - "residential buildings over 100 m² in gmina Łomianki" (2026-10-12, partition <c>countyId 53477</c>): <c>{ "columnUniqueId": "reference", "singlevalueAggregateFunction": 4, "countyId": 53477, "filterGroup": { "logicalOperator": 0, "filterConditions": [ { "columnUniqueId": "is_residential", "filterOperator": 0, "value": true }, { "columnUniqueId": "floor_area", "filterOperator": 2, "value": 100 } ] } }</c> answers <c>6798</c> (unfiltered anchor <c>13719</c>; DiGi-Organization/DiGi.GIS.WebAPI#53).</para>
         /// </summary>
         /// <param name="singlevalueAggregateRequestParameter">The parameter containing target column, single-value aggregate function, and county identifier.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -851,9 +851,9 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
-        /// Computes several single-value aggregate measures - different columns, different functions - over one shared partition and filter in one request, served as one database command on one connection (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
-        /// <para>The answers arrive as a JSON array in the request's measure order; a SQL <c>NULL</c> aggregate (for example <c>Avg</c> over zero rows) is preserved as JSON <c>null</c>. An empty <c>Measures</c> list, a list above the cap of <see cref="Constants.BuildingData.MaximumAggregateSummariesMeasureCount"/>, or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).</para>
-        /// <para>Out of scope by design: per-measure filters, multi-value measures (<c>SplitValueDistribution</c>, <c>SplitDistinctCount</c>) and histograms (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).</para>
+        /// Computes several single-value aggregate measures - different columns, different functions - over one shared partition and filter in one request, served as one database command on one connection (DiGi-Organization/DiGi.GIS.WebAPI#56).
+        /// <para>The answers arrive as a JSON array in the request's measure order; a SQL <c>NULL</c> aggregate (for example <c>Avg</c> over zero rows) is preserved as JSON <c>null</c>. An empty <c>Measures</c> list, a list above the cap of <see cref="Constants.BuildingData.MaximumAggregateSummariesMeasureCount"/>, or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result (DiGi-Organization/DiGi.GIS.WebAPI#56).</para>
+        /// <para>Out of scope by design: per-measure filters, multi-value measures (<c>SplitValueDistribution</c>, <c>SplitDistinctCount</c>) and histograms (DiGi-Organization/DiGi.GIS.WebAPI#56).</para>
         /// </summary>
         /// <param name="aggregateSummariesRequestParameter">The parameter containing the shared county identifier, the shared filter, and the ordered list of measures.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -1173,8 +1173,8 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Retrieves a building data table filtered by the specified dynamic hierarchical filters.
         /// <para>The table is partitioned by <c>county_id</c>. Supply <see cref="BuildingDataByFilterGroupParameter.CountyId"/> to scope the read to one county partition; omitting it (and not filtering <c>county_id</c> in the filter group) makes the read span every partition of the national table, which is the cost of an unscoped cross-partition read. A caller <c>county_id</c> condition in the filter group is left as-is and the <c>CountyId</c> condition is ANDed with it, so a conflicting pair answers empty.</para>
-        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
-        /// <para>Per-operator value shapes: each <c>FilterCondition</c>'s <c>Value</c> takes a scalar for the comparison operators, a JSON array for <c>In</c>/<c>NotIn</c>, and a case-insensitive substring for <c>Contains</c>; an unconvertible value is refused with 400 (see <c>FilterCondition.Value</c> for the full contract; ZiolkowskiJakub/DiGi.PostgreSQL#13).</para>
+        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
+        /// <para>Per-operator value shapes: each <c>FilterCondition</c>'s <c>Value</c> takes a scalar for the comparison operators, a JSON array for <c>In</c>/<c>NotIn</c>, and a case-insensitive substring for <c>Contains</c>; an unconvertible value is refused with 400 (see <c>FilterCondition.Value</c> for the full contract; DiGi-Organization/DiGi.PostgreSQL#13).</para>
         /// </summary>
         /// <param name="buildingDataByFilterGroupParameter">The parameter containing the dynamic filter group, the optional county partition, and the optional column unique identifiers.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -1216,7 +1216,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 // The county partition is folded into the filter rather than written into the statement, so the read still
                 // goes through the base PullAsync: it resolves county_id against the stored column list and rejects anything
                 // not on it before a statement is built. A caller county_id condition is left as-is and this one is ANDed
-                // with it, so a conflicting pair answers empty (ZiolkowskiJakub/DiGi.GIS.WebAPI#55).
+                // with it, so a conflicting pair answers empty (DiGi-Organization/DiGi.GIS.WebAPI#55).
                 DiGi.PostgreSQL.Table.Classes.FilterGroup filterGroup_Effective = buildingDataByFilterGroupParameter.FilterGroup;
                 if (buildingDataByFilterGroupParameter.CountyId is int countyId)
                 {
@@ -1275,7 +1275,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Asynchronously counts the building data rows of a county partition, or of the whole table, matching an optional dynamic hierarchical filter group.
         /// <para>The answer is a bare JSON integer: the <c>COUNT(*)</c> of the scope, so it does not depend on any column being non-null and it never needs the magic <c>reference</c> column or an aggregate function. A <c>null</c> or empty filter group counts the whole partition scope; a filter that matches nothing answers <c>0</c> with a <c>200</c>, not an error status.</para>
-        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// <para>De-duplication across county parts is a separate concern (<c>referenceuniquenesssummary</c>) and is not applied here.</para>
         /// </summary>
         /// <param name="parameter">The parameter containing the optional partition (county) and the optional dynamic hierarchical filters.</param>
@@ -1336,11 +1336,11 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Asynchronously counts the building data rows of an administrative area, optionally narrowed by a dynamic hierarchical filter group, in one call.
-        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// <para>Resolution: (1) the area reference is read by id, and a missing one answers 404. (2) An area <b>above</b> the Subdivision level (Country, Voivodeship, County, Municipality) is resolved to its Subdivision children, grouped by the county partition they sit in. (3) An area that <b>is</b> a Subdivision is counted by membership, <c>subdivision_id = id</c>. (4) Per distinct county - the <c>building_data</c> partition key - one count runs with <c>subdivision_id IN (that county's subdivisions)</c> plus the caller's filters, and the counts are <b>summed</b>. The counties are counted strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s. (5) An area above the Subdivision level that resolves to no Subdivision answers 204.</para>
         /// <para>What the count is not. <c>subdivision_id</c> files a building under its <b>smallest</b> containing subdivision and the Subdivision layer nests, so for a nested Subdivision (a district whose neighbourhoods are also subdivisions) the count covers only the buildings filed under that exact id and undercounts the district (DiGi.GIS.PostgreSQL#75, #77); a polygon-based count is a follow-up. Rows with <c>subdivision_id IS NULL</c> are excluded, so the count of an area is not the count of every building inside its polygon. A building filed in a county partition other than the one its subdivision belongs to (a subdivision of a neighbouring county) is not reached, because each county is counted with only its own subdivisions.</para>
         /// <para>An unfiltered body is valid (<c>FilterGroup</c> omitted counts every building the area resolves to). At most <see cref="Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount"/> distinct counties are iterated; an area spanning more answers 400 naming that limit and nothing is counted. 204 means <b>the resolution found no subdivision to filter by - not evidence that the area holds no buildings</b>. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.</para>
-        /// <para>A client that sends the same <c>In</c> filter shape as a JSON array is subject to ZiolkowskiJakub/DiGi.PostgreSQL#10; this endpoint builds its own subdivision list server-side and does not depend on that fix.</para>
+        /// <para>A client that sends the same <c>In</c> filter shape as a JSON array is subject to DiGi-Organization/DiGi.PostgreSQL#10; this endpoint builds its own subdivision list server-side and does not depend on that fix.</para>
         /// </summary>
         /// <param name="parameter">The parameter containing the administrative area identifier and the optional dynamic hierarchical filters.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of each command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -1485,7 +1485,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Retrieves unique values for a specified column unique identifier and an optional county identifier.
-        /// <para>An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// <para>An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// </summary>
         /// <param name="columnUniqueId">The unique identifier of the column from which to retrieve unique values.</param>
         /// <param name="countyId">The optional integer identifier of the county used to filter the results.</param>
@@ -1566,7 +1566,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Retrieves unique values for a given <see cref="UniqueValuesByColumnUniqueIdParameter" /> (column unique id and optionally county id), applying optional dynamic filters.
-        /// <para>An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (ZiolkowskiJakub/DiGi.GIS.WebAPI#54).</para>
+        /// <para>An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// </summary>
         /// <param name="uniqueValuesByColumnUniqueIdParameter">The parameter containing the column unique identifier, optional county identifier, and optional dynamic filters.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 90 seconds; a national (unfiltered) unique-values scan runs well past that and should pass <c>commandtimeout=600</c> explicitly.</param>

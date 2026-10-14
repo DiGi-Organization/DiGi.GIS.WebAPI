@@ -25,7 +25,7 @@ namespace DiGi.GIS.WebAPI.Constants
         /// <summary>
         /// The finest lattice, in model units, a coverage or gap request may be measured against.
         /// <para>The work of those endpoints rises with the square of how fine the lattice is: they generate every node of a county and decide each one against its outlines. A county of 1 000 square kilometres is 100 000 nodes at 100 m and 10 million at 10 m, and below that the request stops being a diagnostic and becomes a denial of service that anyone can send.</para>
-        /// <para><c>const</c> rather than <c>static readonly</c> so the lattice endpoints can carry it as the floor of a <see cref="DiGi.GIS.WebAPI.Classes.MinimumAttribute"/>, whose argument has to be a compile-time constant, the way <see cref="MaximumRadius"/> became one for <see cref="System.ComponentModel.DataAnnotations.RangeAttribute"/> (ZiolkowskiJakub/DiGi.GIS.WebAPI#47).</para>
+        /// <para><c>const</c> rather than <c>static readonly</c> so the lattice endpoints can carry it as the floor of a <see cref="DiGi.GIS.WebAPI.Classes.MinimumAttribute"/>, whose argument has to be a compile-time constant, the way <see cref="MaximumRadius"/> became one for <see cref="System.ComponentModel.DataAnnotations.RangeAttribute"/> (DiGi-Organization/DiGi.GIS.WebAPI#47).</para>
         /// </summary>
         public const double MinimumGridSize = 10;
 

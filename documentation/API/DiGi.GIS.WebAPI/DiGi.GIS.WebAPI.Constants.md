@@ -37,7 +37,7 @@ public static readonly int MaximumAdministrativeAreal2DCountyCount;
 
 The largest number of single\-value aggregate measures one `aggregatesummary/batch` request may carry\.
 
-The measures share one filter, one connection and one SQL command, so the cost follows the measure count. The ceiling of 100 is a guardrail against pathological requests - far above any realistic client - and stays at the converter's own cap so the 400 pre-check and the converter's refusal agree (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+The measures share one filter, one connection and one SQL command, so the cost follows the measure count. The ceiling of 100 is a guardrail against pathological requests - far above any realistic client - and stays at the converter's own cap so the 400 pre-check and the converter's refusal agree (DiGi-Organization/DiGi.GIS.WebAPI#56).
 
 ```csharp
 public static readonly int MaximumAggregateSummariesMeasureCount;
@@ -228,7 +228,7 @@ The largest number of references a subdivision comparison may name back per cate
 
 The comparison itself walks a whole county, and the counts it returns are exact whatever this is set to. The samples exist to make a disagreement actionable without returning a hundred thousand strings, so the ceiling bounds the response rather than the work.
 
-`const` rather than `static readonly` so `subdivisionlinksbycountyid` can carry it as the maximum of a [System\.ComponentModel\.DataAnnotations\.RangeAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations.rangeattribute 'System\.ComponentModel\.DataAnnotations\.RangeAttribute'), whose argument has to be a compile-time constant (ZiolkowskiJakub/DiGi.GIS.WebAPI#47).
+`const` rather than `static readonly` so `subdivisionlinksbycountyid` can carry it as the maximum of a [System\.ComponentModel\.DataAnnotations\.RangeAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations.rangeattribute 'System\.ComponentModel\.DataAnnotations\.RangeAttribute'), whose argument has to be a compile-time constant (DiGi-Organization/DiGi.GIS.WebAPI#47).
 
 ```csharp
 public const int MaximumSampleCount = 1000;
@@ -358,7 +358,7 @@ The finest lattice, in model units, a coverage or gap request may be measured ag
 
 The work of those endpoints rises with the square of how fine the lattice is: they generate every node of a county and decide each one against its outlines. A county of 1 000 square kilometres is 100 000 nodes at 100 m and 10 million at 10 m, and below that the request stops being a diagnostic and becomes a denial of service that anyone can send.
 
-`const` rather than `static readonly` so the lattice endpoints can carry it as the floor of a [MinimumAttribute](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MinimumAttribute 'DiGi\.GIS\.WebAPI\.Classes\.MinimumAttribute'), whose argument has to be a compile-time constant, the way [MaximumRadius](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.Terrain.MaximumRadius 'DiGi\.GIS\.WebAPI\.Constants\.Terrain\.MaximumRadius') became one for [System\.ComponentModel\.DataAnnotations\.RangeAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations.rangeattribute 'System\.ComponentModel\.DataAnnotations\.RangeAttribute') (ZiolkowskiJakub/DiGi.GIS.WebAPI#47).
+`const` rather than `static readonly` so the lattice endpoints can carry it as the floor of a [MinimumAttribute](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MinimumAttribute 'DiGi\.GIS\.WebAPI\.Classes\.MinimumAttribute'), whose argument has to be a compile-time constant, the way [MaximumRadius](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.Terrain.MaximumRadius 'DiGi\.GIS\.WebAPI\.Constants\.Terrain\.MaximumRadius') became one for [System\.ComponentModel\.DataAnnotations\.RangeAttribute](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations.rangeattribute 'System\.ComponentModel\.DataAnnotations\.RangeAttribute') (DiGi-Organization/DiGi.GIS.WebAPI#47).
 
 ```csharp
 public const double MinimumGridSize = 10;

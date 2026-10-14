@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace DiGi.GIS.WebAPI.Classes
 {
     /// <summary>
-    /// Parameter class containing options for a batch of single-value database aggregation queries: several measures over one shared partition and filter, served in one request (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).
+    /// Parameter class containing options for a batch of single-value database aggregation queries: several measures over one shared partition and filter, served in one request (DiGi-Organization/DiGi.GIS.WebAPI#56).
     /// </summary>
     public class AggregateSummariesRequestParameter : DiGi.WebAPI.Classes.Parameter
     {
@@ -39,7 +39,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Gets or sets the single-value aggregate measures to compute, each pairing a target column with its function.
-        /// <para>The answers arrive in this order, one value per measure; a SQL <c>NULL</c> aggregate (for example <c>Avg</c> over zero rows) is preserved as JSON <c>null</c>. Multi-value measures and histograms are not accepted here. An empty list, or a list above the cap, is refused with 400 (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).</para>
+        /// <para>The answers arrive in this order, one value per measure; a SQL <c>NULL</c> aggregate (for example <c>Avg</c> over zero rows) is preserved as JSON <c>null</c>. Multi-value measures and histograms are not accepted here. An empty list, or a list above the cap, is refused with 400 (DiGi-Organization/DiGi.GIS.WebAPI#56).</para>
         /// </summary>
         /// <example>[{ "ColumnUniqueId": "floor_area", "SinglevalueAggregateFunction": "Avg" }]</example>
         [Required]

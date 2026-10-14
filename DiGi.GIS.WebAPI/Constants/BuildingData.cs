@@ -13,7 +13,7 @@ namespace DiGi.GIS.WebAPI.Constants
 
         /// <summary>
         /// The largest number of single-value aggregate measures one <c>aggregatesummary/batch</c> request may carry.
-        /// <para>The measures share one filter, one connection and one SQL command, so the cost follows the measure count. The ceiling of 100 is a guardrail against pathological requests - far above any realistic client - and stays at the converter's own cap so the 400 pre-check and the converter's refusal agree (ZiolkowskiJakub/DiGi.GIS.WebAPI#56).</para>
+        /// <para>The measures share one filter, one connection and one SQL command, so the cost follows the measure count. The ceiling of 100 is a guardrail against pathological requests - far above any realistic client - and stays at the converter's own cap so the 400 pre-check and the converter's refusal agree (DiGi-Organization/DiGi.GIS.WebAPI#56).</para>
         /// </summary>
         public static readonly int MaximumAggregateSummariesMeasureCount = 100;
     }

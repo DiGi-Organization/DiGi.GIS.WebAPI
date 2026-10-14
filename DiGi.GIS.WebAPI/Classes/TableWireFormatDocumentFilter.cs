@@ -8,7 +8,7 @@ namespace DiGi.GIS.WebAPI.Classes
 {
     /// <summary>
     /// Removes the Core.IO <see cref="Row"/> component a generated document no longer references.
-    /// <para>Swashbuckle registers that component while it generates a table's schema - a Core.IO table is an <c>IEnumerable&lt;Row&gt;</c>, so the array items reference it - and <see cref="TableWireFormatSchemaFilter"/> then replaces those items with the <c>TableConverter</c> format, whose rows are positional value arrays (ZiolkowskiJakub/DiGi.GIS.WebAPI#44). Nothing else can reference the Core.IO <c>Row</c>, so without this filter the served document would keep advertising a row object schema the wire never carries.</para>
+    /// <para>Swashbuckle registers that component while it generates a table's schema - a Core.IO table is an <c>IEnumerable&lt;Row&gt;</c>, so the array items reference it - and <see cref="TableWireFormatSchemaFilter"/> then replaces those items with the <c>TableConverter</c> format, whose rows are positional value arrays (DiGi-Organization/DiGi.GIS.WebAPI#44). Nothing else can reference the Core.IO <c>Row</c>, so without this filter the served document would keep advertising a row object schema the wire never carries.</para>
     /// <para>Registered through the host's <c>IWebAPIDocumentFilter</c> hook, after the host's own document filters, mirroring how <c>DiGi.WebAPI.WindowsService</c> removes its unreferenced enum components.</para>
     /// </summary>
     public class TableWireFormatDocumentFilter : IWebAPIDocumentFilter
