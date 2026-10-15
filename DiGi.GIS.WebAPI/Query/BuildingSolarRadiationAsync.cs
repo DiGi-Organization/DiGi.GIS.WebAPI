@@ -2,7 +2,6 @@ using DiGi.GIS.Classes;
 using DiGi.GIS.WebAPI.Classes;
 using DiGi.WebAPI.Classes;
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -50,10 +49,7 @@ namespace DiGi.GIS.WebAPI
             UrlBuilder urlBuilder = new(path);
             urlBuilder.AddParameter("id", buildingModelId);
             urlBuilder.AddParameter("countyid", countyId);
-            // TODO [UrlBuilderInvariantDouble]: UrlBuilder.AddParameter(string, double) formats with CurrentCulture, so under
-            // pl-PL 50.5 goes out as "50,5" and the exact radius key never matches. Pass the invariant string until that
-            // overload formats with CultureInfo.InvariantCulture (DiGi.WebAPI), then go back to the double overload.
-            urlBuilder.AddParameter("radius", radius.ToString(CultureInfo.InvariantCulture));
+            urlBuilder.AddParameter("radius", radius);
             urlBuilder.AddParameter("solverversion", solverVersion);
             if (includeShadingFactors)
             {
