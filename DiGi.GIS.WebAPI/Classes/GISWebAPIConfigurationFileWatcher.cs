@@ -168,6 +168,18 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Gets a value indicating whether signed-in users may store the solar radiation of a building (<c>gis/buildingsolarradiation/setsolarradiation</c>).
+        /// <para>The write is authorized by the user's bearer token, not by the access key, so this flag is the host's only switch for it. A missing value denies.</para>
+        /// </summary>
+        public bool AllowUpdateSolarRadiationData
+        {
+            get
+            {
+                return ConfigurationFile.GetValue<bool>(nameof(AllowUpdateSolarRadiationData));
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether updates to territorial unit data are permitted according to the configuration file.
         /// </summary>
         public bool AllowUpdateUnit

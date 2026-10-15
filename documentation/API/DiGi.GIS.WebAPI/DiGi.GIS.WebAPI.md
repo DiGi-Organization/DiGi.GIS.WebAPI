@@ -691,6 +691,53 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.YearBuiltDataRemoveResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.yearbuiltdataremoveresult 'DiGi\.GIS\.PostgreSQL\.Classes\.YearBuiltDataRemoveResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task returning the counts, or null when the request was refused or failed\.
 
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
+
+## Modify\.SetBuildingSolarRadiationAsync\(this GISWebAPIManager, BuildingSolarRadiationResult, string, PostOptions, CancellationToken\) Method
+
+Stores the solar radiation of a building through `gis/buildingsolarradiation/setsolarradiation`, on behalf of the signed\-in user whose token is given\.
+
+The body is the DiGi JSON of [buildingSolarRadiationResult](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).buildingSolarRadiationResult 'DiGi\.GIS\.WebAPI\.Modify\.SetBuildingSolarRadiationAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, DiGi\.GIS\.Classes\.BuildingSolarRadiationResult, string, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.buildingSolarRadiationResult') (`ToJsonObject()`, keeping `_type` and the declared names), never `JsonContent.Create`, which would write System.Text.Json's camelCase shape (`Coding - WebAPI Contracts.md` §2). The host stamps the user email from the token and the time itself, and needs `AllowUpdateSolarRadiationData`.
+
+```csharp
+public static System.Threading.Tasks.Task<System.Nullable<long>> SetBuildingSolarRadiationAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, DiGi.GIS.Classes.BuildingSolarRadiationResult? buildingSolarRadiationResult, string? tokenString, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gisWebAPIManager'></a>
+
+`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The manager that creates the HTTP client\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).buildingSolarRadiationResult'></a>
+
+`buildingSolarRadiationResult` [DiGi\.GIS\.Classes\.BuildingSolarRadiationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult')
+
+The result to store; every surface must carry 8 760 shading factors\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).tokenString'></a>
+
+`tokenString` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The signed\-in user's bearer token\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions'></a>
+
+`postOptions` [DiGi\.WebAPI\.Classes\.PostOptions](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.postoptions 'DiGi\.WebAPI\.Classes\.PostOptions')
+
+The options of the request; null for the defaults\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result contains the id of the stored row, or null when the request was refused or failed\.
+
 <a name='DiGi.GIS.WebAPI.Modify.UpdateBuildingDataYearBuiltAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken)'></a>
 
 ## Modify\.UpdateBuildingDataYearBuiltAsync\(this GISWebAPIManager, IEnumerable\<int\>, IEnumerable\<string\>, int, PostOptions, string, CancellationToken\) Method
@@ -2257,6 +2304,71 @@ public static class Query
 
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → Query
 ### Methods
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
+
+## Query\.BuildingSolarRadiationAsync\(this GISWebAPIManager, long, int, double, int, bool, PostOptions, CancellationToken\) Method
+
+Reads the stored solar radiation of a building model through `gis/buildingsolarradiation/solarradiationbybuildingmodelid`\.
+
+The query parameter names are the controller's (`id`, `countyid`, `radius`, `solverversion`, `shadingfactors`): an unknown name would be ignored by the host and answer an unfiltered 200 (`Coding - WebAPI Contracts.md` §1).
+
+```csharp
+public static System.Threading.Tasks.Task<DiGi.GIS.Classes.BuildingSolarRadiationResult?> BuildingSolarRadiationAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, long buildingModelId, int countyId, double radius, int solverVersion, bool includeShadingFactors=false, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gisWebAPIManager'></a>
+
+`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The manager that creates the HTTP client\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).buildingModelId'></a>
+
+`buildingModelId` [System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')
+
+The id of the building model\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The county part the building is filed under\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).radius'></a>
+
+`radius` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The neighbour radius, in m, exactly as stored \(rounded by the producer to 0\.1 m\)\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).solverVersion'></a>
+
+`solverVersion` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The solver version\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).includeShadingFactors'></a>
+
+`includeShadingFactors` [System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')
+
+True to read every surface's shading factors too\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions'></a>
+
+`postOptions` [DiGi\.WebAPI\.Classes\.PostOptions](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.postoptions 'DiGi\.WebAPI\.Classes\.PostOptions')
+
+The options of the request; null for the defaults\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[DiGi\.GIS\.Classes\.BuildingSolarRadiationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result contains the stored result, or null when nothing is stored for the key or the request failed\.
 
 <a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,System.Threading.CancellationToken)'></a>
 

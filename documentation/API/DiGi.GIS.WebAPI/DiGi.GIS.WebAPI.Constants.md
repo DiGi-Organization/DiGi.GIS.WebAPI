@@ -113,6 +113,19 @@ public static class Header
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → Header
 ### Fields
 
+<a name='DiGi.GIS.WebAPI.Constants.Header.EPWFileId'></a>
+
+## Header\.EPWFileId Field
+
+The response header of `gis/epwfile/item` carrying the id of the `epw_file` row whose file the body holds, as an invariant integer\. A client stores it as the weather source id of a solar radiation summary; the body is unchanged\.
+
+```csharp
+public const string EPWFileId = "DiGi-EPWFile-Id";
+```
+
+#### Field Value
+[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
 <a name='DiGi.GIS.WebAPI.Constants.Header.NextCursor'></a>
 
 ## Header\.NextCursor Field
@@ -247,6 +260,32 @@ Each county costs a grouped aggregate over one partition, which is cheap, but th
 
 ```csharp
 public static readonly int MaximumSummaryCountyCount;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.SolarRadiation'></a>
+
+## SolarRadiation Class
+
+Provides the constants of the stored solar radiation endpoints\.
+
+```csharp
+public static class SolarRadiation
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → SolarRadiation
+### Fields
+
+<a name='DiGi.GIS.WebAPI.Constants.SolarRadiation.HourCount'></a>
+
+## SolarRadiation\.HourCount Field
+
+The number of hours of the solar reference year, and so the length of every surface's shading factors a stored result must carry: 365 days of 24 hours, 29 February excluded\.
+
+```csharp
+public const int HourCount = 8760;
 ```
 
 #### Field Value

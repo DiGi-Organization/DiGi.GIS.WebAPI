@@ -113,6 +113,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Asynchronously retrieves the closest EPWFile to the given coordinate (x, y).
+        /// <para>The response header <c>DiGi-EPWFile-Id</c> (<see cref="Constants.Header.EPWFileId"/>) carries the id of the <c>epw_file</c> row the body holds, as an invariant integer, so a client can name the weather source of a stored solar radiation summary. The body is unchanged.</para>
         /// </summary>
         /// <param name="x">The X coordinate (longitude).</param>
         /// <param name="y">The Y coordinate (latitude).</param>
@@ -138,18 +139,20 @@ namespace DiGi.GIS.WebAPI.Classes
 
             try
             {
-                EPWFile? ePWFile = await ePWFilePostgreSQLConverter.GetEPWFileAsync(x, y, cancellationToken: cancellationToken);
-                if (ePWFile is null)
+                (int Id, EPWFile EPWFile)? ePWFileWithId = await ePWFilePostgreSQLConverter.GetEPWFileWithIdAsync(x, y, cancellationToken: cancellationToken);
+                if (ePWFileWithId is null)
                 {
                     Serilog.Modify.Log("No EPWFile found for coordinates: X={X}, Y={Y}", x, y);
                     return NotFound();
                 }
 
-                string? json = ePWFile.ToJsonObject()?.ToJsonString();
+                string? json = ePWFileWithId.Value.EPWFile.ToJsonObject()?.ToJsonString();
                 if (string.IsNullOrWhiteSpace(json))
                 {
                     return NotFound();
                 }
+
+                HttpContext.Response.Headers[Constants.Header.EPWFileId] = ePWFileWithId.Value.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
                 return Content(json, "application/json");
             }

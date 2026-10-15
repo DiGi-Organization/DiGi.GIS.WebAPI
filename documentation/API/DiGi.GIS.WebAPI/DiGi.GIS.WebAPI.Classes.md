@@ -4672,6 +4672,153 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. The task result is true if all batches were posted successfully; otherwise, false\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController'></a>
+
+## BuildingSolarRadiationController Class
+
+Serves the stored solar radiation of buildings \(`building_solar_radiation`\): a read open to every visitor, and a write that only a signed\-in user can make\.
+
+A stored result is keyed by county part, building model id, neighbour radius and solver version. Its weather members describe the stored summary, not the key, so a client compares them with its own weather source and rebuilds the summary from the stored shading factors when they differ.
+
+```csharp
+public class BuildingSolarRadiationController : DiGi.WebAPI.Classes.WebAPIController
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [Microsoft\.AspNetCore\.Mvc\.ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase 'Microsoft\.AspNetCore\.Mvc\.ControllerBase') → [DiGi\.WebAPI\.Classes\.WebAPIController](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.webapicontroller 'DiGi\.WebAPI\.Classes\.WebAPIController') → BuildingSolarRadiationController
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.BuildingSolarRadiationController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore)'></a>
+
+## BuildingSolarRadiationController\(GISWebAPIConfigurationFileWatcher, BuildingSolarRadiationPostgreSQLConverter, Building2DPostgreSQLConverter, AdministrativeAreal2DPostgreSQLConverter, SecurityKeyManager, TokenRevocationStore\) Constructor
+
+Initializes a new instance of the [BuildingSolarRadiationController](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController 'DiGi\.GIS\.WebAPI\.Classes\.BuildingSolarRadiationController') class\. This is the controller's only public constructor: MVC activates it through `ActivatorUtilities`, and a second one would answer every action with 500 \(`Coding - WebAPI Contracts.md` §5\)\.
+
+```csharp
+public BuildingSolarRadiationController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter buildingSolarRadiationPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter, DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager=null, DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore=null);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.BuildingSolarRadiationController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).GISWebAPIConfigurationFileWatcher'></a>
+
+`GISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
+
+The configuration watcher holding [AllowUpdateSolarRadiationData](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateSolarRadiationData 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateSolarRadiationData')\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.BuildingSolarRadiationController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).buildingSolarRadiationPostgreSQLConverter'></a>
+
+`buildingSolarRadiationPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.BuildingSolarRadiationPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.buildingsolarradiationpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.BuildingSolarRadiationPostgreSQLConverter')
+
+The converter of the `building_solar_radiation` table \(Storage database\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.BuildingSolarRadiationController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).building2DPostgreSQLConverter'></a>
+
+`building2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter')
+
+The converter of the `building_2d` table \(Main database\), which decides the county part a write is filed under\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.BuildingSolarRadiationController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).administrativeAreal2DPostgreSQLConverter'></a>
+
+`administrativeAreal2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter')
+
+The converter of the `administrative_areal_2d` table \(Main database\), which widens that decision to the sibling parts of the county\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.BuildingSolarRadiationController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).securityKeyManager'></a>
+
+`securityKeyManager` [DiGi\.WebAPI\.Classes\.SecurityKeyManager](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.securitykeymanager 'DiGi\.WebAPI\.Classes\.SecurityKeyManager')
+
+The user extension's security key manager; `null` when the user extension is not loaded, in which case every write is refused with 401\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.BuildingSolarRadiationController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).tokenRevocationStore'></a>
+
+`tokenRevocationStore` [DiGi\.WebAPI\.Classes\.TokenRevocationStore](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.tokenrevocationstore 'DiGi\.WebAPI\.Classes\.TokenRevocationStore')
+
+The user extension's token revocation store; `null` when the user extension is not loaded, in which case every write is refused with 401\.
+### Methods
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken)'></a>
+
+## BuildingSolarRadiationController\.GetSolarRadiationByBuildingModelIdAsync\(Nullable\<long\>, Nullable\<int\>, Nullable\<double\>, Nullable\<int\>, Nullable\<bool\>, CancellationToken\) Method
+
+Reads the stored solar radiation of a building model\.
+
+Open to every visitor, like the building model read the panel already uses. Every parameter is bound as nullable, and a missing one answers 400 rather than meaning `default` (`Coding - WebAPI Contracts.md` §2). The row is looked for under [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingSolarRadiationController\.GetSolarRadiationByBuildingModelIdAsync\(System\.Nullable\<long\>, System\.Nullable\<int\>, System\.Nullable\<double\>, System\.Nullable\<int\>, System\.Nullable\<bool\>, System\.Threading\.CancellationToken\)\.countyId') and then under every county part, because a building of a multi-part county may be filed under a sibling part.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSolarRadiationByBuildingModelIdAsync(System.Nullable<long> id, System.Nullable<int> countyId, System.Nullable<double> radius, System.Nullable<int> solverVersion, System.Nullable<bool> includeShadingFactors, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken).id'></a>
+
+`id` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The id of the building model\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The county part the building is filed under\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken).radius'></a>
+
+`radius` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The neighbour radius, in m, exactly as stored \(the producer rounds it to 0\.1 m\); it is not rounded here\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken).solverVersion'></a>
+
+`solverVersion` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The solver version\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken).includeShadingFactors'></a>
+
+`includeShadingFactors` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+True to include every surface's shading factors \(8 760 bytes each, base64\); omitted or false leaves them null, which is all a client needs when the stored summary matches its weather source\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the [DiGi\.GIS\.Classes\.BuildingSolarRadiationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult'), 204 when nothing is stored for the key, 400 for a missing or invalid parameter, 503 for a transient database failure, or 500\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationAsync(System.Text.Json.Nodes.JsonObject,System.Threading.CancellationToken)'></a>
+
+## BuildingSolarRadiationController\.SetSolarRadiationAsync\(JsonObject, CancellationToken\) Method
+
+Stores the solar radiation of a building on behalf of the signed\-in visitor, replacing the result stored for the same key\.
+
+The bearer token identifies the user, as for `yearbuiltdata/setuseryearbuilt`, and [AllowUpdateSolarRadiationData](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateSolarRadiationData 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateSolarRadiationData') gates the write; each refusal is logged distinctly so the cause of a 4xx is recoverable where the status is shared. The server stamps [DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\.UserEmail](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult.useremail 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\.UserEmail') from the token, ignoring any value in the body, and sets [DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\.CreatedAt](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult.createdat 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\.CreatedAt') to now.
+
+The body is the DiGi JSON of a [DiGi\.GIS\.Classes\.BuildingSolarRadiationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult') (`ToJsonObject()`, with `_type`), bound as a [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject') so the host's System.Text.Json formatter never sees the DiGi layout. The county part is resolved from the body's reference through `building_2d`, widened to the sibling parts of the body's `CountyId`; the body's part is only the candidate (`Coding - GIS Administrative Data.md`).
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SetSolarRadiationAsync(System.Text.Json.Nodes.JsonObject? jsonObject, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationAsync(System.Text.Json.Nodes.JsonObject,System.Threading.CancellationToken).jsonObject'></a>
+
+`jsonObject` [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
+The result to store\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationAsync(System.Text.Json.Nodes.JsonObject,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the id of the stored row; 401 without a valid user token; 400 for a disabled flag or an invalid body; 404 when no part of the county holds the reference; 503 for a transient database failure; or 500 when the write failed\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingsPostTask'></a>
 
 ## BuildingsPostTask Class
@@ -4986,6 +5133,8 @@ The converter used for handling EPW file operations within the PostgreSQL databa
 
 Asynchronously retrieves the closest EPWFile to the given coordinate \(x, y\)\.
 
+The response header `DiGi-EPWFile-Id` ([EPWFileId](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.Header.EPWFileId 'DiGi\.GIS\.WebAPI\.Constants\.Header\.EPWFileId')) carries the id of the `epw_file` row the body holds, as an invariant integer, so a client can name the weather source of a stored solar radiation summary. The body is unchanged.
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetEPWFileAsync(double x, double y, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -5288,6 +5437,21 @@ Gets a value indicating whether updates to orthophoto data are permitted accordi
 
 ```csharp
 public bool AllowUpdateOrtoDatas { get; }
+```
+
+#### Property Value
+[System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')
+
+<a name='DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateSolarRadiationData'></a>
+
+## GISWebAPIConfigurationFileWatcher\.AllowUpdateSolarRadiationData Property
+
+Gets a value indicating whether signed\-in users may store the solar radiation of a building \(`gis/buildingsolarradiation/setsolarradiation`\)\.
+
+The write is authorized by the user's bearer token, not by the access key, so this flag is the host's only switch for it. A missing value denies.
+
+```csharp
+public bool AllowUpdateSolarRadiationData { get; }
 ```
 
 #### Property Value
