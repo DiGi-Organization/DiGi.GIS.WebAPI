@@ -122,6 +122,12 @@
 		<Reference Include="DiGi.PostgreSQL.Table">
 		  <HintPath>..\..\DiGi.PostgreSQL\bin\DiGi.PostgreSQL.Table.dll</HintPath>
 		</Reference>
+		<Reference Include="DiGi.PRG">
+		  <HintPath>..\..\DiGi.PRG\bin\DiGi.PRG.dll</HintPath>
+		</Reference>
+		<Reference Include="DiGi.PRG.Geometry">
+		  <HintPath>..\..\DiGi.PRG\bin\DiGi.PRG.Geometry.dll</HintPath>
+		</Reference>
 		<Reference Include="DiGi.Serilog">
 		  <HintPath>..\..\DiGi.Serilog\bin\DiGi.Serilog.dll</HintPath>
 		</Reference>

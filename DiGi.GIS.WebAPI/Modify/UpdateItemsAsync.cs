@@ -219,6 +219,37 @@ namespace DiGi.GIS.WebAPI
         }
 
         /// <summary>
+        /// Asynchronously stores PRG address points for explicitly identified county rows via the Web API.
+        /// <para>A multi-part county holds one <c>administrative_areal_2d</c> row per polygon part, so pass every part rather than picking one - the server assigns each point to the part it lies in. There is deliberately no single-id or <c>code</c> overload.</para>
+        /// </summary>
+        /// <param name="GISWebAPIManager">The manager instance used to facilitate the web API communication.</param>
+        /// <param name="addressPoints">A collection of <see cref="AddressPoint"/> objects to be stored.</param>
+        /// <param name="countyIds">The identifiers of the county rows the address points belong to. Normally every polygon part of one county.</param>
+        /// <param name="postOptions">Optional configuration options for the POST request.</param>
+        /// <param name="key">The optional API authorization key used for authenticating requests to protected endpoints.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public static async Task<bool> UpdateItemsAsync(this GISWebAPIManager? GISWebAPIManager, IEnumerable<AddressPoint>? addressPoints, IEnumerable<int>? countyIds, PostOptions? postOptions = null, string? key = null)
+        {
+            if (GISWebAPIManager is null || addressPoints is null)
+            {
+                return false;
+            }
+
+            HttpClient? httpClient = GISWebAPIManager.CreateHttpClient<AddressPointController>(nameof(AddressPointController.UpdateItemsByCountyIdsAsync), out string? path);
+            if (httpClient is null || string.IsNullOrWhiteSpace(path))
+            {
+                return false;
+            }
+
+            UrlBuilder urlBuilder = new(path);
+            urlBuilder.AddParameter("countyids", countyIds);
+
+            string? key_Resolved = key ?? (postOptions as SerializableObjectsPostOptions)?.Key ?? GISWebAPIManager.Key;
+
+            return await UpdateItemsAsync(httpClient, urlBuilder, Core.Convert.ToSystem_String(addressPoints), postOptions, key_Resolved);
+        }
+
+        /// <summary>
         /// Asynchronously updates multiple occupancy data items via the Web API.
         /// </summary>
         /// <param name="GISWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to create the HTTP client for the request.</param>

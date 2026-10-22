@@ -57,6 +57,17 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Gets a value indicating whether updates to PRG address points are permitted according to the configuration file.
+        /// </summary>
+        public bool AllowUpdateAddressPoint
+        {
+            get
+            {
+                return ConfigurationFile.GetValue<bool>(nameof(AllowUpdateAddressPoint));
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether updates to administrative areal 2D data are permitted according to the configuration file.
         /// </summary>
         public bool AllowUpdateAdministrativeAreal2D

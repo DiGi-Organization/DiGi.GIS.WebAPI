@@ -3,6 +3,260 @@
 ## DiGi\.GIS\.WebAPI\.Classes Namespace
 ### Classes
 
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController'></a>
+
+## AddressPointController Class
+
+Web API controller for PRG address points: stores the address points of a county and searches buildings by address\.
+
+```csharp
+public class AddressPointController : DiGi.WebAPI.Classes.WebAPIController
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [Microsoft\.AspNetCore\.Mvc\.ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase 'Microsoft\.AspNetCore\.Mvc\.ControllerBase') → [DiGi\.WebAPI\.Classes\.WebAPIController](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.webapicontroller 'DiGi\.WebAPI\.Classes\.WebAPIController') → AddressPointController
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.AddressPointController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter)'></a>
+
+## AddressPointController\(GISWebAPIConfigurationFileWatcher, AddressPointPostgreSQLConverter, Building2DPostgreSQLConverter, AdministrativeAreal2DPostgreSQLConverter\) Constructor
+
+Initializes a new instance of the [AddressPointController](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AddressPointController 'DiGi\.GIS\.WebAPI\.Classes\.AddressPointController') class\.
+
+```csharp
+public AddressPointController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter addressPointPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.AddressPointController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).GISWebAPIConfigurationFileWatcher'></a>
+
+`GISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
+
+The configuration file watcher holding the access key and the [AllowUpdateAddressPoint](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateAddressPoint 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateAddressPoint') flag\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.AddressPointController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).addressPointPostgreSQLConverter'></a>
+
+`addressPointPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.addresspointpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointPostgreSQLConverter')
+
+The converter of the address point table\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.AddressPointController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).building2DPostgreSQLConverter'></a>
+
+`building2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter')
+
+The converter the building footprints the points are matched to are read through\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.AddressPointController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).administrativeAreal2DPostgreSQLConverter'></a>
+
+`administrativeAreal2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter')
+
+The converter the county part polygons and the sibling parts of a county are read through\.
+### Methods
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetAddressPointsByReferenceAsync(string,System.Threading.CancellationToken)'></a>
+
+## AddressPointController\.GetAddressPointsByReferenceAsync\(string, CancellationToken\) Method
+
+Retrieves the address points matched to one building: the reverse of [GetBuildingsByAddressAsync\(string, string, Nullable&lt;int&gt;, Nullable&lt;int&gt;, CancellationToken\)](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AddressPointController.GetBuildingsByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Classes\.AddressPointController\.GetBuildingsByAddressAsync\(string, string, System\.Nullable\<int\>, System\.Nullable\<int\>, System\.Threading\.CancellationToken\)')\.
+
+A building may hold any number of address points; a building with none answers an empty array.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetAddressPointsByReferenceAsync(string? reference, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetAddressPointsByReferenceAsync(string,System.Threading.CancellationToken).reference'></a>
+
+`reference` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The `building_2d` reference of the building\. Required\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetAddressPointsByReferenceAsync(string,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token to observe\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the matches \(an empty array when none\), 400 for a missing reference, or 500 when the lookup could not run\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetBuildingsByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Threading.CancellationToken)'></a>
+
+## AddressPointController\.GetBuildingsByAddressAsync\(string, string, Nullable\<int\>, Nullable\<int\>, CancellationToken\) Method
+
+Searches the buildings by address: a free\-text street or locality name, tolerating typos, missing diacritics and partial names, optionally narrowed by house number and county part\.
+
+Answers the matched address points in rank order - similarity first, then an exact house number before a prefix match (`12` finds `12A` and `12/3`, not `120`). Each [DiGi\.GIS\.Classes\.AddressPointMatch](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.addresspointmatch 'DiGi\.GIS\.Classes\.AddressPointMatch') carries the reference and guid of its building together with the address point; points matched to no building are left out. Read the building geometry through `gis/building2d/itemsbyreferences`.
+
+[countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AddressPointController.GetBuildingsByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.AddressPointController\.GetBuildingsByAddressAsync\(string, string, System\.Nullable\<int\>, System\.Nullable\<int\>, System\.Threading\.CancellationToken\)\.countyId') filters on one county <b>part</b>: a county with disconnected territory is stored as one row per part, so search such a county without the filter, or once per part.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetBuildingsByAddressAsync(string? text, string? houseNumber, System.Nullable<int> countyId, System.Nullable<int> limit=20, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetBuildingsByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Threading.CancellationToken).text'></a>
+
+`text` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The street or locality name to search for, as typed\. Required\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetBuildingsByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Threading.CancellationToken).houseNumber'></a>
+
+`houseNumber` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The house number to narrow the result to, or null for any\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetBuildingsByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The county part id to narrow the result to, or null for every county\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetBuildingsByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Threading.CancellationToken).limit'></a>
+
+`limit` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The maximum number of results, from 1 to 100\. Out\-of\-range values are refused, not clamped\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetBuildingsByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token to observe\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the matches \(an empty array when none\), or 400 for a missing or empty text, a text that normalises to nothing, or an invalid limit or county id\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.UpdateItemsByCountyIdsAsync(System.Text.Json.Nodes.JsonArray,int[],string,System.Threading.CancellationToken)'></a>
+
+## AddressPointController\.UpdateItemsByCountyIdsAsync\(JsonArray, int\[\], string, CancellationToken\) Method
+
+Stores the PRG address points of one county: assigns every point to the county part it lies in, matches it to the nearest `building_2d` footprint of that part and writes the match\.
+
+The county part is resolved per point <b>by geometry</b>, never by taking a single id on trust (DiGi.GIS.WebAPI#25): the given ids are first widened to every polygon part of the counties they name, so a caller sending one part of a multi-part county does not lose the points lying in its siblings. A point inside none of the parts is counted as outside and not written.
+
+Answers 401 for a wrong key and, distinctly logged, for a disabled [AllowUpdateAddressPoint](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateAddressPoint 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateAddressPoint') flag; 503 with `Retry-After` for a transient database failure.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> UpdateItemsByCountyIdsAsync(System.Text.Json.Nodes.JsonArray? jsonArray, int[]? countyIds, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.UpdateItemsByCountyIdsAsync(System.Text.Json.Nodes.JsonArray,int[],string,System.Threading.CancellationToken).jsonArray'></a>
+
+`jsonArray` [System\.Text\.Json\.Nodes\.JsonArray](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonarray 'System\.Text\.Json\.Nodes\.JsonArray')
+
+The JSON array of [DiGi\.GIS\.Classes\.AddressPoint](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.addresspoint 'DiGi\.GIS\.Classes\.AddressPoint') items to store\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.UpdateItemsByCountyIdsAsync(System.Text.Json.Nodes.JsonArray,int[],string,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[\[\]](https://learn.microsoft.com/en-us/dotnet/api/system.array 'System\.Array')
+
+The county part ids the points belong to, one occurrence per part\. Normally every polygon part of one county\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.UpdateItemsByCountyIdsAsync(System.Text.Json.Nodes.JsonArray,int[],string,System.Threading.CancellationToken).key'></a>
+
+`key` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The secret access key supplied in the request header\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.UpdateItemsByCountyIdsAsync(System.Text.Json.Nodes.JsonArray,int[],string,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token to observe\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the [DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointUpdateResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.addresspointupdateresult 'DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointUpdateResult'), 204 for an empty body, 400 for invalid input, 401, 500 or 503\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask'></a>
+
+## AddressPointsPostTask Class
+
+Provides functionality to handle the asynchronous posting of multiple PRG [DiGi\.GIS\.Classes\.AddressPoint](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.addresspoint 'DiGi\.GIS\.Classes\.AddressPoint') objects to the GIS PostgreSQL database\.
+
+```csharp
+public class AddressPointsPostTask : DiGi.GIS.WebAPI.Classes.SerializableObjectsPostTask<DiGi.GIS.Classes.AddressPoint>
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [DiGi\.Core\.Classes\.BackgroundTask](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.backgroundtask 'DiGi\.Core\.Classes\.BackgroundTask') → [DiGi\.Core\.Classes\.CancelableBackgroundTask](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.cancelablebackgroundtask 'DiGi\.Core\.Classes\.CancelableBackgroundTask') → [DiGi\.Core\.Classes\.ReportableBackgroundTask&lt;](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.reportablebackgroundtask-1 'DiGi\.Core\.Classes\.ReportableBackgroundTask\`1')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.reportablebackgroundtask-1 'DiGi\.Core\.Classes\.ReportableBackgroundTask\`1') → [DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostTask&lt;](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.SerializableObjectsPostTask_T_ 'DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostTask\<T\>')[DiGi\.GIS\.Classes\.AddressPoint](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.addresspoint 'DiGi\.GIS\.Classes\.AddressPoint')[&gt;](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.SerializableObjectsPostTask_T_ 'DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostTask\<T\>') → AddressPointsPostTask
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.AddressPointsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager)'></a>
+
+## AddressPointsPostTask\(GISWebAPIManager\) Constructor
+
+Initializes a new instance of the AddressPointsPostTask class\.
+
+```csharp
+public AddressPointsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.AddressPointsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+
+`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') used to manage PostgreSQL GIS operations\.
+### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.CountyIds'></a>
+
+## AddressPointsPostTask\.CountyIds Property
+
+Gets or sets the identifiers of the county rows the address points belong to \- every polygon part of one county, never a county code: a multi\-part county holds one row per part, and the server assigns each point to the part it lies in\.
+
+```csharp
+public System.Collections.Generic.IEnumerable<int>? CountyIds { get; set; }
+```
+
+#### Property Value
+[System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
+### Methods
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.ExecuteAsync(System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AddressPoint_,System.Collections.Generic.IEnumerable_int_,DiGi.Core.Classes.LongProgressWrapper,System.Threading.CancellationToken)'></a>
+
+## AddressPointsPostTask\.ExecuteAsync\(IEnumerable\<AddressPoint\>, IEnumerable\<int\>, LongProgressWrapper, CancellationToken\) Method
+
+Asynchronously executes the task of posting address points to the database, keyed by county identifiers\.
+
+```csharp
+protected System.Threading.Tasks.Task<bool> ExecuteAsync(System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.AddressPoint>? values, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.Core.Classes.LongProgressWrapper? longProgressWrapper, System.Threading.CancellationToken cancellationToken);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.ExecuteAsync(System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AddressPoint_,System.Collections.Generic.IEnumerable_int_,DiGi.Core.Classes.LongProgressWrapper,System.Threading.CancellationToken).values'></a>
+
+`values` [System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[DiGi\.GIS\.Classes\.AddressPoint](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.addresspoint 'DiGi\.GIS\.Classes\.AddressPoint')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
+
+The collection of [DiGi\.GIS\.Classes\.AddressPoint](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.addresspoint 'DiGi\.GIS\.Classes\.AddressPoint') instances to post\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.ExecuteAsync(System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AddressPoint_,System.Collections.Generic.IEnumerable_int_,DiGi.Core.Classes.LongProgressWrapper,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
+
+The identifiers of the county rows the address points belong to\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.ExecuteAsync(System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AddressPoint_,System.Collections.Generic.IEnumerable_int_,DiGi.Core.Classes.LongProgressWrapper,System.Threading.CancellationToken).longProgressWrapper'></a>
+
+`longProgressWrapper` [DiGi\.Core\.Classes\.LongProgressWrapper](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.longprogresswrapper 'DiGi\.Core\.Classes\.LongProgressWrapper')
+
+A [DiGi\.Core\.Classes\.LongProgressWrapper](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.longprogresswrapper 'DiGi\.Core\.Classes\.LongProgressWrapper') tracking the progress of the operation\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.ExecuteAsync(System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AddressPoint_,System.Collections.Generic.IEnumerable_int_,DiGi.Core.Classes.LongProgressWrapper,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result is true if all batches were posted successfully; otherwise, false\.
+
 <a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DController'></a>
 
 ## AdministrativeAreal2DController Class
@@ -5338,6 +5592,19 @@ public bool AllowDeleteYearBuiltData { get; }
 #### Property Value
 [System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')
 
+<a name='DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateAddressPoint'></a>
+
+## GISWebAPIConfigurationFileWatcher\.AllowUpdateAddressPoint Property
+
+Gets a value indicating whether updates to PRG address points are permitted according to the configuration file\.
+
+```csharp
+public bool AllowUpdateAddressPoint { get; }
+```
+
+#### Property Value
+[System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')
+
 <a name='DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateAdministrativeAreal2D'></a>
 
 ## GISWebAPIConfigurationFileWatcher\.AllowUpdateAdministrativeAreal2D Property
@@ -7647,6 +7914,7 @@ The type of serializable object being posted, which must implement [DiGi\.Core\.
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [DiGi\.Core\.Classes\.BackgroundTask](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.backgroundtask 'DiGi\.Core\.Classes\.BackgroundTask') → [DiGi\.Core\.Classes\.CancelableBackgroundTask](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.cancelablebackgroundtask 'DiGi\.Core\.Classes\.CancelableBackgroundTask') → [DiGi\.Core\.Classes\.ReportableBackgroundTask&lt;](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.reportablebackgroundtask-1 'DiGi\.Core\.Classes\.ReportableBackgroundTask\`1')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.reportablebackgroundtask-1 'DiGi\.Core\.Classes\.ReportableBackgroundTask\`1') → SerializableObjectsPostTask\<T\>
 
 Derived  
+↳ [AddressPointsPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AddressPointsPostTask 'DiGi\.GIS\.WebAPI\.Classes\.AddressPointsPostTask')  
 ↳ [AdministrativeAreal2DsPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DsPostTask 'DiGi\.GIS\.WebAPI\.Classes\.AdministrativeAreal2DsPostTask')  
 ↳ [Building2DsPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.Building2DsPostTask 'DiGi\.GIS\.WebAPI\.Classes\.Building2DsPostTask')  
 ↳ [BuildingModelsPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingModelsPostTask 'DiGi\.GIS\.WebAPI\.Classes\.BuildingModelsPostTask')  
