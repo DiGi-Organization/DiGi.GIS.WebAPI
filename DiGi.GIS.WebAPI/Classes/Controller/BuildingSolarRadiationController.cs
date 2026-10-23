@@ -16,6 +16,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class BuildingSolarRadiationController : DiGi.WebAPI.Classes.WebAPIController
     {
         private readonly AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;

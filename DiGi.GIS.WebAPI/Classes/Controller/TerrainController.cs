@@ -25,6 +25,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class TerrainController : DiGi.WebAPI.Classes.WebAPIController
     {
         /// <summary>

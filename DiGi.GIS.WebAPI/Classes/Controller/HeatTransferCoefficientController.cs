@@ -13,6 +13,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class HeatTransferCoefficientController : DiGi.WebAPI.Classes.WebAPIController
     {
         private static readonly RegulatedHeatTransferCoefficientsManager regulatedHeatTransferCoefficientsManager = DiGi.Analytical.Building.HVAC.Create.RegulatedHeatTransferCoefficientsManager();

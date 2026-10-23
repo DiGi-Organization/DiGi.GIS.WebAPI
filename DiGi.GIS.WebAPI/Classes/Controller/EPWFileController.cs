@@ -18,6 +18,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class EPWFileController : WebAPIController
     {
         private readonly EPWFilePostgreSQLConverter ePWFilePostgreSQLConverter;
@@ -90,7 +91,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 ids = await ePWFilePostgreSQLConverter.InsertAsync(ePWFiles, cancellationToken: cancellationToken);
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Database could not be updated");
                 return StatusCode(500, "Internal server error during database update");

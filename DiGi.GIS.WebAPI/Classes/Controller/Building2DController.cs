@@ -4,6 +4,7 @@ using DiGi.GIS.PostgreSQL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,6 +20,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class Building2DController : DiGi.WebAPI.Classes.WebAPIController
     {
         private readonly PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;
@@ -1209,7 +1211,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 postgreSQLUpdateResult = await building2DPostgreSQLConverter.UpdateAsync(building2Ds_PostgreSQL);
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Database could not be updated");
                 return StatusCode(500, "Database update failed.");
@@ -1362,7 +1364,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 Serilog.Modify.Log("Updating to database ended. Updated Building2Ds: {After}/{Before}, rejected: {Rejected}", updateItemsResult.Updated, updateItemsResult.Sent, updateItemsResult.Rejected.Count);
                 return Ok(updateItemsResult);
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Unhandled error during Building2DController.UpdateItemsByCountyIdsAsync");
                 return StatusCode(500, exception.Message);

@@ -18,6 +18,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class AddressPointController : DiGi.WebAPI.Classes.WebAPIController
     {
         private const int limit_Maximum = 100;

@@ -19,6 +19,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class BuildingController : DiGi.WebAPI.Classes.WebAPIController
     {
         private readonly AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;
@@ -543,7 +544,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 building = building_PostgreSQL.ToDiGi();
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Failed to retrieve Building for reference {Reference} (countyId {CountyId})", reference, countyId?.ToString() ?? string.Empty);
                 return Problem(detail: "Failed to retrieve the building for the provided reference.", statusCode: StatusCodes.Status500InternalServerError);

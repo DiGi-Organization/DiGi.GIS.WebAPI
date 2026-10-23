@@ -20,6 +20,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class OrtoDatasController : DiGi.WebAPI.Classes.WebAPIController
     {
         private readonly PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;
@@ -1551,7 +1552,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 Serilog.Modify.Log("{Count} items acknowledged and removed from queue", count_Deleted);
                 return Ok(count_Deleted);
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Database could not be updated during acknowledgement");
                 return StatusCode(500, "Internal server error during database update");

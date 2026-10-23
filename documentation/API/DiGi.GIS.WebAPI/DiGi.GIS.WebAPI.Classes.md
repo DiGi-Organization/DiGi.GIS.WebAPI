@@ -8874,6 +8874,71 @@ The resolved tolerance, in metres\.
 [System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')  
 [true](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/bool 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/builtin\-types/bool') when the tolerance is usable; otherwise [false](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/bool 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/builtin\-types/bool')\.
 
+<a name='DiGi.GIS.WebAPI.Classes.TransientDatabaseFailureAttribute'></a>
+
+## TransientDatabaseFailureAttribute Class
+
+Answers a transient database failure that escapes an action with HTTP 503 and `Retry-After: 30` \- the "retry can succeed" response the hand\-written `catch (NpgsqlException exception) when (exception.IsTransient)` blocks give \- instead of the host's uniform 500 \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#71\)\.
+
+Applied at class level to every GIS controller, so an action that has no catch of its own, and every action added later, keeps the contract. An action with a generic `catch (Exception)` must let the transient failure through (`when (exception is not NpgsqlException { IsTransient: true })`) for this filter to see it. Any other exception is left unhandled, so the host still answers 500.
+
+A failure counts as transient when the exception or one of its inner exceptions is an [Npgsql\.NpgsqlException](https://learn.microsoft.com/en-us/dotnet/api/npgsql.npgsqlexception 'Npgsql\.NpgsqlException') with [Npgsql\.NpgsqlException\.IsTransient](https://learn.microsoft.com/en-us/dotnet/api/npgsql.npgsqlexception.istransient 'Npgsql\.NpgsqlException\.IsTransient') set - a refused or dropped connection, a timeout, or a server that is starting up, in recovery or out of connection slots.
+
+```csharp
+public sealed class TransientDatabaseFailureAttribute : Microsoft.AspNetCore.Mvc.Filters.ExceptionFilterAttribute
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [System\.Attribute](https://learn.microsoft.com/en-us/dotnet/api/system.attribute 'System\.Attribute') → [Microsoft\.AspNetCore\.Mvc\.Filters\.ExceptionFilterAttribute](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.filters.exceptionfilterattribute 'Microsoft\.AspNetCore\.Mvc\.Filters\.ExceptionFilterAttribute') → TransientDatabaseFailureAttribute
+### Fields
+
+<a name='DiGi.GIS.WebAPI.Classes.TransientDatabaseFailureAttribute.Message'></a>
+
+## TransientDatabaseFailureAttribute\.Message Field
+
+The response body, matching the hand\-written blocks\.
+
+```csharp
+public const string Message = "Database temporarily unavailable; retry shortly";
+```
+
+#### Field Value
+[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+<a name='DiGi.GIS.WebAPI.Classes.TransientDatabaseFailureAttribute.RetryAfter'></a>
+
+## TransientDatabaseFailureAttribute\.RetryAfter Field
+
+The seconds a client is told to wait before retrying, matching the hand\-written blocks\.
+
+```csharp
+public const string RetryAfter = "30";
+```
+
+#### Field Value
+[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+### Methods
+
+<a name='DiGi.GIS.WebAPI.Classes.TransientDatabaseFailureAttribute.IsTransient(System.Exception)'></a>
+
+## TransientDatabaseFailureAttribute\.IsTransient\(Exception\) Method
+
+Checks whether an exception, or one of its inner exceptions, is a transient [Npgsql\.NpgsqlException](https://learn.microsoft.com/en-us/dotnet/api/npgsql.npgsqlexception 'Npgsql\.NpgsqlException')\.
+
+```csharp
+public static bool IsTransient(System.Exception? exception);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.TransientDatabaseFailureAttribute.IsTransient(System.Exception).exception'></a>
+
+`exception` [System\.Exception](https://learn.microsoft.com/en-us/dotnet/api/system.exception 'System\.Exception')
+
+The exception to check\.
+
+#### Returns
+[System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')  
+[true](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/bool 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/builtin\-types/bool') when a retry can succeed; otherwise [false](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/bool 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/builtin\-types/bool')\.
+
 <a name='DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter'></a>
 
 ## UniqueValuesByColumnUniqueIdParameter Class

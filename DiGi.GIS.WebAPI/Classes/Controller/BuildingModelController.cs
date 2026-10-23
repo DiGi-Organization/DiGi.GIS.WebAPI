@@ -20,6 +20,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class BuildingModelController : DiGi.WebAPI.Classes.WebAPIController
     {
         private readonly PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;
@@ -210,7 +211,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 building2DReferences = await building2DPostgreSQLConverter.GetBuilding2DReferencesByCircle2DAsync(new Circle2D(new Point2D(x, y), radius_Temp), tolerance.Value, cancellationToken: cancellationToken);
             }
             // A cancellation raised by the caller's token is left to propagate; anything else is a genuine read failure.
-            catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+            catch (Exception exception) when (!cancellationToken.IsCancellationRequested && exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Building2DReferences could not be read within the circle. SqlState: {SqlState}", exception is Npgsql.PostgresException postgresException ? postgresException.SqlState : string.Empty);
                 return StatusCode(500, "Database read failed.");
@@ -239,7 +240,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 }
                 // A county that cannot be read is a failure of the whole answer, not a county to skip:
                 // carrying on would return a partial set of models as though it were complete.
-                catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+                catch (Exception exception) when (!cancellationToken.IsCancellationRequested && exception is not NpgsqlException { IsTransient: true })
                 {
                     Serilog.Modify.Log(exception, "BuildingModels could not be read from {TableName} for CountyId {CountyId}. SqlState: {SqlState}", buildingModelPostgreSQLConverter.TableName, countyId, exception is Npgsql.PostgresException postgresException ? postgresException.SqlState : string.Empty);
                     return StatusCode(500, "Database read failed.");
@@ -323,7 +324,7 @@ namespace DiGi.GIS.WebAPI.Classes
             }
             // Left unhandled this answers a bare 500 with nothing written to the log, which is what
             // made a dropped table indistinguishable from an unreachable database from the outside.
-            catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+            catch (Exception exception) when (!cancellationToken.IsCancellationRequested && exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "BuildingModels could not be read from {TableName} for CountyId {CountyId}. SqlState: {SqlState}", buildingModelPostgreSQLConverter.TableName, countyId?.ToString() ?? string.Empty, exception is Npgsql.PostgresException postgresException ? postgresException.SqlState : string.Empty);
                 return StatusCode(500, "Database read failed.");

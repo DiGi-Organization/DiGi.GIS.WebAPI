@@ -6,6 +6,7 @@ using DiGi.WebAPI.Classes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
@@ -19,6 +20,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class UnitController : WebAPIController
     {
         private readonly GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher;
@@ -104,7 +106,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 Serilog.Modify.Log("Updating to database ended. Updated Units: {After}/{Before}", ids.Count, count_Before);
                 return Ok(ids);
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Database could not be updated");
                 return StatusCode(500, "Internal server error during database update");

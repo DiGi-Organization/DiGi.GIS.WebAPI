@@ -6,6 +6,7 @@ using DiGi.WebAPI.Classes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -20,6 +21,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class AdministrativeAreal2DController : WebAPIController
     {
         private readonly AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;
@@ -186,7 +188,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 return Content(json, "application/json");
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Error in GetReferencePathsByNameAsync");
                 return StatusCode(500, "An error occurred while processing the geospatial data.");
@@ -237,7 +239,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 return Content(json, "application/json");
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Error in GetReferencesByNameAsync");
                 return StatusCode(500, "An error occurred while processing the geospatial data.");
@@ -286,7 +288,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 return Content(json, "application/json");
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Error in GetAdministrativeAreal2DReferencePathsByNameAsync");
                 return StatusCode(500, "An error occurred while processing the geospatial data.");
@@ -334,7 +336,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 return Content(json, "application/json");
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Error in GetAdministrativeAreal2DReferencePathsByNameParameterAsync");
                 return StatusCode(500, "An error occurred while processing the geospatial data.");
@@ -383,7 +385,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 return Content(json, "application/json");
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Error in GetAdministrativeAreal2DReferencesByNameParameterAsync");
                 return StatusCode(500, "An error occurred while processing the geospatial data.");

@@ -17,6 +17,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class OccupancyDataController : DiGi.WebAPI.Classes.WebAPIController
     {
         private readonly AdministrativeAreal2DOccupancyDataPostgreSQLConverter administrativeAreal2DOccupancyDataPostgreSQLConverter;
@@ -110,7 +111,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 ids = await administrativeAreal2DOccupancyDataPostgreSQLConverter.UpdateAsync(administrativeAreal2DBuilding2DOccupancyDatas_PostgreSQL);
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "Database could not be updated");
                 return StatusCode(500, "Database update failed.");

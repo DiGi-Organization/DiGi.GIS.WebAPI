@@ -17,6 +17,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
+    [TransientDatabaseFailure]
     public class YearBuiltDataController : DiGi.WebAPI.Classes.WebAPIController
     {
         private const int referenceCount_Maximum = 10000;
@@ -1111,7 +1112,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 throw;
             }
-            catch (Exception exception)
+            catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
                 Serilog.Modify.Log(exception, "YearBuiltDatas could not be read from {TableName} for CountyId {CountyId}", yearBuiltDataPostgreSQLConverter.TableName, countyId?.ToString() ?? string.Empty);
                 return StatusCode(500, "Database read failed.");
