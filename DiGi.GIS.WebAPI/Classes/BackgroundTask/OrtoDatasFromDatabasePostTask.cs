@@ -96,6 +96,14 @@ namespace DiGi.GIS.WebAPI.Classes
                 }
             }
 
+            // TODO [PostAsyncStatusCode]: PostAsync reports a non-transient response only as a plain Exception whose message names the
+            // status code, so a 404 is recognised by that message. Remove once DiGi.WebAPI.Modify.PostAsync exposes the status code of a
+            // failed response, and match on that instead.
+            static bool IsNotFound(Exception exception)
+            {
+                return exception.GetType() == typeof(Exception) && exception.Message.StartsWith(string.Format("Server returned {0}.", System.Net.HttpStatusCode.NotFound), StringComparison.Ordinal);
+            }
+
             async Task<PostResponse<List<Building2DReference>?>> ClaimAsync()
             {
                 while (true)
@@ -152,7 +160,20 @@ namespace DiGi.GIS.WebAPI.Classes
                             // A factory rather than a single-use HttpContent - the body is rebuilt per attempt, so a dropped pooled
                             // connection is retried instead of skipping the batch. A null body means the references failed to
                             // serialize; the exception is the failure signal, handled by the catch below.
-                            PostResponse<List<GIS.Classes.Building2D>?> postResponse_Building2Ds = await DiGi.WebAPI.Modify.PostAsync<List<GIS.Classes.Building2D>>(httpClient_Building2D, requestUri_Building2D, async () => await Create.HttpContent(building2DReferences_Claimed, cancellationToken).ConfigureAwait(false) ?? throw new InvalidOperationException("HttpContent for Building2D references could not be created"), postOptions);
+                            // The endpoint answers 404 when none of the references has a building_2d row any more (a queue entry outliving
+                            // its row). That is an empty batch, not a server fault, so it neither stops the run nor counts as a failure;
+                            // the references stay claimed and return to the queue when their lease expires.
+                            PostResponse<List<GIS.Classes.Building2D>?> postResponse_Building2Ds;
+                            try
+                            {
+                                postResponse_Building2Ds = await DiGi.WebAPI.Modify.PostAsync<List<GIS.Classes.Building2D>>(httpClient_Building2D, requestUri_Building2D, async () => await Create.HttpContent(building2DReferences_Claimed, cancellationToken).ConfigureAwait(false) ?? throw new InvalidOperationException("HttpContent for Building2D references could not be created"), postOptions);
+                            }
+                            catch (Exception exception) when (IsNotFound(exception))
+                            {
+                                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "No Building2Ds found for {Count} references in county {CountyId}; they stay claimed and return to the queue when their lease expires", building2DReferences_Claimed.Count, countyId.Value);
+                                continue;
+                            }
+
                             if (postResponse_Building2Ds is null || !postResponse_Building2Ds.Succeeded)
                             {
                                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Building2Ds could not be fetched for {Count} references in county {CountyId}", building2DReferences_Claimed.Count, countyId.Value);
