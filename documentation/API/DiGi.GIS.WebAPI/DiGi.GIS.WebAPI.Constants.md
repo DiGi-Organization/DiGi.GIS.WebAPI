@@ -3,6 +3,34 @@
 ## DiGi\.GIS\.WebAPI\.Constants Namespace
 ### Classes
 
+<a name='DiGi.GIS.WebAPI.Constants.Building2D'></a>
+
+## Building2D Class
+
+Provides the limits applied to building 2D queries served by the GIS PostgreSQL Web API\.
+
+```csharp
+public static class Building2D
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → Building2D
+### Fields
+
+<a name='DiGi.GIS.WebAPI.Constants.Building2D.MaximumEstimatedCountCountyCount'></a>
+
+## Building2D\.MaximumEstimatedCountCountyCount Field
+
+The largest number of county parts a single estimated count request may name\.
+
+An estimate is read from the catalogue rather than the table, so the whole country - 406 county parts - costs one query and is well inside the cap. The cap only stops a request from naming an unbounded list.
+
+```csharp
+public static readonly int MaximumEstimatedCountCountyCount;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Constants.BuildingData'></a>
 
 ## BuildingData Class

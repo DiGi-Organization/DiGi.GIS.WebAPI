@@ -121,6 +121,59 @@ namespace DiGi.GIS.WebAPI.Classes
             return Content(json, "application/json");
         }
 
+        /// <summary>
+        /// Asynchronously returns the estimated number of buildings held by each of the named county parts.
+        /// <para>Read from the planner's row estimate of each county's <c>building_2d</c> partition, not counted: the whole country answers in one catalogue query, where an exact count reads every partition. The estimate is as fresh as the partition's last analyse, which is close enough for a coarse share such as a coverage marker and not for a figure anyone reconciles against.</para>
+        /// <para>The values come back in the order the identifiers were given, one per identifier, so a caller pairs them up by position. A value is <c>null</c> where the part has no partition or the partition has never been analysed - an unknown, never a zero.</para>
+        /// </summary>
+        /// <param name="countyIds">The county part identifiers, as a repeated <c>countyids</c> parameter. At least one and at most <see cref="Constants.Building2D.MaximumEstimatedCountCountyCount"/>.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with one estimate or <c>null</c> per identifier, 400 for invalid parameters, 503 on a transient database failure, or 500 when the estimates could not be read.</returns>
+        [HttpGet("estimatedcountsbycountyids", Name = $"{nameof(Building2DController)}_{nameof(GetEstimatedCountsByCountyIdsAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<long?>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetEstimatedCountsByCountyIdsAsync([BindRequired, FromQuery(Name = "countyids")] List<int>? countyIds, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for {CountyCount} counties", nameof(Building2DController), nameof(GetEstimatedCountsByCountyIdsAsync), countyIds?.Count ?? 0);
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            if (countyIds is null || countyIds.Count == 0 || countyIds.Count > Constants.Building2D.MaximumEstimatedCountCountyCount || countyIds.Any(x => x <= 0))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CountyIds must hold between 1 and {Maximum} positive identifiers", Constants.Building2D.MaximumEstimatedCountCountyCount);
+                return BadRequest();
+            }
+
+            if (building2DPostgreSQLConverter is null)
+            {
+                return BadRequest();
+            }
+
+            Dictionary<int, long>? counts = await building2DPostgreSQLConverter.GetEstimatedCountsAsync(countyIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+            if (counts is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Estimated Building2D counts could not be read");
+                return StatusCode(500, "Estimated Building2D counts could not be read.");
+            }
+
+            // A never-analysed partition reports a negative estimate; that is an unknown, so it is answered null rather than as a count.
+            List<long?> result = [];
+            foreach (int countyId in countyIds)
+            {
+                result.Add(counts.TryGetValue(countyId, out long count) && count >= 0 ? count : null);
+            }
+
+            return Content(System.Text.Json.JsonSerializer.Serialize(result), "application/json");
+        }
+
         /// <summary> Asynchronously retrieves a building 2D reference by its unique identifier and an optional county identifier. </summary>
         /// <param name="id">The unique identifier of the building.</param>
         /// <param name="countyId">An optional integer representing the county identifier used to filter the search.</param>

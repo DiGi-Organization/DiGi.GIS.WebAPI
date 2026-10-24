@@ -1728,6 +1728,43 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task representing the asynchronous operation, returning one entry per county part holding buildings\.
 
+<a name='DiGi.GIS.WebAPI.Classes.Building2DController.GetEstimatedCountsByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken)'></a>
+
+## Building2DController\.GetEstimatedCountsByCountyIdsAsync\(List\<int\>, int, CancellationToken\) Method
+
+Asynchronously returns the estimated number of buildings held by each of the named county parts\.
+
+Read from the planner's row estimate of each county's `building_2d` partition, not counted: the whole country answers in one catalogue query, where an exact count reads every partition. The estimate is as fresh as the partition's last analyse, which is close enough for a coarse share such as a coverage marker and not for a figure anyone reconciles against.
+
+The values come back in the order the identifiers were given, one per identifier, so a caller pairs them up by position. A value is `null` where the part has no partition or the partition has never been analysed - an unknown, never a zero.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetEstimatedCountsByCountyIdsAsync(System.Collections.Generic.List<int>? countyIds, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.Building2DController.GetEstimatedCountsByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The county part identifiers, as a repeated `countyids` parameter\. At least one and at most [MaximumEstimatedCountCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.Building2D.MaximumEstimatedCountCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.Building2D\.MaximumEstimatedCountCountyCount')\.
+
+<a name='DiGi.GIS.WebAPI.Classes.Building2DController.GetEstimatedCountsByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.Building2DController.GetEstimatedCountsByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with one estimate or `null` per identifier, 400 for invalid parameters, 503 on a transient database failure, or 500 when the estimates could not be read\.
+
 <a name='DiGi.GIS.WebAPI.Classes.Building2DController.GetItemByIdAsync(long,System.Nullable_int_,System.Threading.CancellationToken)'></a>
 
 ## Building2DController\.GetItemByIdAsync\(long, Nullable\<int\>, CancellationToken\) Method
