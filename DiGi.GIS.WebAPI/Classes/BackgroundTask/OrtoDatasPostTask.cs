@@ -99,6 +99,42 @@ namespace DiGi.GIS.WebAPI.Classes
             return result;
         }
 
+        /// <summary>
+        /// Asynchronously posts orthodata in memory-sized batches, naming the county rows they belong to.
+        /// <para>Several identifiers are the polygon parts of one county, and the server files each entry under the part holding its <c>building_2d</c> row; a single identifier is written verbatim.</para>
+        /// </summary>
+        /// <param name="values">The orthodata to post.</param>
+        /// <param name="countyIds">The identifiers of the county rows the orthodata belongs to - normally every polygon part of one county.</param>
+        /// <param name="longProgressWrapper">Tracks the number of entries posted.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. True when every batch was accepted; false when there was nothing to post or a batch was refused.</returns>
+        protected async Task<bool> ExecuteAsync(IEnumerable<OrtoDatas>? values, IEnumerable<int>? countyIds, LongProgressWrapper? longProgressWrapper, CancellationToken cancellationToken)
+        {
+            if (values is null || !values.Any() || countyIds is null || !countyIds.Any())
+            {
+                return false;
+            }
+
+            List<OrtoDatas>? ortoDatasList;
+            bool result = true;
+
+            MemorySizeSplitter<OrtoDatas> memorySizeSplitter = new(values);
+            while ((ortoDatasList = memorySizeSplitter.Next(SerializableObjectsPostOptions.BatchMemorySize)) is not null)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                longProgressWrapper?.Increment(ortoDatasList.Count);
+
+                result = await GISWebAPIManager.UpdateItemsAsync(ortoDatasList, countyIds, SerializableObjectsPostOptions);
+                if (!result)
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+
         protected override async Task<bool> ExecuteAsync(IProgress<long> progress, CancellationToken cancellationToken)
         {
             LongProgressWrapper? longProgressWrapper = Core.Create.LongProgressWrapper(progress);

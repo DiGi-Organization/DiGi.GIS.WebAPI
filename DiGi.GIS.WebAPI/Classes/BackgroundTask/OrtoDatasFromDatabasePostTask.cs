@@ -4,6 +4,7 @@ using DiGi.GIS.PostgreSQL.Classes;
 using DiGi.WebAPI.Classes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -81,6 +82,43 @@ namespace DiGi.GIS.WebAPI.Classes
 
             PostOptions postOptions = new() { RequestResult = true };
 
+            // Every polygon part of each county, keyed by part id. A queue entry names the part its building was under when it was
+            // queued, and a building can since have moved to a sibling part - the 86 196 sibling duplicates removed on 2026-08-14 left
+            // whole parts queued with no building_2d row (58 648 entries under 25886, tomaszowski 1016, whose buildings are under
+            // 25887). Sending every part makes the upload file each entry under the part its building_2d row is in; a single id is
+            // written verbatim. Without the list a part stands for itself, which is what a single-part county is anyway.
+            Dictionary<int, List<int>> countyIds_Parts = [];
+            HttpClient? httpClient_AdministrativeAreal2D = GISWebAPIManager.CreateHttpClient<AdministrativeAreal2DController>(nameof(AdministrativeAreal2DController.GetAdministrativeAreal2DReferencesByAdministrativeArealTypeAsync), out string? path_AdministrativeAreal2D);
+            if (httpClient_AdministrativeAreal2D is not null && !string.IsNullOrWhiteSpace(path_AdministrativeAreal2D))
+            {
+                try
+                {
+                    // The administrativearealtype parameter is not nullable-safe on omission - always sent.
+                    string requestUri_AdministrativeAreal2D = new UrlBuilder(path_AdministrativeAreal2D).AddParameter("administrativearealtype", (int)PostgreSQL.Enums.AdministrativeArealType.County).ToString();
+                    PostResponse<List<AdministrativeAreal2DReference>?> postResponse_AdministrativeAreal2DReferences = await DiGi.WebAPI.Query.GetAsync<List<AdministrativeAreal2DReference>>(httpClient_AdministrativeAreal2D, requestUri_AdministrativeAreal2D, postOptions);
+                    if (postResponse_AdministrativeAreal2DReferences?.Result is List<AdministrativeAreal2DReference> administrativeAreal2DReferences)
+                    {
+                        foreach (IGrouping<string, AdministrativeAreal2DReference> grouping in administrativeAreal2DReferences.Where(x => x is not null && !string.IsNullOrWhiteSpace(x.Code)).GroupBy(x => x.Code!))
+                        {
+                            List<int> countyIds_Code = [.. grouping.Select(x => x.Id).Distinct().OrderBy(x => x)];
+                            foreach (int countyId_Part in countyIds_Code)
+                            {
+                                countyIds_Parts[countyId_Part] = countyIds_Code;
+                            }
+                        }
+                    }
+                }
+                catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+                {
+                    Serilog.Modify.Log(exception, "County parts could not be read; each queue entry is uploaded under the part it was queued under");
+                }
+            }
+
+            List<int> CountyIds(int countyId)
+            {
+                return countyIds_Parts.TryGetValue(countyId, out List<int>? countyIds_Code) ? countyIds_Code : [countyId];
+            }
+
             int maxConsecutiveFailureCount = MaxConsecutiveFailureCount < 1 ? 1 : MaxConsecutiveFailureCount;
             int failureCount = 0;
 
@@ -102,6 +140,27 @@ namespace DiGi.GIS.WebAPI.Classes
             static bool IsNotFound(Exception exception)
             {
                 return exception.GetType() == typeof(Exception) && exception.Message.StartsWith(string.Format("Server returned {0}.", System.Net.HttpStatusCode.NotFound), StringComparison.Ordinal);
+            }
+
+            // A factory rather than a single-use HttpContent - the body is rebuilt per attempt, so a dropped pooled connection is retried
+            // instead of skipping the batch. The endpoint answers 404 when none of the references is found, which is an empty result,
+            // not a fault: answered as an empty list. Null means the fetch did not succeed; any other failure is thrown.
+            async Task<List<GIS.Classes.Building2D>?> Building2DsAsync(List<Building2DReference> building2DReferences_Fetch)
+            {
+                try
+                {
+                    PostResponse<List<GIS.Classes.Building2D>?> postResponse_Building2Ds = await DiGi.WebAPI.Modify.PostAsync<List<GIS.Classes.Building2D>>(httpClient_Building2D, requestUri_Building2D, async () => await Create.HttpContent(building2DReferences_Fetch, cancellationToken).ConfigureAwait(false) ?? throw new InvalidOperationException("HttpContent for Building2D references could not be created"), postOptions);
+                    if (postResponse_Building2Ds is null || !postResponse_Building2Ds.Succeeded)
+                    {
+                        return null;
+                    }
+
+                    return postResponse_Building2Ds.Result ?? [];
+                }
+                catch (Exception exception) when (IsNotFound(exception))
+                {
+                    return [];
+                }
             }
 
             async Task<PostResponse<List<Building2DReference>?>> ClaimAsync()
@@ -155,37 +214,50 @@ namespace DiGi.GIS.WebAPI.Classes
 
                         try
                         {
-                            List<GIS.Classes.Building2D>? building2Ds = null;
-
-                            // A factory rather than a single-use HttpContent - the body is rebuilt per attempt, so a dropped pooled
-                            // connection is retried instead of skipping the batch. A null body means the references failed to
-                            // serialize; the exception is the failure signal, handled by the catch below.
-                            // The endpoint answers 404 when none of the references has a building_2d row any more (a queue entry outliving
-                            // its row). That is an empty batch, not a server fault, so it neither stops the run nor counts as a failure;
-                            // the references stay claimed and return to the queue when their lease expires.
-                            PostResponse<List<GIS.Classes.Building2D>?> postResponse_Building2Ds;
-                            try
-                            {
-                                postResponse_Building2Ds = await DiGi.WebAPI.Modify.PostAsync<List<GIS.Classes.Building2D>>(httpClient_Building2D, requestUri_Building2D, async () => await Create.HttpContent(building2DReferences_Claimed, cancellationToken).ConfigureAwait(false) ?? throw new InvalidOperationException("HttpContent for Building2D references could not be created"), postOptions);
-                            }
-                            catch (Exception exception) when (IsNotFound(exception))
-                            {
-                                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "No Building2Ds found for {Count} references in county {CountyId}; they stay claimed and return to the queue when their lease expires", building2DReferences_Claimed.Count, countyId.Value);
-                                continue;
-                            }
-
-                            if (postResponse_Building2Ds is null || !postResponse_Building2Ds.Succeeded)
+                            // Fetched under the part the entries were queued under first: that read is pruned to one partition.
+                            List<GIS.Classes.Building2D>? building2Ds = await Building2DsAsync(building2DReferences_Claimed);
+                            if (building2Ds is null)
                             {
                                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Building2Ds could not be fetched for {Count} references in county {CountyId}", building2DReferences_Claimed.Count, countyId.Value);
                                 RegisterFailure(string.Format("Building2Ds could not be fetched for county {0}", countyId.Value), null);
                                 continue;
                             }
 
-                            building2Ds = postResponse_Building2Ds.Result;
-
-                            if (building2Ds is null || building2Ds.Count == 0)
+                            // An entry whose building is not under that part any more is looked up by its reference alone - the server
+                            // reads every partition for a reference with no county - so a building that moved to a sibling part is still
+                            // downloaded. Only the missing entries pay for that wider read.
+                            HashSet<string> references_Found = [.. building2Ds.Select(x => x?.Reference).OfType<string>()];
+                            List<Building2DReference> building2DReferences_Missing = [];
+                            foreach (Building2DReference building2DReference in building2DReferences_Claimed)
                             {
-                                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "No Building2Ds returned for {Count} references", building2DReferences_Claimed.Count);
+                                if (building2DReference is not null && !string.IsNullOrWhiteSpace(building2DReference.Reference) && !references_Found.Contains(building2DReference.Reference))
+                                {
+                                    building2DReferences_Missing.Add(new Building2DReference(building2DReference) { CountyId = null });
+                                }
+                            }
+
+                            if (building2DReferences_Missing.Count > 0)
+                            {
+                                List<GIS.Classes.Building2D>? building2Ds_ByReference = await Building2DsAsync(building2DReferences_Missing);
+                                int count_ByReference = 0;
+                                foreach (GIS.Classes.Building2D building2D_ByReference in building2Ds_ByReference ?? [])
+                                {
+                                    if (!string.IsNullOrWhiteSpace(building2D_ByReference?.Reference) && references_Found.Add(building2D_ByReference.Reference))
+                                    {
+                                        building2Ds.Add(building2D_ByReference);
+                                        count_ByReference++;
+                                    }
+                                }
+
+                                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Missing} of {Count} references were not under county part {CountyId}; {Found} found by reference alone", building2DReferences_Missing.Count, building2DReferences_Claimed.Count, countyId.Value, count_ByReference);
+                            }
+
+                            // Nothing found under any part: the entries outlived their building_2d rows. An empty batch, not a server
+                            // fault, so it neither stops the run nor counts as a failure; the references stay claimed and return to the
+                            // queue when their lease expires, and are retired after the queue's maximum number of attempts.
+                            if (building2Ds.Count == 0)
+                            {
+                                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "No Building2Ds found for {Count} references in county {CountyId}; they stay claimed and return to the queue when their lease expires", building2DReferences_Claimed.Count, countyId.Value);
                                 continue;
                             }
 
@@ -205,7 +277,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                             if (ortoDatasList.Count > 0)
                             {
-                                bool succeeded = await ExecuteAsync(ortoDatasList, countyId.Value, longProgressWrapper, cancellationToken);
+                                bool succeeded = await ExecuteAsync(ortoDatasList, CountyIds(countyId.Value), longProgressWrapper, cancellationToken);
                                 if (succeeded)
                                 {
                                     failureCount = 0;
