@@ -9677,7 +9677,7 @@ An optional integer representing the county identifier used to filter the search
 
 `fallbackByReference` [System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')
 
-A boolean value indicating whether to perform a fallback search by reference alone for any references not found in the initial search\.
+Whether a reference not found under [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.YearBuiltDataController.GetItemsByReferencesAsync(System.Collections.Generic.IEnumerable_string_,System.Nullable_int_,bool,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.YearBuiltDataController\.GetItemsByReferencesAsync\(System\.Collections\.Generic\.IEnumerable\<string\>, System\.Nullable\<int\>, bool, int, System\.Threading\.CancellationToken\)\.countyId') is also searched under the other polygon parts of the same county, where a row filed under a sibling part sits\. The search is limited to those parts' partitions; a single\-part county needs none\. Without [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.YearBuiltDataController.GetItemsByReferencesAsync(System.Collections.Generic.IEnumerable_string_,System.Nullable_int_,bool,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.YearBuiltDataController\.GetItemsByReferencesAsync\(System\.Collections\.Generic\.IEnumerable\<string\>, System\.Nullable\<int\>, bool, int, System\.Threading\.CancellationToken\)\.countyId') it does nothing\.
 
 <a name='DiGi.GIS.WebAPI.Classes.YearBuiltDataController.GetItemsByReferencesAsync(System.Collections.Generic.IEnumerable_string_,System.Nullable_int_,bool,int,System.Threading.CancellationToken).commandTimeout'></a>
 

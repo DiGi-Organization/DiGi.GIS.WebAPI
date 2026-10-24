@@ -1066,7 +1066,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// </summary>
         /// <param name="references">The collection of unique reference strings used to identify the year built data items.</param>
         /// <param name="countyId">An optional integer representing the county identifier used to filter the search.</param>
-        /// <param name="fallbackByReference">A boolean value indicating whether to perform a fallback search by reference alone for any references not found in the initial search.</param>
+        /// <param name="fallbackByReference">Whether a reference not found under <paramref name="countyId"/> is also searched under the other polygon parts of the same county, where a row filed under a sibling part sits. The search is limited to those parts' partitions; a single-part county needs none. Without <paramref name="countyId"/> it does nothing.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 30 seconds.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation, returning a list of year built data items or no content if none were found.</returns>
@@ -1106,7 +1106,21 @@ namespace DiGi.GIS.WebAPI.Classes
             List<YearBuiltData>? yearBuiltDatas_PostgreSQL;
             try
             {
-                yearBuiltDatas_PostgreSQL = await yearBuiltDataPostgreSQLConverter.GetItemsByReferencesAsync(references_Array, countyId, null, fallbackByReference, commandTimeout, cancellationToken);
+                // The fallback is for a row filed under a sibling polygon part of the county, so it searches those parts only - pruned
+                // to their partitions. Searching the whole table read 10 095 references in 29 s, and timed out under load on a
+                // county's first prediction run, where no reference has a row yet. When the parts cannot be resolved the fallback
+                // keeps the whole-table search: slower, never narrower.
+                HashSet<int>? fallbackCountyIds = null;
+                if (fallbackByReference && countyId is int countyId_Fallback)
+                {
+                    fallbackCountyIds = await PostgreSQL.Query.SiblingCountyIdsAsync(administrativeAreal2DPostgreSQLConverter, [countyId_Fallback], commandTimeout, cancellationToken);
+                    if (fallbackCountyIds is null)
+                    {
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "County parts of {CountyId} could not be resolved - the fallback searches every county", countyId_Fallback);
+                    }
+                }
+
+                yearBuiltDatas_PostgreSQL = await yearBuiltDataPostgreSQLConverter.GetItemsByReferencesAsync(references_Array, countyId, null, fallbackByReference, fallbackCountyIds, commandTimeout, cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
