@@ -227,14 +227,14 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Asynchronously retrieves the number of terrain points stored for one county partition.
-        /// <para>The cheapest question that can be asked of the store, and the one that separates a county that was never sampled from one that was sampled and holds nothing.</para>
+        /// <para>The cheapest question that can be asked of the store. A county part that holds no points answers 0; only an identifier that is not a county part answers 404.</para>
         /// </summary>
         /// <param name="countyId">The identifier of the county partition to count.</param>
         /// <param name="estimated">Reads the planner's row estimate instead of counting the rows. Far faster on a partition of millions and accurate to a few percent, but it reflects the last time the partition was analysed rather than this moment. An unanalysed partition returns 204 NoContent.</param>
         /// <param name="analyze">A boolean value indicating whether to perform an ANALYZE operation before reading the estimate to ensure statistics are current.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
         /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
-        /// <returns>An <see cref="IActionResult"/> carrying the count, 204 NoContent when the partition exists but is unanalysed, or 404 NotFound when the county has no partition.</returns>
+        /// <returns>An <see cref="IActionResult"/> carrying the count, 0 for a county part that has no partition (it holds no rows), 204 NoContent when the partition exists but is unanalysed, or 404 NotFound when the identifier is not a county part.</returns>
         [HttpGet("countbycountyid", Name = $"{nameof(TerrainController)}_{nameof(GetCountByCountyIdAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
@@ -253,12 +253,18 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
+            bool isCounty = false;
             long? count;
             try
             {
                 count = estimated
                     ? await terrainPointPostgreSQLConverter.GetEstimatedCountAsync(countyId, analyze, commandTimeout, cancellationToken)
                     : await terrainPointPostgreSQLConverter.GetCountAsync(countyId, commandTimeout, cancellationToken);
+
+                if (count is null || (!estimated && count < 0))
+                {
+                    isCounty = await administrativeAreal2DPostgreSQLConverter.IsCountyAsync(countyId, commandTimeout, cancellationToken);
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -278,7 +284,13 @@ namespace DiGi.GIS.WebAPI.Classes
 
             if (count is null || (!estimated && count < 0))
             {
-                Serilog.Modify.Log("County {CountyId} has no terrain point partition", countyId);
+                if (isCounty)
+                {
+                    Serilog.Modify.Log("County {CountyId} has no terrain point partition, so it holds no rows", countyId);
+                    return Ok(0L);
+                }
+
+                Serilog.Modify.Log("County {CountyId} is not a county part", countyId);
                 return NotFound();
             }
 

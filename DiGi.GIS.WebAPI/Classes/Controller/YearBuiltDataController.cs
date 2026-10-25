@@ -1000,7 +1000,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <param name="analyze">A boolean value indicating whether to perform an ANALYZE operation before reading the estimate.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
-        /// <returns>An <see cref="IActionResult"/> carrying the count, 204 NoContent when the partition exists but is unanalysed, or 404 NotFound when the county has no partition.</returns>
+        /// <returns>An <see cref="IActionResult"/> carrying the count, 0 for a county part that has no partition (it holds no rows), 204 NoContent when the partition exists but is unanalysed, or 404 NotFound when the identifier is not a county part.</returns>
         [HttpGet("countbycountyid", Name = $"{nameof(YearBuiltDataController)}_{nameof(GetCountByCountyIdAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
@@ -1023,12 +1023,18 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
+            bool isCounty = false;
             long? count;
             try
             {
                 count = estimated
                     ? await yearBuiltDataPostgreSQLConverter.GetEstimatedCountAsync(countyId, analyze, commandTimeout, cancellationToken)
                     : await yearBuiltDataPostgreSQLConverter.GetCountAsync(countyId, commandTimeout, cancellationToken);
+
+                if (count is null || (!estimated && count < 0))
+                {
+                    isCounty = await administrativeAreal2DPostgreSQLConverter.IsCountyAsync(countyId, commandTimeout, cancellationToken);
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -1048,7 +1054,13 @@ namespace DiGi.GIS.WebAPI.Classes
 
             if (count is null || (!estimated && count < 0))
             {
-                Serilog.Modify.Log("County {CountyId} has no year built data partition", countyId);
+                if (isCounty)
+                {
+                    Serilog.Modify.Log("County {CountyId} has no year built data partition, so it holds no rows", countyId);
+                    return Content("0", "application/json");
+                }
+
+                Serilog.Modify.Log("County {CountyId} is not a county part", countyId);
                 return NotFound();
             }
 

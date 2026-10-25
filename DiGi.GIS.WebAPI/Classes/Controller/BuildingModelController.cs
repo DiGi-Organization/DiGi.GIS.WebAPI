@@ -48,7 +48,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <param name="countyId">The identifier of the county part (the <c>building_2d.county_id</c> value, one per polygon part).</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-        /// <returns>An <see cref="IActionResult"/> carrying the row count, or 404 when the county has no building model partition.</returns>
+        /// <returns>An <see cref="IActionResult"/> carrying the row count, 0 for a county part that has no building model partition, or 404 when the identifier is not a county part.</returns>
         [HttpGet("countbycountyid", Name = $"{nameof(BuildingModelController)}_{nameof(GetCountByCountyIdAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
@@ -66,10 +66,16 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
+            bool isCounty = false;
             long count;
             try
             {
                 count = await buildingModelPostgreSQLConverter.GetCountAsync(countyId, commandTimeout, cancellationToken);
+
+                if (count < 0)
+                {
+                    isCounty = await administrativeAreal2DPostgreSQLConverter.IsCountyAsync(countyId, commandTimeout, cancellationToken);
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -89,7 +95,13 @@ namespace DiGi.GIS.WebAPI.Classes
 
             if (count < 0)
             {
-                Serilog.Modify.Log("County {CountyId} has no building model partition", countyId);
+                if (isCounty)
+                {
+                    Serilog.Modify.Log("County {CountyId} has no building model partition, so it holds no rows", countyId);
+                    return Content("0", "application/json");
+                }
+
+                Serilog.Modify.Log("County {CountyId} is not a county part", countyId);
                 return NotFound();
             }
 

@@ -2544,6 +2544,47 @@ The access key to validate\.
 [System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')  
 True if access is authorized; otherwise, false\.
 
+<a name='DiGi.GIS.WebAPI.Query.IsCountyAsync(thisDiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,int,int,System.Threading.CancellationToken)'></a>
+
+## Query\.IsCountyAsync\(this AdministrativeAreal2DPostgreSQLConverter, int, int, CancellationToken\) Method
+
+Asynchronously determines whether an identifier is a county part, that is an `administrative_areal_2d` row of type [DiGi\.GIS\.PostgreSQL\.Enums\.AdministrativeArealType\.County](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.enums.administrativearealtype.county 'DiGi\.GIS\.PostgreSQL\.Enums\.AdministrativeArealType\.County')\.
+
+Separates a known county part that holds no rows of some kind (a count of zero) from an identifier that names no county part (not found). The lookup is made on every call and is not cached.
+
+```csharp
+public static System.Threading.Tasks.Task<bool> IsCountyAsync(this DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter? administrativeAreal2DPostgreSQLConverter, int countyId, int commandTimeout=30, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.IsCountyAsync(thisDiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,int,int,System.Threading.CancellationToken).administrativeAreal2DPostgreSQLConverter'></a>
+
+`administrativeAreal2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter')
+
+The converter used to look the identifier up\.
+
+<a name='DiGi.GIS.WebAPI.Query.IsCountyAsync(thisDiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,int,int,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The identifier to look up\.
+
+<a name='DiGi.GIS.WebAPI.Query.IsCountyAsync(thisDiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,int,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout\. Defaults to 30 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Query.IsCountyAsync(thisDiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,int,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+`true` when the identifier names a county part; `false` when it names a row of another type, names no row, or the converter is `null`\.
+
 <a name='DiGi.GIS.WebAPI.Query.PredictedYearBuiltRunsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
 
 ## Query\.PredictedYearBuiltRunsAsync\(this GISWebAPIManager, IEnumerable\<int\>, int, PostOptions, CancellationToken\) Method

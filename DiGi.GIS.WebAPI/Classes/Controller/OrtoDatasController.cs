@@ -274,7 +274,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Retrieves the orthophoto coverage factor for a specified administrative area 2D identifier.
         /// <para>Below county level the figure is counted rather than estimated. A subdivision and a municipality have no partition of their own - both tables are partitioned by <c>county_id</c> - so the coverage is measured over the buildings whose centre lies inside the area's <b>polygon</b>, by reading its county once per side and matching the references in memory. Membership is geometric, not the stored <c>subdivision_id</c>: where the subdivision layer nests, a district holds nothing by that column while its polygon holds thousands, and a municipality is measured over its own polygon rather than as a sum of its subdivisions, which would count a nested city once per level (DiGi.GIS.PostgreSQL#77). County and above keep the planner's row estimate, which is what makes a voivodeship or a country affordable at all, so an exact sub-county figure and its county's estimate can differ by a few percent and both be right.</para>
-        /// <para>Where building data is measured but no orthophoto partition has been created for a county, the county has zero orthophotos stored and yields a coverage factor of <c>0.0</c>. A coverage that cannot be measured (missing or unanalysed building data, or an unanalysed orthophoto partition) answers 204 NoContent; <c>countbycountyid?estimated=true</c> reads the state of one county, answering 200 when it is analysed, 204 when it is unanalysed and 404 when it has no partition.</para>
+        /// <para>Where building data is measured but no orthophoto partition has been created for a county, the county has zero orthophotos stored and yields a coverage factor of <c>0.0</c>. A coverage that cannot be measured (missing or unanalysed building data, or an unanalysed orthophoto partition) answers 204 NoContent; <c>countbycountyid?estimated=true</c> reads the state of one county, answering 200 when it is analysed (0 for a county part without a partition), 204 when it is unanalysed and 404 when the identifier is not a county part.</para>
         /// </summary>
         /// <param name="administrativeAreal2DId">The unique identifier of the administrative area 2D.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of each command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
@@ -970,12 +970,18 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
+            bool isCounty = false;
             long? count;
             try
             {
                 count = estimated
                     ? await ortoDatasPostgreSQLConverter.GetEstimatedCountAsync(countyId, analyze, commandTimeout, cancellationToken)
                     : await ortoDatasPostgreSQLConverter.GetCountAsync(countyId, commandTimeout, cancellationToken);
+
+                if (count is null || (!estimated && count < 0))
+                {
+                    isCounty = await administrativeAreal2DPostgreSQLConverter.IsCountyAsync(countyId, commandTimeout, cancellationToken);
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -995,7 +1001,13 @@ namespace DiGi.GIS.WebAPI.Classes
 
             if (count is null || (!estimated && count < 0))
             {
-                Serilog.Modify.Log("County {CountyId} has no orthophoto partition", countyId);
+                if (isCounty)
+                {
+                    Serilog.Modify.Log("County {CountyId} has no orthophoto partition, so it holds no rows", countyId);
+                    return Ok(0L);
+                }
+
+                Serilog.Modify.Log("County {CountyId} is not a county part", countyId);
                 return NotFound();
             }
 
