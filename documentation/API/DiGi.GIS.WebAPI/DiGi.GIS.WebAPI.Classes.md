@@ -6711,6 +6711,39 @@ A cancellation token that can be used by the caller to cancel the asynchronous o
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') containing the requested building 2D items, or a [Microsoft\.AspNetCore\.Mvc\.BadRequestResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.badrequestresult 'Microsoft\.AspNetCore\.Mvc\.BadRequestResult') if the reference is null or whitespace\.
 
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDataController.GetBuilding2DSnapshotByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken)'></a>
+
+## OccupancyDataController\.GetBuilding2DSnapshotByCountyIdAsync\(Nullable\<int\>, int, CancellationToken\) Method
+
+Asynchronously retrieves a read\-only snapshot of the stored building occupancy rows, one entry per county part, to compare the stored occupancies before and after a re\-run\.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetBuilding2DSnapshotByCountyIdAsync(System.Nullable<int> countyId=null, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDataController.GetBuilding2DSnapshotByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The optional integer identifier of the county part to restrict the snapshot to; if null, every county part is measured\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDataController.GetBuilding2DSnapshotByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of each command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDataController.GetBuilding2DSnapshotByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token used to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') containing the list of [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DOccupancySnapshotResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2doccupancysnapshotresult 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DOccupancySnapshotResult') \- `200 []` when no row is stored \- or 500 when the query could not run, so "empty" and "failed" are never the same answer\.
+
 <a name='DiGi.GIS.WebAPI.Classes.OccupancyDatasPostTask'></a>
 
 ## OccupancyDatasPostTask Class

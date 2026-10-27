@@ -597,5 +597,62 @@ namespace DiGi.GIS.WebAPI.Classes
                 return StatusCode(500, "Internal server error during database query");
             }
         }
+
+        /// <summary>
+        /// Asynchronously retrieves a read-only snapshot of the stored building occupancy rows, one entry per county part, to compare the stored occupancies before and after a re-run.
+        /// </summary>
+        /// <param name="countyId">The optional integer identifier of the county part to restrict the snapshot to; if null, every county part is measured.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of each command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">The cancellation token used to observe while waiting for the task to complete.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the list of <see cref="Building2DOccupancySnapshotResult"/> - <c>200 []</c> when no row is stored - or 500 when the query could not run, so "empty" and "failed" are never the same answer.</returns>
+        [HttpGet("building2d/snapshotbycountyid", Name = $"{nameof(OccupancyDataController)}_{nameof(GetBuilding2DSnapshotByCountyIdAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<Building2DOccupancySnapshotResult>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetBuilding2DSnapshotByCountyIdAsync([FromQuery(Name = "countyid")] int? countyId = null, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(OccupancyDataController), nameof(GetBuilding2DSnapshotByCountyIdAsync));
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            if (building2DOccupancyDataPostgreSQLConverter is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Building2DOccupancyDataPostgreSQLConverter is null");
+                return BadRequest();
+            }
+
+            try
+            {
+                List<Building2DOccupancySnapshotResult>? building2DOccupancySnapshotResults = await building2DOccupancyDataPostgreSQLConverter.GetOccupancySnapshotsAsync(countyId, commandTimeout, cancellationToken);
+                if (building2DOccupancySnapshotResults is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Occupancy snapshot could not be read");
+                    return StatusCode(500, "Occupancy snapshot could not be read.");
+                }
+
+                return Content(Core.Convert.ToSystem_String(building2DOccupancySnapshotResults) ?? "[]", "application/json");
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(OccupancyDataController), nameof(GetBuilding2DSnapshotByCountyIdAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(OccupancyDataController), nameof(GetBuilding2DSnapshotByCountyIdAsync));
+                return StatusCode(500, "Internal server error during database query");
+            }
+        }
     }
 }
