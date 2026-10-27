@@ -599,6 +599,69 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Asynchronously retrieves, for one county part, each subdivision's occupancy figure next to the sum of the occupancy rows stored for the buildings filed under it, to check that the distribution conserves the figure.
+        /// </summary>
+        /// <param name="countyId">The integer identifier of the county part; required, as an omitted value is refused with HTTP 400 rather than read as zero.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">The cancellation token used to observe while waiting for the task to complete.</param>
+        /// <returns>An <see cref="IActionResult"/> containing the list of <see cref="Building2DOccupancySubdivisionResult"/> - <c>200 []</c> when the county part holds none - or 500 when the query could not run.</returns>
+        [HttpGet("building2d/subdivisionsnapshotbycountyid", Name = $"{nameof(OccupancyDataController)}_{nameof(GetBuilding2DSubdivisionSnapshotByCountyIdAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<Building2DOccupancySubdivisionResult>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetBuilding2DSubdivisionSnapshotByCountyIdAsync([FromQuery(Name = "countyid")] int? countyId = null, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(OccupancyDataController), nameof(GetBuilding2DSubdivisionSnapshotByCountyIdAsync));
+
+            if (countyId is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CountyId is required");
+                return BadRequest();
+            }
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            if (building2DOccupancyDataPostgreSQLConverter is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Building2DOccupancyDataPostgreSQLConverter is null");
+                return BadRequest();
+            }
+
+            try
+            {
+                List<Building2DOccupancySubdivisionResult>? building2DOccupancySubdivisionResults = await building2DOccupancyDataPostgreSQLConverter.GetOccupancySubdivisionSnapshotsAsync(countyId.Value, commandTimeout, cancellationToken);
+                if (building2DOccupancySubdivisionResults is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Occupancy subdivision snapshot could not be read");
+                    return StatusCode(500, "Occupancy subdivision snapshot could not be read.");
+                }
+
+                return Content(Core.Convert.ToSystem_String(building2DOccupancySubdivisionResults) ?? "[]", "application/json");
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(OccupancyDataController), nameof(GetBuilding2DSubdivisionSnapshotByCountyIdAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(OccupancyDataController), nameof(GetBuilding2DSubdivisionSnapshotByCountyIdAsync));
+                return StatusCode(500, "Internal server error during database query");
+            }
+        }
+
+        /// <summary>
         /// Asynchronously retrieves a read-only snapshot of the stored building occupancy rows, one entry per county part, to compare the stored occupancies before and after a re-run.
         /// </summary>
         /// <param name="countyId">The optional integer identifier of the county part to restrict the snapshot to; if null, every county part is measured.</param>

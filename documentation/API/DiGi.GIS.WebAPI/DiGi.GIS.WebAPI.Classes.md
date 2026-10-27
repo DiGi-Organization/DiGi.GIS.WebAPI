@@ -6744,6 +6744,39 @@ The cancellation token used to observe while waiting for the task to complete\.
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') containing the list of [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DOccupancySnapshotResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2doccupancysnapshotresult 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DOccupancySnapshotResult') \- `200 []` when no row is stored \- or 500 when the query could not run, so "empty" and "failed" are never the same answer\.
 
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDataController.GetBuilding2DSubdivisionSnapshotByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken)'></a>
+
+## OccupancyDataController\.GetBuilding2DSubdivisionSnapshotByCountyIdAsync\(Nullable\<int\>, int, CancellationToken\) Method
+
+Asynchronously retrieves, for one county part, each subdivision's occupancy figure next to the sum of the occupancy rows stored for the buildings filed under it, to check that the distribution conserves the figure\.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetBuilding2DSubdivisionSnapshotByCountyIdAsync(System.Nullable<int> countyId=null, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDataController.GetBuilding2DSubdivisionSnapshotByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The integer identifier of the county part; required, as an omitted value is refused with HTTP 400 rather than read as zero\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDataController.GetBuilding2DSubdivisionSnapshotByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDataController.GetBuilding2DSubdivisionSnapshotByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token used to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') containing the list of [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DOccupancySubdivisionResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2doccupancysubdivisionresult 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DOccupancySubdivisionResult') \- `200 []` when the county part holds none \- or 500 when the query could not run\.
+
 <a name='DiGi.GIS.WebAPI.Classes.OccupancyDatasPostTask'></a>
 
 ## OccupancyDatasPostTask Class
