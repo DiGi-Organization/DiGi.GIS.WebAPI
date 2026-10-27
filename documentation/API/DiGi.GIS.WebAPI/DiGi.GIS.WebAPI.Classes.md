@@ -130,6 +130,41 @@ The cancellation token to observe\.
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. 200 with the matches \(an empty array when none\), or 400 for a missing or empty text, a text that normalises to nothing, or an invalid limit or county id\.
 
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetCountByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken)'></a>
+
+## AddressPointController\.GetCountByCountyIdAsync\(Nullable\<int\>, int, CancellationToken\) Method
+
+Counts the stored address points by how each was matched to a building footprint, for one county part or for the whole table\.
+
+Answers an [DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointCountResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.addresspointcountresult 'DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointCountResult'): the points inside a footprint, assigned to the nearest one, and matched to none, together with the total. [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AddressPointController.GetCountByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.AddressPointController\.GetCountByCountyIdAsync\(System\.Nullable\<int\>, int, System\.Threading\.CancellationToken\)\.countyId') is optional and <b>omitting it counts the whole table</b>, which scans every row; raise [commandTimeout](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AddressPointController.GetCountByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Classes\.AddressPointController\.GetCountByCountyIdAsync\(System\.Nullable\<int\>, int, System\.Threading\.CancellationToken\)\.commandTimeout') if a large table needs it. It filters on one county <b>part</b>: a county with disconnected territory is stored as one row per part, so count such a county once per part. A county part with no rows counts zero, not an error.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetCountByCountyIdAsync(System.Nullable<int> countyId, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetCountByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The county part id to count under, or null for the whole table\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetCountByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointController.GetCountByCountyIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token to observe\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the [DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointCountResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.addresspointcountresult 'DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointCountResult'), 400 for a non\-positive county id or a negative timeout, 503 for a transient database failure, or 500 when the count could not run\.
+
 <a name='DiGi.GIS.WebAPI.Classes.AddressPointController.UpdateItemsByCountyIdsAsync(System.Text.Json.Nodes.JsonArray,int[],string,System.Threading.CancellationToken)'></a>
 
 ## AddressPointController\.UpdateItemsByCountyIdsAsync\(JsonArray, int\[\], string, CancellationToken\) Method

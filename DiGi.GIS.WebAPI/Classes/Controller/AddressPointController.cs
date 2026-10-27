@@ -270,5 +270,74 @@ namespace DiGi.GIS.WebAPI.Classes
                 return StatusCode(500, exception.Message);
             }
         }
+
+        /// <summary>
+        /// Counts the stored address points by how each was matched to a building footprint, for one county part or for the whole table.
+        /// <para>Answers an <see cref="AddressPointCountResult"/>: the points inside a footprint, assigned to the nearest one, and matched to none, together with the total. <paramref name="countyId"/> is optional and <b>omitting it counts the whole table</b>, which scans every row; raise <paramref name="commandTimeout"/> if a large table needs it. It filters on one county <b>part</b>: a county with disconnected territory is stored as one row per part, so count such a county once per part. A county part with no rows counts zero, not an error.</para>
+        /// </summary>
+        /// <param name="countyId">The county part id to count under, or null for the whole table.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with the <see cref="AddressPointCountResult"/>, 400 for a non-positive county id or a negative timeout, 503 for a transient database failure, or 500 when the count could not run.</returns>
+        [HttpGet("countbycountyid", Name = $"{nameof(AddressPointController)}_{nameof(GetCountByCountyIdAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(AddressPointCountResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCountByCountyIdAsync([Minimum(1), FromQuery(Name = "countyid")] int? countyId, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(AddressPointController), nameof(GetCountByCountyIdAsync));
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+
+            if (countyId is not null && countyId.Value <= 0)
+            {
+                return BadRequest();
+            }
+
+            if (commandTimeout < 0)
+            {
+                return BadRequest();
+            }
+
+            if (addressPointPostgreSQLConverter is null)
+            {
+                return BadRequest();
+            }
+
+            AddressPointCountResult? addressPointCountResult;
+            try
+            {
+                addressPointCountResult = await addressPointPostgreSQLConverter.GetCountResultAsync(countyId, commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(AddressPointController), nameof(GetCountByCountyIdAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "Database could not be queried");
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            if (addressPointCountResult is null)
+            {
+                return StatusCode(500, "Address points could not be counted.");
+            }
+
+            string? json = Core.Convert.ToSystem_String(addressPointCountResult);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return StatusCode(500, "Address point count result could not be serialized.");
+            }
+
+            return Content(json, "application/json");
+        }
     }
 }
