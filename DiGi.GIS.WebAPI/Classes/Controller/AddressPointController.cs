@@ -243,8 +243,8 @@ namespace DiGi.GIS.WebAPI.Classes
                     return StatusCode(500, "Address points could not be written.");
                 }
 
-                Serilog.Modify.Log("Updating to database ended. Inside: {Inside}, Nearest: {Nearest}, Unmatched: {Unmatched}, Outside: {Outside}, Skipped: {Skipped}, Written: {Written}",
-                    addressPointUpdateResult.Inside, addressPointUpdateResult.Nearest, addressPointUpdateResult.Unmatched, addressPointUpdateResult.Outside, addressPointUpdateResult.Skipped, addressPointUpdateResult.Written);
+                Serilog.Modify.Log("Updating to database ended. Inside: {Inside}, Nearest: {Nearest}, Unmatched: {Unmatched}, Outside: {Outside}, Rescued: {Rescued}, Skipped: {Skipped}, Written: {Written}",
+                    addressPointUpdateResult.Inside, addressPointUpdateResult.Nearest, addressPointUpdateResult.Unmatched, addressPointUpdateResult.Outside, addressPointUpdateResult.Rescued, addressPointUpdateResult.Skipped, addressPointUpdateResult.Written);
 
                 string? json = Core.Convert.ToSystem_String(addressPointUpdateResult);
                 if (string.IsNullOrWhiteSpace(json))
