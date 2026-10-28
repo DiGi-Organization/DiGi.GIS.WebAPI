@@ -668,7 +668,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Resolves which county partitions an area covers.
-        /// <para>This has to happen here rather than inside the terrain converter. The terrain points live in the Storage database and the administrative geometry in Main, and a PostgreSQL connection cannot reach across databases - so the only place both are available is the host, where each converter carries its own connection. The write side has always worked this way; see <c>PostgreSQLTerrainPointCreateTableTask</c>.</para>
+        /// <para>This has to happen here rather than inside the terrain converter. The terrain points live in the Storage database and the administrative geometry in Main, and a PostgreSQL connection cannot reach across databases - so the only place both are available is the host, where each converter carries its own connection. The write side has always worked this way; see <c>PostgreSQLTerrainPointUpdateTask</c>.</para>
         /// </summary>
         /// <param name="boundingBox2D">The area to resolve.</param>
         /// <param name="tolerance">The distance the search area is expanded by, in metres.</param>

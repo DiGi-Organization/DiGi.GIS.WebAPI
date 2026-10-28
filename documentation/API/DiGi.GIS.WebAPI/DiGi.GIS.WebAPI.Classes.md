@@ -8463,7 +8463,7 @@ private const int tileSize = 128;
 
 Resolves which county partitions an area covers\.
 
-This has to happen here rather than inside the terrain converter. The terrain points live in the Storage database and the administrative geometry in Main, and a PostgreSQL connection cannot reach across databases - so the only place both are available is the host, where each converter carries its own connection. The write side has always worked this way; see `PostgreSQLTerrainPointCreateTableTask`.
+This has to happen here rather than inside the terrain converter. The terrain points live in the Storage database and the administrative geometry in Main, and a PostgreSQL connection cannot reach across databases - so the only place both are available is the host, where each converter carries its own connection. The write side has always worked this way; see `PostgreSQLTerrainPointUpdateTask`.
 
 ```csharp
 private System.Threading.Tasks.Task<System.Collections.Generic.HashSet<int>?> CountyIdsAsync(DiGi.Geometry.Planar.Classes.BoundingBox2D boundingBox2D, double tolerance, System.Threading.CancellationToken cancellationToken);
