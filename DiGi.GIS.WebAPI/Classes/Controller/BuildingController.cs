@@ -229,7 +229,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 Serilog.Modify.Log("Updating to database starting");
 
-                PostgreSQLUpdateResult? postgreSQLUpdateResult = await buildingPostgreSQLConverter.UpdateAsync(buildings, countyIds_Candidate);
+                PostgreSQLUpdateResult? postgreSQLUpdateResult = await buildingPostgreSQLConverter.UpdateAsync(buildings, countyIds_Candidate, administrativeAreal2DPostgreSQLConverter);
 
                 UpdateItemsResult? updateItemsResult = postgreSQLUpdateResult.UpdateItemsResult(buildings.Count);
                 if (updateItemsResult is null)
