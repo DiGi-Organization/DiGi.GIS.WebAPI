@@ -23,7 +23,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// Serves the full-interpretation test areas: the epoch list and the materialised imagery of an area, area creation with its server-drawn random cells, the polygons drawn in it, and the interpreter-stamped label rows (DiGi.GIS.WebAPI#74).
     /// <para>Every route sits behind the user session: the bearer token is resolved with <see cref="Query.GetUserEmail"/> and a missing or invalid one answers 401. The query parameter names (<c>x_1</c>, <c>y_1</c>, <c>x_2</c>, <c>y_2</c>, <c>year</c>) are a hand-matched wire contract consumed by DiGi.GIS.WebAPI.UI#84 - renaming one breaks the relay silently, because ASP.NET ignores an unknown parameter and answers with the unfiltered result.</para>
     /// <para>An area is named by <see cref="DiGi.GIS.Query.OrtoLocationKey(BoundingBox2D?)"/> of its box, so all six routes address the same area as long as the box's minimum corner matches; <c>areabyboundingbox</c> creates it on first sight, and every other route refuses a box whose area was never initialized with 400.</para>
-    /// <para>The imagery of an epoch is fetched from the time-enabled WMS once per area and epoch and stored in <c>orto_area_image</c>: imagery (status 0) and the service's own "no imagery" answer (status 1) are both cached, while a transport failure (status 2) is not stored and answers 503 so the next request tries again.</para>
+    /// <para>The imagery of an epoch is fetched from the time-enabled WMS once per area and epoch and stored in <c>orto_area_image</c>: imagery (status 0) and the service's own "no imagery" answer (status 1) are both cached, while a transport failure (status 2) is not stored and answers 503 so the next request tries again. A blank (uniform) tile - the service's HTTP 200 answer for a flaky or missing epoch - is asked for again and, if it stays blank, is not stored either and answers 503; a stored status-0 row is re-checked before it is served, so a blank stored earlier is refetched rather than shown (DiGi.GIS.WebAPI#76).</para>
     /// </summary>
     [ApiController]
     [Route("gis/[controller]")]
@@ -191,7 +191,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <param name="y_2">The northing of the second corner of the bounding box, in EPSG:2180 metres.</param>
         /// <param name="year">The imagery epoch to serve.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous operation. 200 with the image bytes, 401 without a valid user token, 400 for an invalid bounding box, 404 when the epoch has no imagery (cached negative row), 503 when the WMS fetch failed on the transport or the database is transiently unavailable, or 500 when the read or store failed.</returns>
+        /// <returns>A task that represents the asynchronous operation. 200 with the image bytes, 401 without a valid user token, 400 for an invalid bounding box, 404 when the epoch has no imagery (cached negative row), 503 when the WMS fetch failed on the transport, the WMS kept answering a blank tile, or the database is transiently unavailable, or 500 when the read or store failed.</returns>
         [HttpGet("imagebyboundingbox", Name = $"{nameof(OrtoAreaController)}_{nameof(ImageByBoundingBoxAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         // No action-level [Produces]: it restricts every ObjectResult of the action to image/jpeg, so the string-bodied
@@ -237,26 +237,34 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 if (ortoAreaImage is not null)
                 {
-                    if (ortoAreaImage.Status == imageStatus_Imagery && ortoAreaImage.Bytes is not null)
+                    // A stored status-0 row is re-checked before it is served: a blank tile stored before
+                    // DiGi.GIS.WebAPI#76 (or by any other writer) is never shown as imagery - it falls through to a
+                    // refetch, which replaces it once the service answers with content. Real imagery fails the
+                    // check at its first non-flat block, so the cost on the hit path is negligible.
+                    if (ortoAreaImage.Status == imageStatus_Imagery && ortoAreaImage.Bytes is not null && ortoAreaImage.Bytes.IsOrtoJpegBlank())
+                    {
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ImageByBoundingBox: the stored row for area {AreaKey}, epoch {Year} is a blank tile; refetching", areaKey, year);
+                    }
+                    else if (ortoAreaImage.Status == imageStatus_Imagery && ortoAreaImage.Bytes is not null)
                     {
                         Serilog.Modify.Log("ImageByBoundingBox served the stored row for area {AreaKey}, epoch {Year}", areaKey, year);
                         return File(ortoAreaImage.Bytes, "image/jpeg");
                     }
-
-                    if (ortoAreaImage.Status == imageStatus_NoImagery)
+                    else if (ortoAreaImage.Status == imageStatus_NoImagery)
                     {
                         Serilog.Modify.Log("ImageByBoundingBox: cached negative row for area {AreaKey}, epoch {Year}", areaKey, year);
                         return NotFound();
                     }
-
-                    if (ortoAreaImage.Status == imageStatus_FetchError)
+                    else if (ortoAreaImage.Status == imageStatus_FetchError)
                     {
                         Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ImageByBoundingBox: a fetch-error row exists for area {AreaKey}, epoch {Year}; answering 503 without touching the WMS", areaKey, year);
                         return StatusCode(503, "Orthophoto imagery for this epoch previously failed to fetch; retry shortly");
                     }
-
-                    // A status-0 row without bytes is malformed; it falls through to a refetch and is replaced.
-                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ImageByBoundingBox: stored row for area {AreaKey}, epoch {Year} carries no bytes; refetching", areaKey, year);
+                    else
+                    {
+                        // A status-0 row without bytes is malformed; it falls through to a refetch and is replaced.
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ImageByBoundingBox: stored row for area {AreaKey}, epoch {Year} carries no bytes; refetching", areaKey, year);
+                    }
                 }
 
                 int width = (int)Math.Clamp(Math.Ceiling(boundingBox2D.Width * Constants.OrtoArea.MaximumImagePixelSize / Constants.OrtoArea.MaximumAreaSide), Constants.OrtoArea.MinimumImagePixelSize, Constants.OrtoArea.MaximumImagePixelSize);
@@ -289,6 +297,30 @@ namespace DiGi.GIS.WebAPI.Classes
                     // next request fetches again.
                     Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ImageByBoundingBox: the WMS fetch failed for area {AreaKey}, epoch {Year}; nothing stored", areaKey, year);
                     return StatusCode(503, "Orthophoto service temporarily unavailable; retry shortly");
+                }
+
+                // Step 2 of exception -> blank -> hash (DiGi.GIS.WebAPI#76). The WMS answers a flaky or missing epoch
+                // with HTTP 200 and a valid uniform JPEG, which the signature check alone stored as imagery for good.
+                // A blank is asked for again; one that stays blank is NOT stored, like a transport failure: blanks
+                // are flaky (the same tile later returns content), so caching one as imagery or as a negative row
+                // would freeze a service hiccup into a permanent gap for every interpreter.
+                for (int attempt = 0; attempt < Constants.OrtoArea.ImageBlankRefetchCount && bytes is not null && bytes.IsOrtoImage() && bytes.IsOrtoJpegBlank(); attempt++)
+                {
+                    Serilog.Modify.Log("ImageByBoundingBox: the WMS answered a blank tile for area {AreaKey}, epoch {Year}; asking again", areaKey, year);
+                    await Task.Delay(Constants.OrtoArea.ImageBlankRefetchDelay, cancellationToken);
+                    bytes = await httpClient.ResponseBytesAsync(url, Constants.OrtoArea.ImageFetchRetryCount, Constants.OrtoArea.ImageFetchRetryDelay, cancellationToken: cancellationToken);
+                }
+
+                if (bytes is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ImageByBoundingBox: the WMS refetch failed for area {AreaKey}, epoch {Year}; nothing stored", areaKey, year);
+                    return StatusCode(503, "Orthophoto service temporarily unavailable; retry shortly");
+                }
+
+                if (bytes.IsOrtoImage() && bytes.IsOrtoJpegBlank())
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ImageByBoundingBox: the WMS still answers a blank tile for area {AreaKey}, epoch {Year}; nothing stored", areaKey, year);
+                    return StatusCode(503, "The orthophoto service answered a blank image for this epoch; retry later");
                 }
 
                 short status = bytes.IsOrtoImage() ? imageStatus_Imagery : imageStatus_NoImagery;

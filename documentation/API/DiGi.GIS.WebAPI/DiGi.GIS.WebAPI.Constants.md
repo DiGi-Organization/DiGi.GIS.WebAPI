@@ -287,6 +287,34 @@ public const double CellSize = 100;
 #### Field Value
 [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
 
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.ImageBlankRefetchCount'></a>
+
+## OrtoArea\.ImageBlankRefetchCount Field
+
+The number of times the WMS is asked again, after [ImageBlankRefetchDelay](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoArea.ImageBlankRefetchDelay 'DiGi\.GIS\.WebAPI\.Constants\.OrtoArea\.ImageBlankRefetchDelay'), when it answers a blank \(uniform\) tile \(DiGi\.GIS\.WebAPI\#76\)\.
+
+Blanks are flaky and independent: on 2026-11-05, 6 of 20 identical requests for a covered square in central Warsaw (`TIME=2024`) came back blank, in no run longer than two. Three refetches leave about 0.3^4 ≈ 1 % of first loads blank; one that stays blank is not stored and answers 503, so the next request tries again.
+
+```csharp
+public const int ImageBlankRefetchCount = 3;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.ImageBlankRefetchDelay'></a>
+
+## OrtoArea\.ImageBlankRefetchDelay Field
+
+The delay before each blank refetch \([ImageBlankRefetchCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoArea.ImageBlankRefetchCount 'DiGi\.GIS\.WebAPI\.Constants\.OrtoArea\.ImageBlankRefetchCount')\)\. Short, because a blank is an answer, not a transport failure that needs back\-off\.
+
+```csharp
+public static readonly TimeSpan ImageBlankRefetchDelay;
+```
+
+#### Field Value
+[System\.TimeSpan](https://learn.microsoft.com/en-us/dotnet/api/system.timespan 'System\.TimeSpan')
+
 <a name='DiGi.GIS.WebAPI.Constants.OrtoArea.ImageFetchRetryCount'></a>
 
 ## OrtoArea\.ImageFetchRetryCount Field

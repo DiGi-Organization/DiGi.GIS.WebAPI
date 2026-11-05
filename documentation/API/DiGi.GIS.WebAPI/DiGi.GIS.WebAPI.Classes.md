@@ -6874,7 +6874,7 @@ Every route sits behind the user session: the bearer token is resolved with [Get
 
 An area is named by [DiGi\.GIS\.Query\.OrtoLocationKey\(DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D\)](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.query.ortolocationkey#digi-gis-query-ortolocationkey(digi-geometry-planar-classes-boundingbox2d) 'DiGi\.GIS\.Query\.OrtoLocationKey\(DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D\)') of its box, so all six routes address the same area as long as the box's minimum corner matches; `areabyboundingbox` creates it on first sight, and every other route refuses a box whose area was never initialized with 400.
 
-The imagery of an epoch is fetched from the time-enabled WMS once per area and epoch and stored in `orto_area_image`: imagery (status 0) and the service's own "no imagery" answer (status 1) are both cached, while a transport failure (status 2) is not stored and answers 503 so the next request tries again.
+The imagery of an epoch is fetched from the time-enabled WMS once per area and epoch and stored in `orto_area_image`: imagery (status 0) and the service's own "no imagery" answer (status 1) are both cached, while a transport failure (status 2) is not stored and answers 503 so the next request tries again. A blank (uniform) tile - the service's HTTP 200 answer for a flaky or missing epoch - is asked for again and, if it stays blank, is not stored either and answers 503; a stored status-0 row is re-checked before it is served, so a blank stored earlier is refetched rather than shown (DiGi.GIS.WebAPI#76).
 
 ```csharp
 public class OrtoAreaController : DiGi.WebAPI.Classes.WebAPIController
@@ -7229,7 +7229,7 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
-A task that represents the asynchronous operation\. 200 with the image bytes, 401 without a valid user token, 400 for an invalid bounding box, 404 when the epoch has no imagery \(cached negative row\), 503 when the WMS fetch failed on the transport or the database is transiently unavailable, or 500 when the read or store failed\.
+A task that represents the asynchronous operation\. 200 with the image bytes, 401 without a valid user token, 400 for an invalid bounding box, 404 when the epoch has no imagery \(cached negative row\), 503 when the WMS fetch failed on the transport, the WMS kept answering a blank tile, or the database is transiently unavailable, or 500 when the read or store failed\.
 
 <a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.LabelsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken)'></a>
 

@@ -58,5 +58,16 @@ namespace DiGi.GIS.WebAPI.Constants
         /// The delay before the first WMS fetch retry, doubling after each attempt.
         /// </summary>
         public static readonly TimeSpan ImageFetchRetryDelay = TimeSpan.FromSeconds(2);
+
+        /// <summary>
+        /// The number of times the WMS is asked again, after <see cref="ImageBlankRefetchDelay"/>, when it answers a blank (uniform) tile (DiGi.GIS.WebAPI#76).
+        /// <para>Blanks are flaky and independent: on 2026-11-05, 6 of 20 identical requests for a covered square in central Warsaw (<c>TIME=2024</c>) came back blank, in no run longer than two. Three refetches leave about 0.3^4 ≈ 1 % of first loads blank; one that stays blank is not stored and answers 503, so the next request tries again.</para>
+        /// </summary>
+        public const int ImageBlankRefetchCount = 3;
+
+        /// <summary>
+        /// The delay before each blank refetch (<see cref="ImageBlankRefetchCount"/>). Short, because a blank is an answer, not a transport failure that needs back-off.
+        /// </summary>
+        public static readonly TimeSpan ImageBlankRefetchDelay = TimeSpan.FromSeconds(1);
     }
 }
