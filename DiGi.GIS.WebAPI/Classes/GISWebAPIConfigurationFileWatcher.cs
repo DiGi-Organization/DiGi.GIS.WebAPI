@@ -134,6 +134,18 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Gets a value indicating whether signed-in users may file interpretation labels of a full-interpretation test area (<c>gis/ortoarea/label</c>).
+        /// <para>The write is authorized by the user's bearer token, not by the access key, so this flag is the host's only switch for it. A missing value denies.</para>
+        /// </summary>
+        public bool AllowUpdateOrtoAreaLabel
+        {
+            get
+            {
+                return ConfigurationFile.GetValue<bool>(nameof(AllowUpdateOrtoAreaLabel));
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether updating year built data is enabled in the configuration.
         /// </summary>
         public bool AllowUpdateYearBuiltData

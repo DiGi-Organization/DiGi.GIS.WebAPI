@@ -231,6 +231,150 @@ public static string GUGiK;
 #### Field Value
 [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
 
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea'></a>
+
+## OrtoArea Class
+
+Provides the defaults of the full\-interpretation test areas served by the GIS PostgreSQL Web API \(`gis/ortoarea`\)\.
+
+Every value here is protocol-tunable: the wire contract names them as defaults rather than fixed limits, so a host may retune them by changing this file - the routes, parameter names and status contract stay the same.
+
+```csharp
+public static class OrtoArea
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → OrtoArea
+### Fields
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.CellCountMaximum'></a>
+
+## OrtoArea\.CellCountMaximum Field
+
+The largest number of sampled cells a new area draws\.
+
+```csharp
+public const int CellCountMaximum = 50;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.CellCountMinimum'></a>
+
+## OrtoArea\.CellCountMinimum Field
+
+The smallest number of sampled cells a new area draws, when the grid holds that many\.
+
+```csharp
+public const int CellCountMinimum = 5;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.CellSize'></a>
+
+## OrtoArea\.CellSize Field
+
+The edge length of one sampling\-grid cell, in metres\.
+
+The grid is aligned to multiples of this value over the area box (the floor/ceiling index idiom of [DiGi\.GIS\.Create\.OrtoAvailabilityMatrix\(System\.Collections\.Generic\.IEnumerable\{DiGi\.GIS\.Classes\.OrtoSheet\},System\.Double,System\.Double,System\.Nullable\{System\.DateTimeOffset\}\)](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.create.ortoavailabilitymatrix#digi-gis-create-ortoavailabilitymatrix(system-collections-generic-ienumerable{digi-gis-classes-ortosheet}-system-double-system-double-system-nullable{system-datetimeoffset}) 'DiGi\.GIS\.Create\.OrtoAvailabilityMatrix\(System\.Collections\.Generic\.IEnumerable\{DiGi\.GIS\.Classes\.OrtoSheet\},System\.Double,System\.Double,System\.Nullable\{System\.DateTimeOffset\}\)')), so the same box always yields the same grid.
+
+```csharp
+public const double CellSize = 100;
+```
+
+#### Field Value
+[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.ImageFetchRetryCount'></a>
+
+## OrtoArea\.ImageFetchRetryCount Field
+
+The number of times a failed WMS fetch is retried before the request answers 503\.
+
+A fetch that still fails is a transport failure (image status 2): it is never stored, so the next request tries again.
+
+```csharp
+public const int ImageFetchRetryCount = 2;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.ImageFetchRetryDelay'></a>
+
+## OrtoArea\.ImageFetchRetryDelay Field
+
+The delay before the first WMS fetch retry, doubling after each attempt\.
+
+```csharp
+public static readonly TimeSpan ImageFetchRetryDelay;
+```
+
+#### Field Value
+[System\.TimeSpan](https://learn.microsoft.com/en-us/dotnet/api/system.timespan 'System\.TimeSpan')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.MaximumAreaSide'></a>
+
+## OrtoArea\.MaximumAreaSide Field
+
+The largest side of a test area bounding box, in metres, applied to every `gis/ortoarea` route\.
+
+Two things are sized by it. The WMS tile fetched per area and epoch is scaled against this side so the tile stays inside the orthophoto services' scale limit ([DiGi\.GIS\.Constants\.WebService\.OrtoMaxScaleDenominator](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.constants.webservice.ortomaxscaledenominator 'DiGi\.GIS\.Constants\.WebService\.OrtoMaxScaleDenominator')) whatever shape the box has; and the `orto_sheet` reads behind the epoch list and the label observation dates fan out over the box, so an unbounded box would turn one request into a whole-index scan. A box wider than this answers 400.
+
+```csharp
+public const double MaximumAreaSide = 2000;
+```
+
+#### Field Value
+[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.MaximumImagePixelSize'></a>
+
+## OrtoArea\.MaximumImagePixelSize Field
+
+The tile width and height cap, in pixels, of an area image\.
+
+The width is `clamp(ceil(box.Width × MaximumImagePixelSize ÷ MaximumAreaSide), MinimumImagePixelSize, MaximumImagePixelSize)`, which fixes the ground scale of the fetch near one metre per pixel whatever the box, and the height follows the box aspect ratio capped at this value.
+
+```csharp
+public const int MaximumImagePixelSize = 2048;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.MinimumImagePixelSize'></a>
+
+## OrtoArea\.MinimumImagePixelSize Field
+
+The smallest tile width, in pixels, an area image is fetched at\.
+
+The services answer requests below a certain size poorly, and the floor keeps the scale of a very small box predictable; the scale is then verified against [DiGi\.GIS\.Constants\.WebService\.OrtoMaxScaleDenominator](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.constants.webservice.ortomaxscaledenominator 'DiGi\.GIS\.Constants\.WebService\.OrtoMaxScaleDenominator') before the fetch.
+
+```csharp
+public const int MinimumImagePixelSize = 64;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.OrtoArea.SamplingFraction'></a>
+
+## OrtoArea\.SamplingFraction Field
+
+The fraction of the grid cells drawn as the sampled cells of a new area\.
+
+The effective count is `clamp(round(total cells × SamplingFraction), CellCountMinimum, CellCountMaximum)` and never exceeds the total - a tiny grid samples every cell it has.
+
+```csharp
+public const double SamplingFraction = 0.2;
+```
+
+#### Field Value
+[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
 <a name='DiGi.GIS.WebAPI.Constants.OrtoDatas'></a>
 
 ## OrtoDatas Class

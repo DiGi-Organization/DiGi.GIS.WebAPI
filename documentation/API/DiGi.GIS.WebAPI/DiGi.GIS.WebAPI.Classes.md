@@ -5768,6 +5768,21 @@ public bool AllowUpdateOccupancyData { get; }
 #### Property Value
 [System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')
 
+<a name='DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateOrtoAreaLabel'></a>
+
+## GISWebAPIConfigurationFileWatcher\.AllowUpdateOrtoAreaLabel Property
+
+Gets a value indicating whether signed\-in users may file interpretation labels of a full\-interpretation test area \(`gis/ortoarea/label`\)\.
+
+The write is authorized by the user's bearer token, not by the access key, so this flag is the host's only switch for it. A missing value denies.
+
+```csharp
+public bool AllowUpdateOrtoAreaLabel { get; }
+```
+
+#### Property Value
+[System\.Boolean](https://learn.microsoft.com/en-us/dotnet/api/system.boolean 'System\.Boolean')
+
 <a name='DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateOrtoDatas'></a>
 
 ## GISWebAPIConfigurationFileWatcher\.AllowUpdateOrtoDatas Property
@@ -6848,6 +6863,505 @@ public System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? V
 
 #### Property Value
 [System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[DiGi\.GIS\.Classes\.OccupancyData](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.occupancydata 'DiGi\.GIS\.Classes\.OccupancyData')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController'></a>
+
+## OrtoAreaController Class
+
+Serves the full\-interpretation test areas: the epoch list and the materialised imagery of an area, area creation with its server\-drawn random cells, the polygons drawn in it, and the interpreter\-stamped label rows \(DiGi\.GIS\.WebAPI\#74\)\.
+
+Every route sits behind the user session: the bearer token is resolved with [GetUserEmail\(SecurityKeyManager, TokenRevocationStore, string\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.GetUserEmail(DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,string) 'DiGi\.GIS\.WebAPI\.Query\.GetUserEmail\(DiGi\.WebAPI\.Classes\.SecurityKeyManager, DiGi\.WebAPI\.Classes\.TokenRevocationStore, string\)') and a missing or invalid one answers 401. The query parameter names (`x_1`, `y_1`, `x_2`, `y_2`, `year`) are a hand-matched wire contract consumed by DiGi.GIS.WebAPI.UI#84 - renaming one breaks the relay silently, because ASP.NET ignores an unknown parameter and answers with the unfiltered result.
+
+An area is named by [DiGi\.GIS\.Query\.OrtoLocationKey\(DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D\)](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.query.ortolocationkey#digi-gis-query-ortolocationkey(digi-geometry-planar-classes-boundingbox2d) 'DiGi\.GIS\.Query\.OrtoLocationKey\(DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D\)') of its box, so all six routes address the same area as long as the box's minimum corner matches; `areabyboundingbox` creates it on first sight, and every other route refuses a box whose area was never initialized with 400.
+
+The imagery of an epoch is fetched from the time-enabled WMS once per area and epoch and stored in `orto_area_image`: imagery (status 0) and the service's own "no imagery" answer (status 1) are both cached, while a transport failure (status 2) is not stored and answers 503 so the next request tries again.
+
+```csharp
+public class OrtoAreaController : DiGi.WebAPI.Classes.WebAPIController
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [Microsoft\.AspNetCore\.Mvc\.ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase 'Microsoft\.AspNetCore\.Mvc\.ControllerBase') → [DiGi\.WebAPI\.Classes\.WebAPIController](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.webapicontroller 'DiGi\.WebAPI\.Classes\.WebAPIController') → OrtoAreaController
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore)'></a>
+
+## OrtoAreaController\(GISWebAPIConfigurationFileWatcher, Building2DPostgreSQLConverter, OrtoAreaImagePostgreSQLConverter, OrtoAreaLabelPostgreSQLConverter, OrtoAreaObjectPostgreSQLConverter, OrtoAreaPostgreSQLConverter, OrtoSheetPostgreSQLConverter, SecurityKeyManager, TokenRevocationStore\) Constructor
+
+Initializes a new instance of the [OrtoAreaController](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.OrtoAreaController 'DiGi\.GIS\.WebAPI\.Classes\.OrtoAreaController') class\.
+
+```csharp
+public OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter ortoAreaImagePostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter ortoAreaLabelPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter ortoAreaObjectPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter ortoAreaPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter ortoSheetPostgreSQLConverter, DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager=null, DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore=null);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).GISWebAPIConfigurationFileWatcher'></a>
+
+`GISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
+
+The configuration file watcher for the GIS PostgreSQL Web API, holding the [AllowUpdateOrtoAreaLabel](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateOrtoAreaLabel 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateOrtoAreaLabel') gate of the label write\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).building2DPostgreSQLConverter'></a>
+
+`building2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter')
+
+The converter for Building2D objects, used to resolve the footprint box a label's observation dates are read against \(Main database\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoAreaImagePostgreSQLConverter'></a>
+
+`ortoAreaImagePostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaImagePostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareaimagepostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaImagePostgreSQLConverter')
+
+The converter for the materialised area imagery of one epoch \(Storage database\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoAreaLabelPostgreSQLConverter'></a>
+
+`ortoAreaLabelPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaLabelPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoarealabelpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaLabelPostgreSQLConverter')
+
+The converter for the interpretation label rows of an area \(Main database\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoAreaObjectPostgreSQLConverter'></a>
+
+`ortoAreaObjectPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObjectPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareaobjectpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObjectPostgreSQLConverter')
+
+The converter for the drawn polygon rows of an area \(Main database\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoAreaPostgreSQLConverter'></a>
+
+`ortoAreaPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareapostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaPostgreSQLConverter')
+
+The converter for the test\-area registry with its sampled cells \(Main database\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoSheetPostgreSQLConverter'></a>
+
+`ortoSheetPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoSheetPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortosheetpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoSheetPostgreSQLConverter')
+
+The converter for the orthophoto sheet index, used for the epoch list and the observation dates \(Storage database\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).securityKeyManager'></a>
+
+`securityKeyManager` [DiGi\.WebAPI\.Classes\.SecurityKeyManager](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.securitykeymanager 'DiGi\.WebAPI\.Classes\.SecurityKeyManager')
+
+The user extension's security key manager; `null` when the user extension is not loaded, in which case every user\-token check denies\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).tokenRevocationStore'></a>
+
+`tokenRevocationStore` [DiGi\.WebAPI\.Classes\.TokenRevocationStore](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.tokenrevocationstore 'DiGi\.WebAPI\.Classes\.TokenRevocationStore')
+
+The user extension's token revocation store; `null` when the user extension is not loaded, in which case every user\-token check denies\.
+### Fields
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.imageStatus_FetchError'></a>
+
+## OrtoAreaController\.imageStatus\_FetchError Field
+
+The image status of a fetch that failed on the transport\. This endpoint never stores such a row \- the failure is not cached, so the next request retries\.
+
+```csharp
+private const short imageStatus_FetchError = 2;
+```
+
+#### Field Value
+[System\.Int16](https://learn.microsoft.com/en-us/dotnet/api/system.int16 'System\.Int16')
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.imageStatus_Imagery'></a>
+
+## OrtoAreaController\.imageStatus\_Imagery Field
+
+The image status of a stored row holding the fetched JPEG bytes\.
+
+```csharp
+private const short imageStatus_Imagery = 0;
+```
+
+#### Field Value
+[System\.Int16](https://learn.microsoft.com/en-us/dotnet/api/system.int16 'System\.Int16')
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.imageStatus_NoImagery'></a>
+
+## OrtoAreaController\.imageStatus\_NoImagery Field
+
+The image status of a cached negative row: the WMS answered a service exception or other non\-image content, so the epoch has no imagery here\. Never refetched without deleting the row\.
+
+```csharp
+private const short imageStatus_NoImagery = 1;
+```
+
+#### Field Value
+[System\.Int16](https://learn.microsoft.com/en-us/dotnet/api/system.int16 'System\.Int16')
+### Methods
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AreaByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken)'></a>
+
+## OrtoAreaController\.AreaByBoundingBoxAsync\(double, double, double, double, CancellationToken\) Method
+
+Returns the test area of a bounding box, creating it on first sight: the area with its server\-drawn random cells, its drawn polygons, and every interpreter's label rows\.
+
+The area is created when no row answers its invariant location key. Its `Seed` is the first eight bytes of the SHA-256 of the key read as a little-endian [System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64') - stable across processes, unlike `string.GetHashCode()` - and the cells are sampled without replacement from the grid aligned to multiples of [CellSize](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoArea.CellSize 'DiGi\.GIS\.WebAPI\.Constants\.OrtoArea\.CellSize') over the box, so repeated calls (and any other interpreter's session) see identical cells. The effective count is `clamp(round(total × Constants.OrtoArea.SamplingFraction), Constants.OrtoArea.CellCountMinimum, Constants.OrtoArea.CellCountMaximum)`, never more than the grid holds.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> AreaByBoundingBoxAsync(double x_1, double y_1, double x_2, double y_2, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AreaByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).x_1'></a>
+
+`x_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AreaByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).y_1'></a>
+
+`y_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AreaByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).x_2'></a>
+
+`x_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AreaByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).y_2'></a>
+
+`y_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AreaByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with an [OrtoAreaItems](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.OrtoAreaItems 'DiGi\.GIS\.WebAPI\.Classes\.OrtoAreaItems') composite, 401 without a valid user token, 400 for an invalid bounding box, 503 on a transient database failure, or 500 when the create or read failed\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AvailableYearsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken)'></a>
+
+## OrtoAreaController\.AvailableYearsByBoundingBoxAsync\(double, double, double, double, CancellationToken\) Method
+
+Lists the imagery epochs of an area: the distinct years of the `orto_sheet` rows whose footprints intersect the bounding box, ascending\.
+
+The answer comes from the sheet index itself rather than from the availability matrix: an epoch a card can be built for is what the caller chooses from, and every sheet of the box contributes its year whatever its usability. A box no sheet covers answers 200 with an empty list - no coverage is a result, not a failure.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> AvailableYearsByBoundingBoxAsync(double x_1, double y_1, double x_2, double y_2, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AvailableYearsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).x_1'></a>
+
+`x_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AvailableYearsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).y_1'></a>
+
+`y_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AvailableYearsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).x_2'></a>
+
+`x_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AvailableYearsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).y_2'></a>
+
+`y_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.AvailableYearsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the distinct years ascending \(an empty list when no sheet covers\), 401 without a valid user token, 400 for an invalid bounding box, 503 on a transient database failure, or 500 when the read failed\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_)'></a>
+
+## OrtoAreaController\.CreateBoundingBox2D\(Nullable\<double\>, Nullable\<double\>, Nullable\<double\>, Nullable\<double\>\) Method
+
+Validates four bounding\-box corners and builds their box, applied to every `gis/ortoarea` route\.
+
+Refuses non-finite values, a box whose minimum corner is not below its maximum, and any side longer than [MaximumAreaSide](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoArea.MaximumAreaSide 'DiGi\.GIS\.WebAPI\.Constants\.OrtoArea\.MaximumAreaSide'); each refusal is answered 400 by the caller. A box degenerate to a point or a line is accepted - it simply holds no grid cell and the WMS answers it.
+
+```csharp
+private static DiGi.Geometry.Planar.Classes.BoundingBox2D? CreateBoundingBox2D(System.Nullable<double> x_1, System.Nullable<double> y_1, System.Nullable<double> x_2, System.Nullable<double> y_2);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).x_1'></a>
+
+`x_1` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The easting of the first corner, or `null` when omitted\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).y_1'></a>
+
+`y_1` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The northing of the first corner, or `null` when omitted\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).x_2'></a>
+
+`x_2` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The easting of the second corner, or `null` when omitted\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).y_2'></a>
+
+`y_2` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The northing of the second corner, or `null` when omitted\.
+
+#### Returns
+[DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.boundingbox2d 'DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D')  
+The bounding box, or null when a corner is missing or non\-finite, the corners are not ordered, or a side exceeds the maximum\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateObjectAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaObjectParameter,System.Threading.CancellationToken)'></a>
+
+## OrtoAreaController\.CreateObjectAsync\(OrtoAreaObjectParameter, CancellationToken\) Method
+
+Stores one polygon drawn in a test area, assigning its object identifier and the sampled cell it falls in\.
+
+The identity is the caller's own: the bearer token resolves the `CreatedBy` email, never the body. `CellIndex` is the index of the stored sampled cell whose box contains the polygon's centroid, tested inclusive at the minimum and exclusive at the maximum corner so a centroid on a shared grid edge is attributed to exactly one cell; it is null when the centroid falls outside every sampled cell. The area must already exist (`areabyboundingbox` initializes it), so a box no area answers for is 400.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> CreateObjectAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaObjectParameter? parameter, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateObjectAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaObjectParameter,System.Threading.CancellationToken).parameter'></a>
+
+`parameter` [OrtoAreaObjectParameter](DiGi.GIS.WebAPI.Classes.Parameter.md#DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaObjectParameter 'DiGi\.GIS\.WebAPI\.Classes\.Parameter\.OrtoAreaObjectParameter')
+
+The drawn polygon and the area bounding box it belongs to\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateObjectAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaObjectParameter,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the created [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObject](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareaobject 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObject'), 401 without a valid user token, 400 for a missing body, an invalid bounding box, a degenerate polygon \(fewer than three vertices\) or an uninitialized area, 503 on a transient database failure, or 500 when the read or write failed\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreatePolygon(System.Text.Json.Nodes.JsonNode)'></a>
+
+## OrtoAreaController\.CreatePolygon\(JsonNode\) Method
+
+Resolves a serialized polygon body into a [DiGi\.Geometry\.Planar\.Classes\.Polygon2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.polygon2d 'DiGi\.Geometry\.Planar\.Classes\.Polygon2D')\.
+
+Accepts the shapes a relayed body may carry: a bare array of points, an object holding its point array under `point2Ds`/`points` (the DiGi serializer's names and their lower-cased forms), or a serialized DiGi `Polygon2D`. Points are pairs `[x, y]` or objects with `x`/`y` (either case); one unreadable element disqualifies the whole polygon rather than silently dropping it.
+
+```csharp
+private static DiGi.Geometry.Planar.Classes.Polygon2D? CreatePolygon(System.Text.Json.Nodes.JsonNode? jsonNode);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreatePolygon(System.Text.Json.Nodes.JsonNode).jsonNode'></a>
+
+`jsonNode` [System\.Text\.Json\.Nodes\.JsonNode](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonnode 'System\.Text\.Json\.Nodes\.JsonNode')
+
+The serialized polygon, or null\.
+
+#### Returns
+[DiGi\.Geometry\.Planar\.Classes\.Polygon2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.polygon2d 'DiGi\.Geometry\.Planar\.Classes\.Polygon2D')  
+The polygon with the parsed points, or null when the body is missing or no shape could be read\. Vertex\-count validation is the caller's\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ImageByBoundingBoxAsync(double,double,double,double,short,System.Threading.CancellationToken)'></a>
+
+## OrtoAreaController\.ImageByBoundingBoxAsync\(double, double, double, double, short, CancellationToken\) Method
+
+Serves the materialised orthophoto imagery of an area for one epoch, fetching and storing it on first sight\.
+
+On a cache miss the WMS `GetMap` URL is built with [DiGi\.GIS\.Query\.Url\_OrtoImage\(DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D,System\.String,System\.String,System\.String,System\.Int32,System\.Int32\)](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.query.url_ortoimage#digi-gis-query-url_ortoimage(digi-geometry-planar-classes-boundingbox2d-system-string-system-string-system-string-system-int32-system-int32) 'DiGi\.GIS\.Query\.Url\_OrtoImage\(DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D,System\.String,System\.String,System\.String,System\.Int32,System\.Int32\)') against [DiGi\.GIS\.Constants\.WebService\.StandardResolutionTime](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.constants.webservice.standardresolutiontime 'DiGi\.GIS\.Constants\.WebService\.StandardResolutionTime') (`TIME=year`, EPSG:2180 easting first). The response is classified by content, not by status: image bytes become a stored status-0 row, a service exception or other non-image body a stored status-1 negative row (never refetched without deleting the row), and a transport failure is not stored at all - it answers 503 and the next request retries. One fetch per area and epoch is the result, proven by the single-fetch fact.
+
+The tile size is `width = clamp(ceil(box.Width × MaximumImagePixelSize ÷ MaximumAreaSide), MinimumImagePixelSize, MaximumImagePixelSize)` with the height following the box aspect ratio capped at the same maximum, which fixes the fetch near one metre per pixel. The scale denominator is verified against [DiGi\.GIS\.Constants\.WebService\.OrtoMaxScaleDenominator](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.constants.webservice.ortomaxscaledenominator 'DiGi\.GIS\.Constants\.WebService\.OrtoMaxScaleDenominator') before the fetch as defence in depth - under the maximum-area-side guard the formula keeps the scale near 3 500, far below the limit, so the 400 is unreachable in practice.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> ImageByBoundingBoxAsync(double x_1, double y_1, double x_2, double y_2, short year, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ImageByBoundingBoxAsync(double,double,double,double,short,System.Threading.CancellationToken).x_1'></a>
+
+`x_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ImageByBoundingBoxAsync(double,double,double,double,short,System.Threading.CancellationToken).y_1'></a>
+
+`y_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ImageByBoundingBoxAsync(double,double,double,double,short,System.Threading.CancellationToken).x_2'></a>
+
+`x_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ImageByBoundingBoxAsync(double,double,double,double,short,System.Threading.CancellationToken).y_2'></a>
+
+`y_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ImageByBoundingBoxAsync(double,double,double,double,short,System.Threading.CancellationToken).year'></a>
+
+`year` [System\.Int16](https://learn.microsoft.com/en-us/dotnet/api/system.int16 'System\.Int16')
+
+The imagery epoch to serve\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ImageByBoundingBoxAsync(double,double,double,double,short,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the image bytes, 401 without a valid user token, 400 for an invalid bounding box, 404 when the epoch has no imagery \(cached negative row\), 503 when the WMS fetch failed on the transport or the database is transiently unavailable, or 500 when the read or store failed\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.LabelsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken)'></a>
+
+## OrtoAreaController\.LabelsByBoundingBoxAsync\(double, double, double, double, CancellationToken\) Method
+
+Lists every label row of the area of a bounding box, all interpreters, as JSON\.
+
+Reading is deliberately inclusive: what the other interpreters marked is what this workflow is read against, while only `gis/ortoarea/label` writes - always under the caller's own identity. The area must already exist, so a box no area answers for is 400 rather than a quietly empty list.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> LabelsByBoundingBoxAsync(double x_1, double y_1, double x_2, double y_2, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.LabelsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).x_1'></a>
+
+`x_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.LabelsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).y_1'></a>
+
+`y_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.LabelsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).x_2'></a>
+
+`x_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.LabelsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).y_2'></a>
+
+`y_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.LabelsByBoundingBoxAsync(double,double,double,double,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the label rows \(an empty list when none were filed\), 401 without a valid user token, 400 for an invalid bounding box or an uninitialized area, 503 on a transient database failure, or 500 when the read failed\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.SetLabelAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaLabelParameter,System.Threading.CancellationToken)'></a>
+
+## OrtoAreaController\.SetLabelAsync\(OrtoAreaLabelParameter, CancellationToken\) Method
+
+Files \(or revises\) the caller's own interpretation label of one epoch of one object in a test area\.
+
+Gated by [AllowUpdateOrtoAreaLabel](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateOrtoAreaLabel 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateOrtoAreaLabel') (400 when disabled), checked after the session and before the body, each failure logged distinctly so the cause of a shared 400 is recoverable. The object identity is exactly one of `reference` (a footprint; `countyId` is an optional narrowing hint, resolved server-side because the footprint payload carries no county id) or `objectId`, and `state` must be 0 (present), 1 (absent) or 2 (indeterminate).
+
+`Interpreter` and `UpdatedAt` are stamped server-side from the bearer token and the clock - never taken from the body. The observation dates are resolved server-side as well: a footprint's box comes from its `building_2d` row (404 when no building holds the reference), a drawn object's box from the polygon stored under its `objectId` (404 when the area holds no such object), and the min/max date are the distinct UTC date components of the `orto_sheet` rows covering that box whose `Date.Year` equals `epochYear`; an epoch no covering sheet dates answers both null. Upsert is per (area, object identity, epoch, interpreter): two interpreters keep their own rows.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SetLabelAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaLabelParameter? parameter, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.SetLabelAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaLabelParameter,System.Threading.CancellationToken).parameter'></a>
+
+`parameter` [OrtoAreaLabelParameter](DiGi.GIS.WebAPI.Classes.Parameter.md#DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaLabelParameter 'DiGi\.GIS\.WebAPI\.Classes\.Parameter\.OrtoAreaLabelParameter')
+
+The label to file: the area bounding box, exactly one object identity \(a footprint reference with an optional county hint, or a drawn objectId\), the epoch year, the state, and the optional note\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.SetLabelAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaLabelParameter,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 when the label was stored, 401 without a valid user token, 400 for a disabled flag, an invalid body, or an uninitialized area, 404 when no building holds the footprint reference or the area holds no drawn object under the objectId, 503 on a transient database failure, or 500 when the write failed\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaItems'></a>
+
+## OrtoAreaItems Class
+
+The answer of `gis/ortoarea/areabyboundingbox`: one full\-interpretation test area with everything drawn and filed under it\.
+
+[Labels](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.OrtoAreaItems.Labels 'DiGi\.GIS\.WebAPI\.Classes\.OrtoAreaItems\.Labels') holds the rows of every interpreter, not only the caller's - reading what someone else marked is part of the interpretation workflow, while only `gis/ortoarea/label` writes, always under the caller's own bearer-token identity.
+
+```csharp
+public class OrtoAreaItems
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → OrtoAreaItems
+### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaItems.Area'></a>
+
+## OrtoAreaItems\.Area Property
+
+Gets or sets the area with its sampled cells, created on first sight of the box\.
+
+```csharp
+public DiGi.GIS.PostgreSQL.Classes.OrtoArea? Area { get; set; }
+```
+
+#### Property Value
+[DiGi\.GIS\.PostgreSQL\.Classes\.OrtoArea](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoarea 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoArea')
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaItems.Labels'></a>
+
+## OrtoAreaItems\.Labels Property
+
+Gets or sets every label row of the area, all interpreters; empty when none were filed\.
+
+```csharp
+public System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabel> Labels { get; set; }
+```
+
+#### Property Value
+[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaLabel](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoarealabel 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaLabel')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaItems.Objects'></a>
+
+## OrtoAreaItems\.Objects Property
+
+Gets or sets the polygons drawn in the area, in creation order; empty when none were drawn\.
+
+```csharp
+public System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.OrtoAreaObject> Objects { get; set; }
+```
+
+#### Property Value
+[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObject](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareaobject 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObject')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
 
 <a name='DiGi.GIS.WebAPI.Classes.OrtoDatasController'></a>
 
