@@ -7278,6 +7278,59 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. 200 with the label rows \(an empty list when none were filed\), 401 without a valid user token, 400 for an invalid bounding box or an uninitialized area, 503 on a transient database failure, or 500 when the read failed\.
 
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.RemoveObjectAsync(double,double,double,double,string,System.Threading.CancellationToken)'></a>
+
+## OrtoAreaController\.RemoveObjectAsync\(double, double, double, double, string, CancellationToken\) Method
+
+Removes one polygon drawn in a test area, together with the caller's own labels on it\.
+
+Drawn polygons are shared and their labels feed the agreement between interpreters, so only the interpreter who drew the polygon may remove it, and only while no other interpreter has labelled it ([DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObjectPostgreSQLConverter\.RemoveAsync\(System\.String,System\.String,System\.String,System\.Int32,System\.Threading\.CancellationToken\)](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareaobjectpostgresqlconverter.removeasync#digi-gis-postgresql-classes-ortoareaobjectpostgresqlconverter-removeasync(system-string-system-string-system-string-system-int32-system-threading-cancellationtoken) 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObjectPostgreSQLConverter\.RemoveAsync\(System\.String,System\.String,System\.String,System\.Int32,System\.Threading\.CancellationToken\)')). The identity is the caller's own: the bearer token resolves the email, never the query. The area must already exist, so a box no area answers for is 400.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> RemoveObjectAsync(double x_1, double y_1, double x_2, double y_2, string? objectId, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.RemoveObjectAsync(double,double,double,double,string,System.Threading.CancellationToken).x_1'></a>
+
+`x_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.RemoveObjectAsync(double,double,double,double,string,System.Threading.CancellationToken).y_1'></a>
+
+`y_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.RemoveObjectAsync(double,double,double,double,string,System.Threading.CancellationToken).x_2'></a>
+
+`x_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.RemoveObjectAsync(double,double,double,double,string,System.Threading.CancellationToken).y_2'></a>
+
+`y_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.RemoveObjectAsync(double,double,double,double,string,System.Threading.CancellationToken).objectId'></a>
+
+`objectId` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The server\-assigned identifier of the polygon to remove\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.RemoveObjectAsync(double,double,double,double,string,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 when the polygon was removed, 401 without a valid user token, 400 for an invalid bounding box, a missing objectId or an uninitialized area, 403 when another interpreter drew the polygon, 404 when the area holds no such polygon, 409 when another interpreter has labelled it, 503 on a transient database failure, or 500 when the removal failed\.
+
 <a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.SetLabelAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaLabelParameter,System.Threading.CancellationToken)'></a>
 
 ## OrtoAreaController\.SetLabelAsync\(OrtoAreaLabelParameter, CancellationToken\) Method

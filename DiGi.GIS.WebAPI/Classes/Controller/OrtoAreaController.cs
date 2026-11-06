@@ -1,5 +1,6 @@
 using DiGi.Geometry.Planar.Classes;
 using DiGi.GIS.PostgreSQL.Classes;
+using DiGi.GIS.PostgreSQL.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -649,6 +650,90 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(OrtoAreaController), nameof(CreateObjectAsync));
                 return StatusCode(500, "Internal server error during drawn object write");
+            }
+        }
+
+        /// <summary>
+        /// Removes one polygon drawn in a test area, together with the caller's own labels on it.
+        /// <para>Drawn polygons are shared and their labels feed the agreement between interpreters, so only the interpreter who drew the polygon may remove it, and only while no other interpreter has labelled it (<see cref="OrtoAreaObjectPostgreSQLConverter.RemoveAsync(string?, string?, string?, int, CancellationToken)"/>). The identity is the caller's own: the bearer token resolves the email, never the query. The area must already exist, so a box no area answers for is 400.</para>
+        /// </summary>
+        /// <param name="x_1">The easting of the first corner of the bounding box, in EPSG:2180 metres.</param>
+        /// <param name="y_1">The northing of the first corner of the bounding box, in EPSG:2180 metres.</param>
+        /// <param name="x_2">The easting of the second corner of the bounding box, in EPSG:2180 metres.</param>
+        /// <param name="y_2">The northing of the second corner of the bounding box, in EPSG:2180 metres.</param>
+        /// <param name="objectId">The server-assigned identifier of the polygon to remove.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 when the polygon was removed, 401 without a valid user token, 400 for an invalid bounding box, a missing objectId or an uninitialized area, 403 when another interpreter drew the polygon, 404 when the area holds no such polygon, 409 when another interpreter has labelled it, 503 on a transient database failure, or 500 when the removal failed.</returns>
+        [HttpDelete("objects", Name = $"{nameof(OrtoAreaController)}_{nameof(RemoveObjectAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RemoveObjectAsync([BindRequired, FromQuery(Name = "x_1")] double x_1, [BindRequired, FromQuery(Name = "y_1")] double y_1, [BindRequired, FromQuery(Name = "x_2")] double x_2, [BindRequired, FromQuery(Name = "y_2")] double y_2, [FromQuery(Name = "objectid")] string? objectId, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(OrtoAreaController), nameof(RemoveObjectAsync));
+
+            string? email = Query.GetUserEmail(securityKeyManager, tokenRevocationStore, HttpContext.Request.Headers.Authorization);
+            if (email is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "RemoveObject rejected: no valid user token");
+                return Unauthorized();
+            }
+
+            if (string.IsNullOrWhiteSpace(objectId))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "RemoveObject rejected: objectid is missing");
+                return BadRequest("objectid is required.");
+            }
+
+            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(x_1, y_1, x_2, y_2);
+            string? areaKey = boundingBox2D?.OrtoLocationKey();
+            if (boundingBox2D is null || string.IsNullOrWhiteSpace(areaKey))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "RemoveObject rejected: bounding box is not finite, not ordered, or exceeds the maximum area side");
+                return BadRequest("Bounding box must be finite, ordered (min <= max) and no side longer than the maximum area side.");
+            }
+
+            try
+            {
+                OrtoArea? ortoArea = await ortoAreaPostgreSQLConverter.GetOrtoAreaAsync(areaKey, cancellationToken: cancellationToken);
+                if (ortoArea is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "RemoveObject rejected: area {AreaKey} is not initialized", areaKey);
+                    return BadRequest("The area does not exist yet; call areabyboundingbox to initialize it first.");
+                }
+
+                OrtoAreaObjectRemoval? removal = await ortoAreaObjectPostgreSQLConverter.RemoveAsync(areaKey, objectId, email, cancellationToken: cancellationToken);
+                Serilog.Modify.Log("RemoveObject: object {ObjectId} in area {AreaKey} by {User}: {Outcome}", objectId, areaKey, email, removal?.ToString() ?? "null");
+
+                return removal switch
+                {
+                    OrtoAreaObjectRemoval.Removed => Ok(),
+                    OrtoAreaObjectRemoval.NotFound => NotFound("The area holds no drawn polygon under this objectid."),
+                    OrtoAreaObjectRemoval.NotCreator => StatusCode(StatusCodes.Status403Forbidden, "Only the interpreter who drew the polygon can remove it."),
+                    OrtoAreaObjectRemoval.LabelledByOthers => Conflict("Another interpreter has labelled this polygon, so it cannot be removed."),
+                    _ => StatusCode(500, "The drawn polygon could not be removed.")
+                };
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(OrtoAreaController), nameof(RemoveObjectAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(OrtoAreaController), nameof(RemoveObjectAsync));
+                return StatusCode(500, "Internal server error during drawn object removal");
             }
         }
 
