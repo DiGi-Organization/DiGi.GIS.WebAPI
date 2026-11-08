@@ -7549,6 +7549,43 @@ A cancellation token that can be used by the caller to cancel the asynchronous o
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\.
 
+<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasController.GetAcquisitionCoveragesByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken)'></a>
+
+## OrtoDatasController\.GetAcquisitionCoveragesByCountyIdsAsync\(List\<int\>, int, CancellationToken\) Method
+
+Asynchronously measures, per county part, how far the acquisition\-date backfill \(the "Backfill OrtoDatas acquisition dates" task, DiGi\.GIS\#18\) has reached: the stored series against their `orto_data_acquisition` rows, and the precision those rows were dated at\.
+
+[DiGi\.GIS\.PostgreSQL\.Classes\.OrtoDataAcquisitionCoverageResult\.WithoutAcquisitionSeriesCount](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortodataacquisitioncoverageresult.withoutacquisitionseriescount 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoDataAcquisitionCoverageResult\.WithoutAcquisitionSeriesCount') is the backlog - series never backfilled, or re-fetched since - and falls to zero when the backfill is re-run over the part. [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoDataAcquisitionCoverageResult\.UndefinedCount](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortodataacquisitioncoverageresult.undefinedcount 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoDataAcquisitionCoverageResult\.UndefinedCount') is what the sheet index could not date.
+
+Keyed by county part, never by code: a multi-part county is measured by naming every part (`administrativeareal2dreferencesbycode` lists them). A part holding no series is absent from the result rather than present with a zero.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetAcquisitionCoveragesByCountyIdsAsync(System.Collections.Generic.List<int>? countyIds, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasController.GetAcquisitionCoveragesByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The county part identifiers to measure, repeated once per part\. At least one and at most [MaximumSummaryCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoDatas.MaximumSummaryCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.OrtoDatas\.MaximumSummaryCountyCount')\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasController.GetAcquisitionCoveragesByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasController.GetAcquisitionCoveragesByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+A cancellation token that can be used by the caller to cancel the asynchronous operation\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the coverages as JSON, or an error status\.
+
 <a name='DiGi.GIS.WebAPI.Classes.OrtoDatasController.GetCountByCountyIdAsync(int,bool,bool,int,System.Threading.CancellationToken)'></a>
 
 ## OrtoDatasController\.GetCountByCountyIdAsync\(int, bool, bool, int, CancellationToken\) Method

@@ -1095,6 +1095,88 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Asynchronously measures, per county part, how far the acquisition-date backfill (the "Backfill OrtoDatas acquisition dates" task, DiGi.GIS#18) has reached: the stored series against their <c>orto_data_acquisition</c> rows, and the precision those rows were dated at.
+        /// <para><see cref="PostgreSQL.Classes.OrtoDataAcquisitionCoverageResult.WithoutAcquisitionSeriesCount"/> is the backlog - series never backfilled, or re-fetched since - and falls to zero when the backfill is re-run over the part. <see cref="PostgreSQL.Classes.OrtoDataAcquisitionCoverageResult.UndefinedCount"/> is what the sheet index could not date.</para>
+        /// <para>Keyed by county part, never by code: a multi-part county is measured by naming every part (<c>administrativeareal2dreferencesbycode</c> lists them). A part holding no series is absent from the result rather than present with a zero.</para>
+        /// </summary>
+        /// <param name="countyIds">The county part identifiers to measure, repeated once per part. At least one and at most <see cref="Constants.OrtoDatas.MaximumSummaryCountyCount"/>.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
+        /// <returns>An <see cref="IActionResult"/> carrying the coverages as JSON, or an error status.</returns>
+        [HttpGet("acquisitioncoveragesbycountyids", Name = $"{nameof(OrtoDatasController)}_{nameof(GetAcquisitionCoveragesByCountyIdsAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<PostgreSQL.Classes.OrtoDataAcquisitionCoverageResult>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAcquisitionCoveragesByCountyIdsAsync([FromQuery(Name = "countyids")] List<int>? countyIds, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for {CountyCount} county parts", nameof(OrtoDatasController), nameof(GetAcquisitionCoveragesByCountyIdsAsync), countyIds?.Count ?? 0);
+
+            if (ortoDatasPostgreSQLConverter is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "OrtoDatasPostgreSQLConverter cannot be null");
+                return BadRequest();
+            }
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            // Unlike the summaries, an unscoped request is refused: it joins every series of the store against
+            // every acquisition row, which is not what a per-part progress check is for.
+            if (countyIds is null || countyIds.Count == 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "No county parts were named");
+                return BadRequest("Name at least one county part with a repeated countyids parameter.");
+            }
+
+            if (countyIds.Count > Constants.OrtoDatas.MaximumSummaryCountyCount)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Too many county parts named: {Count}, the limit is {Maximum}", countyIds.Count, Constants.OrtoDatas.MaximumSummaryCountyCount);
+                return BadRequest($"At most {Constants.OrtoDatas.MaximumSummaryCountyCount} county parts may be named.");
+            }
+
+            List<PostgreSQL.Classes.OrtoDataAcquisitionCoverageResult>? ortoDataAcquisitionCoverageResults;
+            try
+            {
+                ortoDataAcquisitionCoverageResults = await ortoDatasPostgreSQLConverter.GetAcquisitionCoveragesByCountyIdsAsync(countyIds.Distinct(), commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(OrtoDatasController), nameof(GetAcquisitionCoveragesByCountyIdsAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "Database could not be queried");
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            if (ortoDataAcquisitionCoverageResults is null)
+            {
+                return NotFound();
+            }
+
+            string? json = Core.Convert.ToSystem_String(ortoDataAcquisitionCoverageResults);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return NotFound();
+            }
+
+            Serilog.Modify.Log("Number of OrtoDataAcquisitionCoverageResults to be returned: {Count}", ortoDataAcquisitionCoverageResults.Count);
+            return Content(json, "application/json");
+        }
+
+        /// <summary>
         /// Asynchronously compares, for one county, the subdivision each building is filed under against the one its orthophoto row carries.
         /// <para>The two tables live in different databases, so nothing keeps them in step on its own and no query can join them - each side is read once and matched in memory. This is the only place the two can be seen together.</para>
         /// <para>Read the result across a run rather than on its own. <c>OrtoDatasOnlyCount</c> counts rows whose orthophoto knows a subdivision the building no longer does, and nothing legitimate removes one, so a refresh that lowers it is doing damage. <c>Building2DOnlyCount</c> counts what a refresh exists to fix: it should fall to near zero and stay there, and climbing again once the download drains the queue is issue #36.</para>
