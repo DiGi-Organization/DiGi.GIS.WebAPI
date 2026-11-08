@@ -97,7 +97,7 @@ namespace DiGi.GIS.WebAPI
                 using (GZipStream gzipStream = new(memoryStream, compressionLevel, leaveOpen: true))
                 {
                     // If cancellationToken is already cancelled, this throws OperationCanceledException
-                    await gzipStream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+                    await gzipStream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
                 }
 
                 memoryStream.Position = 0;

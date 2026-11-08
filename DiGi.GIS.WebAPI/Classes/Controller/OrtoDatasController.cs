@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -225,7 +226,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> ContainsByReferencesAsync([FromBody] List<string>? references, [FromQuery(Name = "countyid")] int? countyId, [FromQuery(Name = "inverted")] bool? inverted, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(OrtoDatasController), nameof(ContainsByReferencesAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? "None");
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? "None");
             Serilog.Modify.Log("Inverted: {Inverted}", (inverted ?? false).ToString());
 
             if (references is null || references.Count == 0)
@@ -395,7 +396,7 @@ namespace DiGi.GIS.WebAPI.Classes
                     break;
 
                 case AdministrativeArealType.County:
-                    Serilog.Modify.Log("Calculating estimated count for {Id}", administrativeAreal2DReference.Id.ToString() ?? "???");
+                    Serilog.Modify.Log("Calculating estimated count for {Id}", administrativeAreal2DReference.Id.ToString(CultureInfo.CurrentCulture) ?? "???");
 
                     HashSet<int>? siblingCountyIds = null;
                     if (administrativeAreal2DReference.Code is string countyCode && !string.IsNullOrWhiteSpace(countyCode))
@@ -928,7 +929,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 }
 
                 double? factor = coverageFactor(value.Count_Building2D, value.Count_OrtoDatas);
-                Serilog.Modify.Log("Factor calculated: {Factor}", factor?.ToString() ?? "None");
+                Serilog.Modify.Log("Factor calculated: {Factor}", factor?.ToString(CultureInfo.CurrentCulture) ?? "None");
 
                 result.Add(factor);
             }
@@ -1348,7 +1349,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(OrtoDatasController), nameof(GetItemByReferenceAsync));
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(reference))
             {
@@ -1388,7 +1389,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(OrtoDatasController), nameof(GetOrtoDatasReferenceByReferenceAsync));
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(reference) || (countyId is not null && countyId <= 0))
             {
@@ -1431,7 +1432,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetOrtoDatasReferencesByReferencesAsync([FromBody] IEnumerable<string> references, [Minimum(1), FromQuery(Name = "countyid")] int? countyId = null, [FromQuery(Name = "fallbackbyreference")] bool fallbackByReference = false, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(OrtoDatasController), nameof(GetOrtoDatasReferencesByReferencesAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (references is null || !references.Any() || (countyId is not null && countyId <= 0))
             {
@@ -1704,7 +1705,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NoContent();
             }
 
-            HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetIdsByCodeAsync(code, AdministrativeArealType.County);
+            HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetIdsByCodeAsync(code, AdministrativeArealType.County, cancellationToken: cancellationToken);
             if (countyIds is null || countyIds.Count == 0)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "County code '{Code}' was not found in database", code);
@@ -1845,7 +1846,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 Serilog.Modify.Log("Updating to database starting");
 
-                PostgreSQL.Classes.PostgreSQLUpdateResult? postgreSQLUpdateResult = await ortoDatasPostgreSQLConverter.UpdateAsync(ortoDatas_PostgreSQL, countyIds_Candidate, administrativeAreal2DPostgreSQLConverter);
+                PostgreSQL.Classes.PostgreSQLUpdateResult? postgreSQLUpdateResult = await ortoDatasPostgreSQLConverter.UpdateAsync(ortoDatas_PostgreSQL, countyIds_Candidate, administrativeAreal2DPostgreSQLConverter, cancellationToken: CancellationToken.None);
 
                 UpdateItemsResult? updateItemsResult = postgreSQLUpdateResult.UpdateItemsResult(ortoDatas_PostgreSQL.Count);
                 if (updateItemsResult is null)
@@ -1923,8 +1924,8 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(OrtoDatasController), nameof(GetImageByReferenceAsync));
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
-            Serilog.Modify.Log("Year provided: {Year}", year.ToString());
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
+            Serilog.Modify.Log("Year provided: {Year}", year.ToString(CultureInfo.CurrentCulture));
 
             if (string.IsNullOrWhiteSpace(reference))
             {

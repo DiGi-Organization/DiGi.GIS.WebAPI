@@ -199,7 +199,7 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 The Geoportal client identifier\.
 
 ```csharp
-public static string Geoportal;
+public static readonly string Geoportal;
 ```
 
 #### Field Value
@@ -212,7 +212,7 @@ public static string Geoportal;
 The GIS client identifier\.
 
 ```csharp
-public static string GIS;
+public static readonly string GIS;
 ```
 
 #### Field Value
@@ -225,7 +225,7 @@ public static string GIS;
 The GUGiK \(Główny Urząd Geodezji i Kartografii\) client identifier\.
 
 ```csharp
-public static string GUGiK;
+public static readonly string GUGiK;
 ```
 
 #### Field Value
@@ -626,7 +626,7 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Gets or sets the base address for the Web API services\.
 
 ```csharp
-public static Uri BaseAddress;
+public static readonly Uri BaseAddress;
 ```
 
 #### Field Value

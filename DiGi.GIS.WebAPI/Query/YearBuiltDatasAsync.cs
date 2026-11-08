@@ -3,6 +3,7 @@ using DiGi.GIS.WebAPI.Classes;
 using DiGi.WebAPI.Classes;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -104,7 +105,7 @@ namespace DiGi.GIS.WebAPI
                 }
                 catch (Exception exception)
                 {
-                    Serilog.Modify.Log(exception, "The year built data could not be read for {Count} references in county {CountyId}", batch.Count, countyId?.ToString() ?? string.Empty);
+                    Serilog.Modify.Log(exception, "The year built data could not be read for {Count} references in county {CountyId}", batch.Count, countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
                     return null;
                 }
             }

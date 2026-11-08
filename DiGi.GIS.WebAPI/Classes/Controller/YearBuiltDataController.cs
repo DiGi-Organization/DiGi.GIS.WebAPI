@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -101,7 +102,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NoContent();
             }
 
-            HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetIdsByCodeAsync(code, PostgreSQL.Enums.AdministrativeArealType.County);
+            HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetIdsByCodeAsync(code, PostgreSQL.Enums.AdministrativeArealType.County, cancellationToken: cancellationToken);
             if (countyIds is null || countyIds.Count == 0)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "County code '{Code}' was not found in database", code);
@@ -231,7 +232,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 Serilog.Modify.Log("Updating to database starting");
 
-                PostgreSQLUpdateResult? updateResult = await yearBuiltDataPostgreSQLConverter.UpdateAsync(yearBuiltDatas_PostgreSQL);
+                PostgreSQLUpdateResult? updateResult = await yearBuiltDataPostgreSQLConverter.UpdateAsync(yearBuiltDatas_PostgreSQL, cancellationToken: CancellationToken.None);
 
                 if (updateResult is null)
                 {
@@ -878,7 +879,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// </summary>
         /// <param name="reference">The unique reference string used to identify the year built data items.</param>
         /// <param name="countyId">An optional integer representing the county ID to filter the results.</param>
-        /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
+        /// <param name="cancellationToken">The <see cref="System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         [HttpGet("itemsbyreference")]
         public async Task<IActionResult> GetItemsByReferenceAsync([BindRequired, FromQuery(Name = "reference")] string reference, [FromQuery(Name = "countyid")] int? countyId, CancellationToken cancellationToken = default)
@@ -886,7 +887,7 @@ namespace DiGi.GIS.WebAPI.Classes
             Serilog.Modify.Log("{Type}:{Name} started", nameof(YearBuiltDataController), nameof(GetItemsByReferenceAsync));
 
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(reference))
             {
@@ -1070,7 +1071,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NoContent();
             }
 
-            return Content(count.Value.ToString(), "application/json");
+            return Content(count.Value.ToString(CultureInfo.CurrentCulture), "application/json");
         }
 
         /// <summary>
@@ -1091,7 +1092,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetItemsByReferencesAsync([FromBody] IEnumerable<string>? references, [Minimum(1), FromQuery(Name = "countyid")] int? countyId = null, [FromQuery(Name = "fallbackbyreference")] bool fallbackByReference = false, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 30, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(YearBuiltDataController), nameof(GetItemsByReferencesAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (references is null || (countyId is not null && countyId <= 0) || commandTimeout < 0)
             {
@@ -1140,7 +1141,7 @@ namespace DiGi.GIS.WebAPI.Classes
             }
             catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
-                Serilog.Modify.Log(exception, "YearBuiltDatas could not be read from {TableName} for CountyId {CountyId}", yearBuiltDataPostgreSQLConverter.TableName, countyId?.ToString() ?? string.Empty);
+                Serilog.Modify.Log(exception, "YearBuiltDatas could not be read from {TableName} for CountyId {CountyId}", yearBuiltDataPostgreSQLConverter.TableName, countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
                 return StatusCode(500, "Database read failed.");
             }
 
@@ -1186,7 +1187,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetReferenceDuplicatesAsync([FromQuery(Name = "countyid")] int? countyId = null, [Minimum(1), FromQuery(Name = "limit")] int limit = 100, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(YearBuiltDataController), nameof(GetReferenceDuplicatesAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}, Limit provided: {Limit}", countyId?.ToString() ?? string.Empty, limit);
+            Serilog.Modify.Log("CountyId provided: {CountyId}, Limit provided: {Limit}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty, limit);
 
             if (limit <= 0)
             {

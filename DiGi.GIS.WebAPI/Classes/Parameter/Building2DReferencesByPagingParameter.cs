@@ -52,7 +52,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// Gets or sets the target subdivision identifier (Subdivision ID). Leave null to return references for the whole county.
         /// </summary>
         /// <example>1035</example>
-        public int? SubdivisionId { get; set; } = null;
+        public int? SubdivisionId { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum count of references per page. Defaults to 250.

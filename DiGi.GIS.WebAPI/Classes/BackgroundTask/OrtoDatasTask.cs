@@ -158,7 +158,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 {
                     Serilog.Modify.Log("OrtoDatas updating starting");
 
-                    PostgreSQLUpdateResult? postgreSQLUpdateResult = await ortoDatasPostgreSQLConverter.UpdateAsync(ortoDatasList_PostgreSQL);
+                    PostgreSQLUpdateResult? postgreSQLUpdateResult = await ortoDatasPostgreSQLConverter.UpdateAsync(ortoDatasList_PostgreSQL, cancellationToken: CancellationToken.None);
 
                     UpdateItemsResult? updateItemsResult = postgreSQLUpdateResult.UpdateItemsResult(ortoDatasList_PostgreSQL.Count);
                     if (updateItemsResult is null)

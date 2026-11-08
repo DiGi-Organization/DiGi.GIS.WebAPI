@@ -6,6 +6,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -68,7 +69,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetBuildingsByAddressAsync([BindRequired, FromQuery(Name = "text")] string? text, [FromQuery(Name = "housenumber")] string? houseNumber, [Minimum(1), FromQuery(Name = "countyid")] int? countyId, [Range(limit_Minimum, limit_Maximum), FromQuery(Name = "limit")] int? limit = 20, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(AddressPointController), nameof(GetBuildingsByAddressAsync));
-            Serilog.Modify.Log("Text provided: {Text}, HouseNumber provided: {HouseNumber}, CountyId provided: {CountyId}, Limit provided: {Limit}", text ?? string.Empty, houseNumber ?? string.Empty, countyId?.ToString() ?? string.Empty, limit?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("Text provided: {Text}, HouseNumber provided: {HouseNumber}, CountyId provided: {CountyId}, Limit provided: {Limit}", text ?? string.Empty, houseNumber ?? string.Empty, countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty, limit?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -288,7 +289,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetCountByCountyIdAsync([Minimum(1), FromQuery(Name = "countyid")] int? countyId, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(AddressPointController), nameof(GetCountByCountyIdAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (countyId is not null && countyId.Value <= 0)
             {

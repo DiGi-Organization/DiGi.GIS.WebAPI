@@ -13,17 +13,17 @@ namespace DiGi.GIS.WebAPI.Constants
             /// <summary>
             /// The GIS client identifier.
             /// </summary>
-            public static string GIS = "GIS";
+            public static readonly string GIS = "GIS";
 
             /// <summary>
             /// The Geoportal client identifier.
             /// </summary>
-            public static string Geoportal = "Geoportal";
+            public static readonly string Geoportal = "Geoportal";
 
             /// <summary>
             /// The GUGiK (Główny Urząd Geodezji i Kartografii) client identifier.
             /// </summary>
-            public static string GUGiK = "GUGiK";
+            public static readonly string GUGiK = "GUGiK";
         }
     }
 }

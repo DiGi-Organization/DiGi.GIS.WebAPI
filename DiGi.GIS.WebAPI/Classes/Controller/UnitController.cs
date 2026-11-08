@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
@@ -168,7 +169,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetItemsAsync([FromQuery(Name = "level")] short? level = null, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(UnitController), nameof(GetItemsAsync));
-            Serilog.Modify.Log("Level provided: {Level}", level?.ToString() ?? "all");
+            Serilog.Modify.Log("Level provided: {Level}", level?.ToString(CultureInfo.CurrentCulture) ?? "all");
 
             if (unitPostgreSQLConverter is null)
             {

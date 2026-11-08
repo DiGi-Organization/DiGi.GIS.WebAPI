@@ -44,13 +44,13 @@ namespace DiGi.GIS.WebAPI.Classes
         /// Gets or sets the unique identifiers of the columns (Column.UniqueId). All columns will be returned if the collection is null or empty.
         /// Required if performance is a concern and the column unique identifiers are available; otherwise, the column unique identifiers will be determined by the building data PostgreSQL converter.
         /// </summary>
-        public IEnumerable<string>? ColumnUniqueIds { get; set; } = null;
+        public IEnumerable<string>? ColumnUniqueIds { get; set; }
 
         /// <summary>
         /// Gets or sets the county identifier.
         /// Required if performance is a concern and the county identifier is available; otherwise, the county identifier will be determined by the building data PostgreSQL converter.
         /// </summary>
-        public int? CountyId { get; set; } = null;
+        public int? CountyId { get; set; }
 
         /// <summary>
         /// Gets or sets the references for the building data parameter.

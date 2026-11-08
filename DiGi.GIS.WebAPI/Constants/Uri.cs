@@ -8,6 +8,6 @@ namespace DiGi.GIS.WebAPI.Constants
         /// <summary>
         /// Gets or sets the base address for the Web API services.
         /// </summary>
-        public static System.Uri BaseAddress = new("https://api.digiproject.uk/");
+        public static readonly System.Uri BaseAddress = new("https://api.digiproject.uk/");
     }
 }

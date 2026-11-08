@@ -18,7 +18,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the SerializableObjectsPostOptions class using the specified JSON object.
         /// </summary>
-        /// <param name="jsonObject">The <see cref="T:System.Text.Json.Nodes.JsonObject" /> containing the data used to initialize the options.</param>
+        /// <param name="jsonObject">The <see cref="System.Text.Json.Nodes.JsonObject" /> containing the data used to initialize the options.</param>
         public SerializableObjectsPostOptions(JsonObject jsonObject)
             : base(jsonObject)
         {

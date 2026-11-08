@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -105,7 +106,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NotFound();
             }
 
-            return Content(count.ToString(), "application/json");
+            return Content(count.ToString(CultureInfo.CurrentCulture), "application/json");
         }
 
         /// <summary>
@@ -318,7 +319,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetItemsByReferencesAsync([BindRequired, FromQuery(Name = "references")] IEnumerable<string>? references, [FromQuery(Name = "countyid")] int? countyId, [FromQuery(Name = "limit")] long? limit = null, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingModelController), nameof(GetItemsByReferencesAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
             if (references is null)
             {
                 return BadRequest();
@@ -338,7 +339,7 @@ namespace DiGi.GIS.WebAPI.Classes
             // made a dropped table indistinguishable from an unreachable database from the outside.
             catch (Exception exception) when (!cancellationToken.IsCancellationRequested && exception is not NpgsqlException { IsTransient: true })
             {
-                Serilog.Modify.Log(exception, "BuildingModels could not be read from {TableName} for CountyId {CountyId}. SqlState: {SqlState}", buildingModelPostgreSQLConverter.TableName, countyId?.ToString() ?? string.Empty, exception is Npgsql.PostgresException postgresException ? postgresException.SqlState : string.Empty);
+                Serilog.Modify.Log(exception, "BuildingModels could not be read from {TableName} for CountyId {CountyId}. SqlState: {SqlState}", buildingModelPostgreSQLConverter.TableName, countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty, exception is Npgsql.PostgresException postgresException ? postgresException.SqlState : string.Empty);
                 return StatusCode(500, "Database read failed.");
             }
 
@@ -423,7 +424,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NoContent();
             }
 
-            HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetIdsByCodeAsync(code, PostgreSQL.Enums.AdministrativeArealType.County);
+            HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetIdsByCodeAsync(code, PostgreSQL.Enums.AdministrativeArealType.County, cancellationToken: cancellationToken);
             if (countyIds is null || countyIds.Count == 0)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "County code '{Code}' was not found in database", code);

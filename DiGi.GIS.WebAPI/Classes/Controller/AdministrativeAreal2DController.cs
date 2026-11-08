@@ -10,6 +10,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
@@ -407,7 +408,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(AdministrativeAreal2DController), nameof(GetAdministrativeAreal2DReferencesByAdministrativeArealTypeAsync));
             Serilog.Modify.Log("AdministrativeArealType provided: {AdministrativeArealType}", administrativeArealType?.ToString() ?? string.Empty);
-            Serilog.Modify.Log("ParentId provided: {ParentId}", parentId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("ParentId provided: {ParentId}", parentId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (administrativeArealType is null || administrativeArealType.Value == AdministrativeArealType.Undefined || (parentId.HasValue && parentId.Value <= 0))
             {
@@ -623,7 +624,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
-            int? id = await administrativeAreal2DPostgreSQLConverter.GetIdByCodeAsync(code, administrativeArealType);
+            int? id = await administrativeAreal2DPostgreSQLConverter.GetIdByCodeAsync(code, administrativeArealType, cancellationToken: cancellationToken);
             if (id is null || !id.HasValue)
             {
                 return NotFound();
@@ -766,7 +767,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
-            AdministrativeAreal2D? administrativeAreal2D_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DByIdAsync(id);
+            AdministrativeAreal2D? administrativeAreal2D_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DByIdAsync(id, cancellationToken: cancellationToken);
             if (administrativeAreal2D_PostgreSQL is null)
             {
                 return NotFound();
@@ -806,7 +807,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
-            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByAdministrativeArealTypeAsync(administrativeArealType.Value);
+            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByAdministrativeArealTypeAsync(administrativeArealType.Value, cancellationToken: cancellationToken);
             if (administrativeAreal2Ds_PostgreSQL is null || administrativeAreal2Ds_PostgreSQL.Count == 0)
             {
                 Serilog.Modify.Log("No content found");
@@ -861,7 +862,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(AdministrativeAreal2DController), nameof(GetItemsByBoundingBoxAsync));
             Serilog.Modify.Log("BoundingBox provided: X_1={X_1}, Y_1={Y_1}, X_2={X_2}, Y_2={Y_2}", x_1, y_1, x_2, y_2);
-            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
             Serilog.Modify.Log("AdministrativeArealType provided: {AdministrativeArealType}", administrativeArealType?.ToString() ?? string.Empty);
 
             if (double.IsNaN(x_1) || double.IsNaN(y_1) || double.IsNaN(x_2) || double.IsNaN(y_2) || (tolerance.HasValue && (double.IsNaN(tolerance.Value) || tolerance.Value < 0)) || administrativeArealType == AdministrativeArealType.Undefined)
@@ -935,8 +936,8 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(AdministrativeAreal2DController), nameof(GetItemsByCircleAsync));
             Serilog.Modify.Log("Coordinates provided: X={X}, Y={Y}", x, y);
-            Serilog.Modify.Log("Radius provided: {Radius}, Diameter provided: {Diameter}", radius?.ToString() ?? string.Empty, diameter?.ToString() ?? string.Empty);
-            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("Radius provided: {Radius}, Diameter provided: {Diameter}", radius?.ToString(CultureInfo.CurrentCulture) ?? string.Empty, diameter?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
+            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
             Serilog.Modify.Log("AdministrativeArealType provided: {AdministrativeArealType}", administrativeArealType?.ToString() ?? string.Empty);
 
             if (double.IsNaN(x) || double.IsNaN(y) || (tolerance.HasValue && (double.IsNaN(tolerance.Value) || tolerance.Value < 0)) || administrativeArealType == AdministrativeArealType.Undefined)
@@ -986,7 +987,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
             Point2D point2D = new(x, y);
             Circle2D circle2D = new(point2D, radius_Temp);
-            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByCircle2DAsync(circle2D, administrativeArealTypes, tolerance.Value);
+            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByCircle2DAsync(circle2D, administrativeArealTypes, tolerance.Value, cancellationToken: cancellationToken);
             if (administrativeAreal2Ds_PostgreSQL is null || administrativeAreal2Ds_PostgreSQL.Count == 0)
             {
                 return NotFound();
@@ -1098,7 +1099,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
-            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByCodesAsync(codes);
+            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByCodesAsync(codes, cancellationToken: cancellationToken);
             if (administrativeAreal2Ds_PostgreSQL is null || administrativeAreal2Ds_PostgreSQL.Count == 0)
             {
                 return NotFound();
@@ -1153,7 +1154,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
-            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByIdsAsync(ids);
+            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByIdsAsync(ids, cancellationToken: cancellationToken);
             if (administrativeAreal2Ds_PostgreSQL is null || administrativeAreal2Ds_PostgreSQL.Count == 0)
             {
                 return NotFound();
@@ -1200,7 +1201,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(AdministrativeAreal2DController), nameof(GetItemsByPointAsync));
             Serilog.Modify.Log("Coordinates provided: X={X}, Y={Y}", x, y);
-            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
             Serilog.Modify.Log("AdministrativeArealType provided: {AdministrativeArealType}", administrativeArealType?.ToString() ?? string.Empty);
 
             if (double.IsNaN(x) || double.IsNaN(y) || (tolerance.HasValue && (double.IsNaN(tolerance.Value) || tolerance.Value < 0)) || administrativeArealType == AdministrativeArealType.Undefined)
@@ -1225,7 +1226,7 @@ namespace DiGi.GIS.WebAPI.Classes
             }
 
             Point2D point2D = new(x, y);
-            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByPoint2DAsync(point2D, administrativeArealTypes, tolerance.Value);
+            List<AdministrativeAreal2D>? administrativeAreal2Ds_PostgreSQL = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByPoint2DAsync(point2D, administrativeArealTypes, tolerance.Value, cancellationToken: cancellationToken);
             if (administrativeAreal2Ds_PostgreSQL is null || administrativeAreal2Ds_PostgreSQL.Count == 0)
             {
                 return NotFound();
@@ -1346,7 +1347,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
-            HashSet<int>? ids = await administrativeAreal2DPostgreSQLConverter.UpdateAsync([administrativeAreal2D_PostgreSQL]);
+            HashSet<int>? ids = await administrativeAreal2DPostgreSQLConverter.UpdateAsync([administrativeAreal2D_PostgreSQL], cancellationToken: CancellationToken.None);
             if (ids is null || ids.Count == 0)
             {
                 return BadRequest();
@@ -1414,7 +1415,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NoContent();
             }
 
-            HashSet<int>? ids = await administrativeAreal2DPostgreSQLConverter.UpdateAsync(administrativeAreal2Ds_PostgreSQL);
+            HashSet<int>? ids = await administrativeAreal2DPostgreSQLConverter.UpdateAsync(administrativeAreal2Ds_PostgreSQL, cancellationToken: CancellationToken.None);
             if (ids is null || ids.Count == 0)
             {
                 return BadRequest();

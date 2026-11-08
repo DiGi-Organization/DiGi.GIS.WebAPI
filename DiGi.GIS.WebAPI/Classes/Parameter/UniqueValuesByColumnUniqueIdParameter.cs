@@ -30,7 +30,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the <see cref="UniqueValuesByColumnUniqueIdParameter"/> class using an <see cref="JsonObject"/> object.
         /// </summary>
-        /// <param name="jsonObject">The <see cref="T:System.Text.Json.Nodes.JsonObject" /> containing the data used to initialize the parameter.</param>
+        /// <param name="jsonObject">The <see cref="System.Text.Json.Nodes.JsonObject" /> containing the data used to initialize the parameter.</param>
         public UniqueValuesByColumnUniqueIdParameter(JsonObject jsonObject)
             : base(jsonObject)
         {

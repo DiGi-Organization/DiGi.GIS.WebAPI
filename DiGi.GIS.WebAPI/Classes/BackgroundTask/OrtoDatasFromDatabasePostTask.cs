@@ -4,6 +4,7 @@ using DiGi.GIS.PostgreSQL.Classes;
 using DiGi.WebAPI.Classes;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -130,7 +131,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 failureCount++;
                 if (failureCount >= maxConsecutiveFailureCount)
                 {
-                    throw new TimeoutException(string.Format("OrtoDatas upload stopped after {0} consecutive failed batches. Last failure: {1}{2}", failureCount, reason, exception is null ? string.Empty : string.Format(" ({0})", exception.Message)), exception);
+                    throw new TimeoutException(string.Format(CultureInfo.CurrentCulture, "OrtoDatas upload stopped after {0} consecutive failed batches. Last failure: {1}{2}", failureCount, reason, exception is null ? string.Empty : string.Format(CultureInfo.CurrentCulture, " ({0})", exception.Message)), exception);
                 }
             }
 
@@ -139,7 +140,7 @@ namespace DiGi.GIS.WebAPI.Classes
             // failed response, and match on that instead.
             static bool IsNotFound(Exception exception)
             {
-                return exception.GetType() == typeof(Exception) && exception.Message.StartsWith(string.Format("Server returned {0}.", System.Net.HttpStatusCode.NotFound), StringComparison.Ordinal);
+                return exception.GetType() == typeof(Exception) && exception.Message.StartsWith(string.Format(CultureInfo.CurrentCulture, "Server returned {0}.", System.Net.HttpStatusCode.NotFound), StringComparison.Ordinal);
             }
 
             // A factory rather than a single-use HttpContent - the body is rebuilt per attempt, so a dropped pooled connection is retried
@@ -176,7 +177,7 @@ namespace DiGi.GIS.WebAPI.Classes
                     catch (OperationCanceledException operationCanceledException) when (!cancellationToken.IsCancellationRequested)
                     {
                         Serilog.Modify.Log(operationCanceledException, "Claiming Building2DReferences timed out after {Delay}s", postOptions.Delay.TotalSeconds);
-                        RegisterFailure(string.Format("claiming Building2DReferences timed out after {0}s", postOptions.Delay.TotalSeconds), operationCanceledException);
+                        RegisterFailure(string.Format(CultureInfo.CurrentCulture, "claiming Building2DReferences timed out after {0}s", postOptions.Delay.TotalSeconds), operationCanceledException);
                     }
                     catch (HttpRequestException httpRequestException)
                     {
@@ -219,7 +220,7 @@ namespace DiGi.GIS.WebAPI.Classes
                             if (building2Ds is null)
                             {
                                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Building2Ds could not be fetched for {Count} references in county {CountyId}", building2DReferences_Claimed.Count, countyId.Value);
-                                RegisterFailure(string.Format("Building2Ds could not be fetched for county {0}", countyId.Value), null);
+                                RegisterFailure(string.Format(CultureInfo.CurrentCulture, "Building2Ds could not be fetched for county {0}", countyId.Value), null);
                                 continue;
                             }
 
@@ -310,7 +311,7 @@ namespace DiGi.GIS.WebAPI.Classes
                                         if (postResponse_Ack is null || !postResponse_Ack.Succeeded)
                                         {
                                             Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "OrtoDatas stored but not acknowledged for {Count} references in county {CountyId}; they are re-processed after lease expiry", ids.Count, countyId.Value);
-                                            RegisterFailure(string.Format("acknowledge was not accepted for county {0}", countyId.Value), null);
+                                            RegisterFailure(string.Format(CultureInfo.CurrentCulture, "acknowledge was not accepted for county {0}", countyId.Value), null);
                                         }
                                     }
 
@@ -322,7 +323,7 @@ namespace DiGi.GIS.WebAPI.Classes
                                 else
                                 {
                                     Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "OrtoDatas could not be updated for county {CountyId}. References remain claimed and will retry on lease expiry.", countyId.Value);
-                                    RegisterFailure(string.Format("OrtoDatas update was not accepted for county {0}", countyId.Value), null);
+                                    RegisterFailure(string.Format(CultureInfo.CurrentCulture, "OrtoDatas update was not accepted for county {0}", countyId.Value), null);
                                 }
                             }
                             else
@@ -339,12 +340,12 @@ namespace DiGi.GIS.WebAPI.Classes
                         {
                             // A request timeout, not a user cancel: the references stay claimed and the lease expiry re-queues them.
                             Serilog.Modify.Log(operationCanceledException, "Request timed out during OrtoDatas processing in county {CountyId}; {Count} references stay claimed until lease expiry", countyId.Value, building2DReferences_Claimed.Count);
-                            RegisterFailure(string.Format("request timed out in county {0} (limits: upload {1}s x {2} attempts, Building2D fetch and acknowledge {3}s x {4} attempts)", countyId.Value, SerializableObjectsPostOptions.Delay.TotalSeconds, SerializableObjectsPostOptions.RetryCount < 0 ? 1 : SerializableObjectsPostOptions.RetryCount + 1, postOptions.Delay.TotalSeconds, postOptions.RetryCount < 0 ? 1 : postOptions.RetryCount + 1), operationCanceledException);
+                            RegisterFailure(string.Format(CultureInfo.CurrentCulture, "request timed out in county {0} (limits: upload {1}s x {2} attempts, Building2D fetch and acknowledge {3}s x {4} attempts)", countyId.Value, SerializableObjectsPostOptions.Delay.TotalSeconds, SerializableObjectsPostOptions.RetryCount < 0 ? 1 : SerializableObjectsPostOptions.RetryCount + 1, postOptions.Delay.TotalSeconds, postOptions.RetryCount < 0 ? 1 : postOptions.RetryCount + 1), operationCanceledException);
                         }
                         catch (HttpRequestException httpRequestException)
                         {
                             Serilog.Modify.Log(httpRequestException, "HTTP error during OrtoDatas processing in county {CountyId}; {Count} references stay claimed until lease expiry", countyId.Value, building2DReferences_Claimed.Count);
-                            RegisterFailure(string.Format("HTTP error in county {0}", countyId.Value), httpRequestException);
+                            RegisterFailure(string.Format(CultureInfo.CurrentCulture, "HTTP error in county {0}", countyId.Value), httpRequestException);
                         }
                         catch (Exception exception) when (exception is not TimeoutException)
                         {

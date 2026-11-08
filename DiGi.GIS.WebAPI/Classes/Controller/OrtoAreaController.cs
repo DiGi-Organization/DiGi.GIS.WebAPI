@@ -69,7 +69,7 @@ namespace DiGi.GIS.WebAPI.Classes
         static OrtoAreaController()
         {
             AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
-            string applicationInfo = string.Format("{0}/{1}", assemblyName.Name ?? "DiGi.GIS.WebAPI", assemblyName.Version?.ToString() ?? "1.0.0.0");
+            string applicationInfo = string.Format(CultureInfo.CurrentCulture, "{0}/{1}", assemblyName.Name ?? "DiGi.GIS.WebAPI", assemblyName.Version?.ToString() ?? "1.0.0.0");
             httpClient.DefaultRequestHeaders.Add("User-Agent", $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) {applicationInfo}");
         }
 

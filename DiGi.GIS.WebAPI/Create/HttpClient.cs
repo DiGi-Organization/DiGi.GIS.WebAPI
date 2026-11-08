@@ -1,4 +1,5 @@
 using DiGi.GIS.WebAPI.Classes;
+using System.Globalization;
 using System.Net.Http;
 using System.Reflection;
 
@@ -21,7 +22,7 @@ namespace DiGi.GIS.WebAPI
 
             AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
 
-            string applicationInfo = string.Format("{0}/{1}", assemblyName.Name ?? "DiGi.GIS.WebAPI", assemblyName.Version?.ToString() ?? "1.0.0.0");
+            string applicationInfo = string.Format(CultureInfo.CurrentCulture, "{0}/{1}", assemblyName.Name ?? "DiGi.GIS.WebAPI", assemblyName.Version?.ToString() ?? "1.0.0.0");
 
             result.DefaultRequestHeaders.Add("User-Agent", $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) {applicationInfo}");
 
@@ -43,7 +44,7 @@ namespace DiGi.GIS.WebAPI
 
             AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
 
-            string applicationInfo = string.Format("{0}/{1}", assemblyName.Name ?? "DiGi.GIS.WebAPI", assemblyName.Version?.ToString() ?? "1.0.0.0");
+            string applicationInfo = string.Format(CultureInfo.CurrentCulture, "{0}/{1}", assemblyName.Name ?? "DiGi.GIS.WebAPI", assemblyName.Version?.ToString() ?? "1.0.0.0");
 
             result.DefaultRequestHeaders.Add("User-Agent", $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) {applicationInfo}");
 

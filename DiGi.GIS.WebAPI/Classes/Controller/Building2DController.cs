@@ -8,6 +8,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -188,7 +189,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetBuilding2DReferenceByIdAsync));
             Serilog.Modify.Log("Id provided: {Id}", id);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (id <= 0 || (countyId is not null && countyId <= 0))
             {
@@ -229,7 +230,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetBuilding2DReferenceByReferenceAsync));
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(reference) || (countyId is not null && countyId <= 0))
             {
@@ -448,7 +449,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetItemByIdAsync));
             Serilog.Modify.Log("Id provided: {Id}", id);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (id <= 0 || (countyId is not null && countyId <= 0))
             {
@@ -495,7 +496,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetItemByPointAsync));
             Serilog.Modify.Log("Coordinates provided: X={X}, Y={Y}", x, y);
-            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (double.IsNaN(x) || double.IsNaN(y))
             {
@@ -545,7 +546,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetItemByReferenceAsync));
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(reference) || (countyId is not null && countyId <= 0))
             {
@@ -588,7 +589,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetItemsByBoundingBoxAsync));
             Serilog.Modify.Log("BoundingBox provided: X_1={X_1}, Y_1={Y_1}, X_2={X_2}, Y_2={Y_2}", x_1, y_1, x_2, y_2);
-            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (double.IsNaN(x_1) || double.IsNaN(y_1) || double.IsNaN(x_2) || double.IsNaN(y_2))
             {
@@ -719,8 +720,8 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetItemsByCircleAsync));
             Serilog.Modify.Log("Coordinates provided: X={X}, Y={Y}", x, y);
-            Serilog.Modify.Log("Radius provided: {Radius}, Diameter provided: {Diameter}", radius?.ToString() ?? string.Empty, diameter?.ToString() ?? string.Empty);
-            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("Radius provided: {Radius}, Diameter provided: {Diameter}", radius?.ToString(CultureInfo.CurrentCulture) ?? string.Empty, diameter?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
+            Serilog.Modify.Log("Tolerance provided: {Tolerance}", tolerance?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (double.IsNaN(x) || double.IsNaN(y))
             {
@@ -853,7 +854,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetItemsByReferencesAsync([FromBody] IEnumerable<string>? references, [FromQuery(Name = "countyid")] int? countyId, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetItemsByReferencesAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (references is null || (countyId is not null && countyId <= 0))
             {
@@ -927,7 +928,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetPoint2DsByReferencesAsync));
             Serilog.Modify.Log("References count: {Count}", references?.Count() ?? 0);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (references is null || (countyId is not null && countyId <= 0))
             {
@@ -1011,7 +1012,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(GetReferencesByCountyIdAsync));
             Serilog.Modify.Log("CountyId provided: {CountyId}", countyId);
-            Serilog.Modify.Log("SubdivisionId provided: {SubdivisionId}", subdivisionId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("SubdivisionId provided: {SubdivisionId}", subdivisionId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
             Serilog.Modify.Log("CommandTimeout provided: {CommandTimeout}", commandTimeout);
 
             if (countyId <= 0 || (subdivisionId is not null && subdivisionId <= 0) || commandTimeout < 0)
@@ -1094,7 +1095,7 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary> Updates a single building 2D item. </summary>
-        /// <param name="jsonObject">The <see cref="T:System.Text.Json.Nodes.JsonObject" /> containing the data to update the building 2D item. This value can be null.</param>
+        /// <param name="jsonObject">The <see cref="System.Text.Json.Nodes.JsonObject" /> containing the data to update the building 2D item. This value can be null.</param>
         /// <param name="code">The code identifying the specific building 2D item to be updated. This value can be null.</param>
         /// <param name="countyId">The optional county identifier associated with the building.</param>
         /// <param name="key">The secret access key supplied in the request header.</param>
@@ -1109,7 +1110,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(Building2DController), nameof(UpdateItemAsync));
             Serilog.Modify.Log("Code provided: {Code}", code ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (!GISWebAPIConfigurationFileWatcher.IsAuthorized(key))
             {
@@ -1150,7 +1151,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 building2D_PostgreSQL.CountyId = countyId.Value;
             }
 
-            PostgreSQL.Classes.PostgreSQLUpdateResult? postgreSQLUpdateResult = await building2DPostgreSQLConverter.UpdateAsync([building2D_PostgreSQL]);
+            PostgreSQL.Classes.PostgreSQLUpdateResult? postgreSQLUpdateResult = await building2DPostgreSQLConverter.UpdateAsync([building2D_PostgreSQL], cancellationToken: CancellationToken.None);
 
             UpdateItemsResult? updateItemsResult = postgreSQLUpdateResult.UpdateItemsResult(1);
 
@@ -1262,7 +1263,7 @@ namespace DiGi.GIS.WebAPI.Classes
             PostgreSQL.Classes.PostgreSQLUpdateResult? postgreSQLUpdateResult = null;
             try
             {
-                postgreSQLUpdateResult = await building2DPostgreSQLConverter.UpdateAsync(building2Ds_PostgreSQL);
+                postgreSQLUpdateResult = await building2DPostgreSQLConverter.UpdateAsync(building2Ds_PostgreSQL, cancellationToken: CancellationToken.None);
             }
             catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
@@ -1389,7 +1390,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 Serilog.Modify.Log("Updating to database starting");
 
-                PostgreSQL.Classes.PostgreSQLUpdateResult? postgreSQLUpdateResult = await building2DPostgreSQLConverter.UpdateAsync(building2Ds_PostgreSQL);
+                PostgreSQL.Classes.PostgreSQLUpdateResult? postgreSQLUpdateResult = await building2DPostgreSQLConverter.UpdateAsync(building2Ds_PostgreSQL, cancellationToken: CancellationToken.None);
 
                 UpdateItemsResult? updateItemsResult = postgreSQLUpdateResult.UpdateItemsResult(building2Ds_PostgreSQL.Count);
                 if (updateItemsResult is null)

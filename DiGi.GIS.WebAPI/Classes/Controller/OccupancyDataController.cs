@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -182,7 +183,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NoContent();
             }
 
-            HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetIdsByCodeAsync(code, PostgreSQL.Enums.AdministrativeArealType.County);
+            HashSet<int>? countyIds = await administrativeAreal2DPostgreSQLConverter.GetIdsByCodeAsync(code, PostgreSQL.Enums.AdministrativeArealType.County, cancellationToken: cancellationToken);
             if (countyIds is null || countyIds.Count == 0)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "County code '{Code}' was not found in database", code);
@@ -312,7 +313,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 Serilog.Modify.Log("Updating to database starting");
 
-                PostgreSQLUpdateResult? updateResult = await building2DOccupancyDataPostgreSQLConverter.UpdateAsync(building2DOccupancyDatas_PostgreSQL);
+                PostgreSQLUpdateResult? updateResult = await building2DOccupancyDataPostgreSQLConverter.UpdateAsync(building2DOccupancyDatas_PostgreSQL, cancellationToken: CancellationToken.None);
 
                 if (updateResult is null)
                 {
@@ -433,7 +434,7 @@ namespace DiGi.GIS.WebAPI.Classes
             Serilog.Modify.Log("{Type}:{Name} started", nameof(OccupancyDataController), nameof(GetBuilding2DItemsByReferenceAsync));
 
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(reference))
             {
@@ -579,7 +580,7 @@ namespace DiGi.GIS.WebAPI.Classes
                     return NotFound();
                 }
 
-                return Content(count.ToString(), "application/json");
+                return Content(count.ToString(CultureInfo.CurrentCulture), "application/json");
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {

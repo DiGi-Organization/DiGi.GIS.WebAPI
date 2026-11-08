@@ -8,6 +8,7 @@ using DiGi.GIS.WebAPI.Classes;
 using DiGi.WebAPI.Classes;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
@@ -161,7 +162,7 @@ namespace DiGi.GIS.WebAPI
         /// Asynchronously updates multiple year built data items via the PostgreSQL Web API.
         /// </summary>
         /// <param name="gISWebAPIManager">The manager instance used to facilitate the web API communication.</param>
-        /// <param name="yearBuiltDatas">A collection of <see cref="T:DiGi.GIS.Classes.YearBuiltData"/> objects to be updated.</param>
+        /// <param name="yearBuiltDatas">A collection of <see cref="DiGi.GIS.Classes.YearBuiltData"/> objects to be updated.</param>
         /// <param name="code">An optional code identifier for the update request.</param>
         /// <param name="postOptions">Optional configuration options for the POST request.</param>
         /// <param name="key">The optional API authorization key used for authenticating requests to protected endpoints.</param>
@@ -192,7 +193,7 @@ namespace DiGi.GIS.WebAPI
         /// <para>The counterpart of the <c>code</c> overload, for a caller that already holds the identifiers: a multi-part county holds one <c>administrative_areal_2d</c> row per polygon part, so pass every part rather than picking one - the server files each item under the part it belongs to.</para>
         /// </summary>
         /// <param name="gISWebAPIManager">The manager instance used to facilitate the web API communication.</param>
-        /// <param name="yearBuiltDatas">A collection of <see cref="T:DiGi.GIS.Classes.YearBuiltData"/> objects to be updated.</param>
+        /// <param name="yearBuiltDatas">A collection of <see cref="DiGi.GIS.Classes.YearBuiltData"/> objects to be updated.</param>
         /// <param name="countyIds">The identifiers of the county rows the year built data belong to. Normally every polygon part of one county.</param>
         /// <param name="postOptions">Optional configuration options for the POST request.</param>
         /// <param name="key">The optional API authorization key used for authenticating requests to protected endpoints.</param>
@@ -514,7 +515,7 @@ namespace DiGi.GIS.WebAPI
                         string? code = gISModel!.Reference;
                         if (!string.IsNullOrWhiteSpace(code))
                         {
-                            code = code.ToUpper();
+                            code = code.ToUpper(CultureInfo.CurrentCulture);
                             int index = code.IndexOf('_');
                             if (index != -1)
                             {
@@ -777,7 +778,7 @@ namespace DiGi.GIS.WebAPI
         /// <para>For a county stored as several polygon parts, pass every part to the <see cref="IEnumerable{T}"/> overload instead - naming one part files the whole batch there whether or not the data belong to it.</para>
         /// </summary>
         /// <param name="gISWebAPIManager">The manager instance used to facilitate the web API communication.</param>
-        /// <param name="yearBuiltDatas">A collection of <see cref="T:DiGi.GIS.Classes.YearBuiltData"/> objects to be updated.</param>
+        /// <param name="yearBuiltDatas">A collection of <see cref="DiGi.GIS.Classes.YearBuiltData"/> objects to be updated.</param>
         /// <param name="countyId">The identifier of the county row the year built data belong to.</param>
         /// <param name="postOptions">Optional configuration options for the POST request.</param>
         /// <param name="key">The optional API authorization key used for authenticating requests to protected endpoints.</param>

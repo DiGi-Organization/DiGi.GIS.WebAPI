@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading;
@@ -229,7 +230,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 Serilog.Modify.Log("Updating to database starting");
 
-                PostgreSQLUpdateResult? postgreSQLUpdateResult = await buildingPostgreSQLConverter.UpdateAsync(buildings, countyIds_Candidate, administrativeAreal2DPostgreSQLConverter);
+                PostgreSQLUpdateResult? postgreSQLUpdateResult = await buildingPostgreSQLConverter.UpdateAsync(buildings, countyIds_Candidate, administrativeAreal2DPostgreSQLConverter, cancellationToken: CancellationToken.None);
 
                 UpdateItemsResult? updateItemsResult = postgreSQLUpdateResult.UpdateItemsResult(buildings.Count);
                 if (updateItemsResult is null)
@@ -295,7 +296,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> ContainsByReferencesAsync([FromBody] List<string>? references, [FromQuery(Name = "countyid")] int? countyId, [FromQuery(Name = "inverted")] bool? inverted, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingController), nameof(ContainsByReferencesAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
             Serilog.Modify.Log("Inverted: {Inverted}", (inverted ?? false).ToString());
 
             if (references is null || references.Count == 0)
@@ -363,7 +364,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCountAsync([FromQuery(Name = "countyid")] int? countyId, [FromQuery(Name = "estimated")] bool estimated = false, [FromQuery(Name = "analyze")] bool analyze = false, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
         {
-            Serilog.Modify.Log("{Type}:{Name} started for county {CountyId}", nameof(BuildingController), nameof(GetCountAsync), countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("{Type}:{Name} started for county {CountyId}", nameof(BuildingController), nameof(GetCountAsync), countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (buildingPostgreSQLConverter is null)
             {
@@ -410,17 +411,17 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 if (isCounty)
                 {
-                    Serilog.Modify.Log("County {CountyId} has no building partition, so it holds no rows", countyId?.ToString() ?? string.Empty);
+                    Serilog.Modify.Log("County {CountyId} has no building partition, so it holds no rows", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
                     return Ok(0L);
                 }
 
-                Serilog.Modify.Log("County {CountyId} is not a county part or has no building partition", countyId?.ToString() ?? string.Empty);
+                Serilog.Modify.Log("County {CountyId} is not a county part or has no building partition", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
                 return NotFound();
             }
 
             if (estimated && count < 0)
             {
-                Serilog.Modify.Log("County {CountyId} building partition exists but has not been analysed", countyId?.ToString() ?? string.Empty);
+                Serilog.Modify.Log("County {CountyId} building partition exists but has not been analysed", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
                 return NoContent();
             }
 
@@ -432,7 +433,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// </summary>
         /// <param name="reference">The unique reference string used to identify the buildings.</param>
         /// <param name="countyId">An optional integer representing the county ID to filter the results.</param>
-        /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
+        /// <param name="cancellationToken">The <see cref="System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         [HttpGet("itemsbyreference", Name = $"{nameof(BuildingController)}_{nameof(GetItemsByReferenceAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
@@ -444,7 +445,7 @@ namespace DiGi.GIS.WebAPI.Classes
             Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingController), nameof(GetItemsByReferenceAsync));
 
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(reference))
             {
@@ -497,7 +498,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <param name="y">The optional Y coordinate of the point used to break ties and to locate the building when the reference cannot be resolved.</param>
         /// <param name="z">The optional Z coordinate of the point used to break ties and to locate the building when the reference cannot be resolved.</param>
         /// <param name="maxDistance">The optional distance used to inflate the point in X and Y into the bounding box of the spatial fallback search. Defaults to 1.0 when not provided or invalid.</param>
-        /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
+        /// <param name="cancellationToken">The <see cref="System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         [HttpGet("itembyreference", Name = $"{nameof(BuildingController)}_{nameof(GetItemByReferenceAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
@@ -509,9 +510,9 @@ namespace DiGi.GIS.WebAPI.Classes
             Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingController), nameof(GetItemByReferenceAsync));
 
             Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
-            Serilog.Modify.Log("Point provided: X {X}, Y {Y}, Z {Z}", x?.ToString() ?? string.Empty, y?.ToString() ?? string.Empty, z?.ToString() ?? string.Empty);
-            Serilog.Modify.Log("MaxDistance provided: {MaxDistance}", maxDistance?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
+            Serilog.Modify.Log("Point provided: X {X}, Y {Y}, Z {Z}", x?.ToString(CultureInfo.CurrentCulture) ?? string.Empty, y?.ToString(CultureInfo.CurrentCulture) ?? string.Empty, z?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
+            Serilog.Modify.Log("MaxDistance provided: {MaxDistance}", maxDistance?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(reference))
             {
@@ -558,7 +559,7 @@ namespace DiGi.GIS.WebAPI.Classes
             }
             catch (Exception exception) when (exception is not NpgsqlException { IsTransient: true })
             {
-                Serilog.Modify.Log(exception, "Failed to retrieve Building for reference {Reference} (countyId {CountyId})", reference, countyId?.ToString() ?? string.Empty);
+                Serilog.Modify.Log(exception, "Failed to retrieve Building for reference {Reference} (countyId {CountyId})", reference, countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
                 return Problem(detail: "Failed to retrieve the building for the provided reference.", statusCode: StatusCodes.Status500InternalServerError);
             }
 
@@ -578,7 +579,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// </summary>
         /// <param name="references">The collection of unique reference strings used to identify the buildings.</param>
         /// <param name="countyId">An optional integer representing the county ID to filter the results.</param>
-        /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
+        /// <param name="cancellationToken">The <see cref="System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         [HttpPost("itemsbyreferences", Name = $"{nameof(BuildingController)}_{nameof(GetItemsByReferencesAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
@@ -587,7 +588,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetItemsByReferencesAsync([FromBody] IEnumerable<string>? references, [FromQuery(Name = "countyid")] int? countyId, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingController), nameof(GetItemsByReferencesAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (references is null)
             {
@@ -660,7 +661,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// Asynchronously retrieves the building with the latest created date for an optional county identifier.
         /// </summary>
         /// <param name="countyId">An optional integer representing the county ID to filter the results.</param>
-        /// <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
+        /// <param name="cancellationToken">The <see cref="System.Threading.CancellationToken" /> to observe for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         [HttpGet("itembylatestcreatedat", Name = $"{nameof(BuildingController)}_{nameof(GetItemByLatestCreatedAtAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
@@ -670,7 +671,7 @@ namespace DiGi.GIS.WebAPI.Classes
         public async Task<IActionResult> GetItemByLatestCreatedAtAsync([FromQuery(Name = "countyid")] int? countyId, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingController), nameof(GetItemByLatestCreatedAtAsync));
-            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+            Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
             if (buildingPostgreSQLConverter is null)
             {

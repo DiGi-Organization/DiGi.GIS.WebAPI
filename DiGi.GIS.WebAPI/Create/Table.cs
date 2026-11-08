@@ -18,7 +18,9 @@ namespace DiGi.GIS.WebAPI
                 return null;
             }
 
+#pragma warning disable CA1869 // sharing the options would be a cache (Coding - General.md 1.20)
             JsonSerializerOptions jsonSerializerOptions = new();
+#pragma warning restore CA1869
             jsonSerializerOptions.Converters.Add(new TableConverter<Table, Column, Row>());
 
             return JsonSerializer.Deserialize<Table>(jsonObject.ToJsonString(), jsonSerializerOptions);

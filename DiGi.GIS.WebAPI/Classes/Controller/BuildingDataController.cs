@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
+using System.Globalization;
 using System.Threading;
 using System;
 using System.Collections.Generic;
@@ -488,7 +489,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NoContent();
             }
 
-            return Content(count.Value.ToString(), "application/json");
+            return Content(count.Value.ToString(CultureInfo.CurrentCulture), "application/json");
         }
 
         /// <summary>
@@ -1224,7 +1225,7 @@ namespace DiGi.GIS.WebAPI.Classes
                     return NotFound();
                 }
 
-                Table table_Result = new Table(columns);
+                Table table_Result = new(columns);
 
                 // The county partition is folded into the filter rather than written into the statement, so the read still
                 // goes through the base PullAsync: it resolves county_id against the stored column list and rejects anything
@@ -1345,7 +1346,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return NotFound();
             }
 
-            return Content(count.Value.ToString(), "application/json");
+            return Content(count.Value.ToString(CultureInfo.CurrentCulture), "application/json");
         }
 
         /// <summary>
@@ -1465,7 +1466,7 @@ namespace DiGi.GIS.WebAPI.Classes
             try
             {
                 Serilog.Modify.Log("Reference provided: {Reference}", reference ?? string.Empty);
-                Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+                Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
 
                 if (string.IsNullOrWhiteSpace(reference))
                 {
@@ -1527,7 +1528,7 @@ namespace DiGi.GIS.WebAPI.Classes
             try
             {
                 Serilog.Modify.Log("ColumnUniqueId provided: {ColumnUniqueId}", columnUniqueId ?? string.Empty);
-                Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString() ?? string.Empty);
+                Serilog.Modify.Log("CountyId provided: {CountyId}", countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
                 IEnumerable<object?>? values;
                 if (countyId is null)
                 {
