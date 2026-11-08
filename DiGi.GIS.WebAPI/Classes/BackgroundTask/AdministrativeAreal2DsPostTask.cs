@@ -16,9 +16,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the AdministrativeAreal2DsPostTask class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The GIS PostgreSQL Web API manager used to handle database operations.</param>
-        public AdministrativeAreal2DsPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The GIS PostgreSQL Web API manager used to handle database operations.</param>
+        public AdministrativeAreal2DsPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -38,7 +38,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                result = await GISWebAPIManager.UpdateItemsAsync(administrativeAreal2Ds, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(administrativeAreal2Ds, SerializableObjectsPostOptions);
 
                 longProgressWrapper?.Increment(administrativeAreal2Ds.Count);
 

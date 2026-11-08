@@ -17,16 +17,16 @@ namespace DiGi.GIS.WebAPI
         /// Asynchronously retrieves year built data items for the specified references, optionally filtered by county identifier.
         /// <para>If the number of references exceeds the endpoint's maximum request limit (10,000), requests are automatically partitioned into batches.</para>
         /// </summary>
-        /// <param name="gisWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
         /// <param name="references">The collection of unique reference strings to retrieve.</param>
         /// <param name="countyId">An optional integer representing the county identifier to filter the results.</param>
         /// <param name="fallbackByReference">A boolean value indicating whether to perform a fallback search by reference alone if not found under the specified county.</param>
         /// <param name="postOptions">Optional configuration options for the HTTP request.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>A task returning the list of year built data items, or null when the request failed.</returns>
-        public static async Task<List<YearBuiltData>?> YearBuiltDatasAsync(this GISWebAPIManager? gisWebAPIManager, IEnumerable<string>? references, int? countyId = null, bool fallbackByReference = false, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
+        public static async Task<List<YearBuiltData>?> YearBuiltDatasAsync(this GISWebAPIManager? gISWebAPIManager, IEnumerable<string>? references, int? countyId = null, bool fallbackByReference = false, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
         {
-            if (gisWebAPIManager is null || references is null)
+            if (gISWebAPIManager is null || references is null)
             {
                 return null;
             }
@@ -45,7 +45,7 @@ namespace DiGi.GIS.WebAPI
                 return [];
             }
 
-            HttpClient? httpClient = gisWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.GetItemsByReferencesAsync), out string? path);
+            HttpClient? httpClient = gISWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.GetItemsByReferencesAsync), out string? path);
             if (httpClient is null || string.IsNullOrWhiteSpace(path))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "HttpClient or path for {Method} could not be resolved", nameof(YearBuiltDataController.GetItemsByReferencesAsync));

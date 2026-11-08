@@ -16,9 +16,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the Building2DsPostTask class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The <see cref="GISWebAPIManager"/> used to manage PostgreSQL GIS operations.</param>
-        public Building2DsPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> used to manage PostgreSQL GIS operations.</param>
+        public Building2DsPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -59,7 +59,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(building2Ds.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(building2Ds, code, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(building2Ds, code, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;
@@ -95,7 +95,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(building2Ds.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(building2Ds, countyId, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(building2Ds, countyId, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;

@@ -16,9 +16,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the OccupancyDatasPostTask class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The manager used to handle GIS PostgreSQL Web API operations.</param>
-        public OccupancyDatasPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The manager used to handle GIS PostgreSQL Web API operations.</param>
+        public OccupancyDatasPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -56,7 +56,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(occupancyDatas.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(occupancyDatas, code, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(occupancyDatas, code, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;
@@ -84,7 +84,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(occupancyDatas.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(occupancyDatas, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(occupancyDatas, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;
@@ -112,7 +112,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(occupancyDatas.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(occupancyDatas, countyIds, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(occupancyDatas, countyIds, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;

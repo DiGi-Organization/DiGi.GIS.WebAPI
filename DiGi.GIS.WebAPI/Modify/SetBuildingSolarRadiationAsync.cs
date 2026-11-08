@@ -17,15 +17,15 @@ namespace DiGi.GIS.WebAPI
         /// Stores the solar radiation of a building through <c>gis/buildingsolarradiation/setsolarradiation</c>, on behalf of the signed-in user whose token is given.
         /// <para>The body is the DiGi JSON of <paramref name="buildingSolarRadiationResult"/> (<c>ToJsonObject()</c>, keeping <c>_type</c> and the declared names), never <c>JsonContent.Create</c>, which would write System.Text.Json's camelCase shape (<c>Coding - WebAPI Contracts.md</c> §2). The host stamps the user email from the token and the time itself, and needs <c>AllowUpdateSolarRadiationData</c>.</para>
         /// </summary>
-        /// <param name="gisWebAPIManager">The manager that creates the HTTP client.</param>
+        /// <param name="gISWebAPIManager">The manager that creates the HTTP client.</param>
         /// <param name="buildingSolarRadiationResult">The result to store; every surface must carry 8 760 shading factors.</param>
         /// <param name="tokenString">The signed-in user's bearer token.</param>
         /// <param name="postOptions">The options of the request; null for the defaults.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the id of the stored row, or null when the request was refused or failed.</returns>
-        public static async Task<long?> SetBuildingSolarRadiationAsync(this GISWebAPIManager? gisWebAPIManager, BuildingSolarRadiationResult? buildingSolarRadiationResult, string? tokenString, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
+        public static async Task<long?> SetBuildingSolarRadiationAsync(this GISWebAPIManager? gISWebAPIManager, BuildingSolarRadiationResult? buildingSolarRadiationResult, string? tokenString, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
         {
-            if (gisWebAPIManager is null || buildingSolarRadiationResult is null || string.IsNullOrWhiteSpace(tokenString))
+            if (gISWebAPIManager is null || buildingSolarRadiationResult is null || string.IsNullOrWhiteSpace(tokenString))
             {
                 return null;
             }
@@ -36,7 +36,7 @@ namespace DiGi.GIS.WebAPI
                 return null;
             }
 
-            HttpClient? httpClient = gisWebAPIManager.CreateHttpClient<BuildingSolarRadiationController>(nameof(BuildingSolarRadiationController.SetSolarRadiationAsync), out string? path);
+            HttpClient? httpClient = gISWebAPIManager.CreateHttpClient<BuildingSolarRadiationController>(nameof(BuildingSolarRadiationController.SetSolarRadiationAsync), out string? path);
             if (httpClient is null || string.IsNullOrWhiteSpace(path))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "HttpClient or path for {Method} could not be resolved", nameof(BuildingSolarRadiationController.SetSolarRadiationAsync));

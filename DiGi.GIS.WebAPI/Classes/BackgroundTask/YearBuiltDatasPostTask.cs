@@ -16,9 +16,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the YearBuiltDatasPostTask class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The GIS PostgreSQL Web API manager used to handle data persistence.</param>
-        public YearBuiltDatasPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The GIS PostgreSQL Web API manager used to handle data persistence.</param>
+        public YearBuiltDatasPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -51,7 +51,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(yearBuiltDatas.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(yearBuiltDatas, code, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(yearBuiltDatas, code, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;
@@ -79,7 +79,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(yearBuiltDatas.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(yearBuiltDatas, countyIds, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(yearBuiltDatas, countyIds, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;

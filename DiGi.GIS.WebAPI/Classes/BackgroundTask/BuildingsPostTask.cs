@@ -16,9 +16,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildingsPostTask"/> class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The GIS PostgreSQL Web API manager used to handle data persistence.</param>
-        public BuildingsPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The GIS PostgreSQL Web API manager used to handle data persistence.</param>
+        public BuildingsPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -56,7 +56,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(utf8JsonBatch.SerializableObjects.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(utf8JsonBatch.Utf8Json, code, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(utf8JsonBatch.Utf8Json, code, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;
@@ -94,7 +94,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(utf8JsonBatch.SerializableObjects.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(utf8JsonBatch.Utf8Json, countyId, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(utf8JsonBatch.Utf8Json, countyId, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;

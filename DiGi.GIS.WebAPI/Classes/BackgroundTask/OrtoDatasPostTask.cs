@@ -17,9 +17,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// Handles the posting of OrtoDatas objects to the PostgreSQL web API.
         /// <para>OrtoDatas carry imagery, so <see cref="SerializableObjectsPostTask{T}.SerializableObjectsPostOptions"/> defaults to <see cref="DefaultDelay"/> per attempt and <see cref="DefaultBatchMemorySize"/> per request instead of the general 20 s and 3 MB. No host exposes these settings, so these defaults are the production values.</para>
         /// </summary>
-        /// <param name="GISWebAPIManager">The manager instance used to handle PostgreSQL web API operations.</param>
-        public OrtoDatasPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The manager instance used to handle PostgreSQL web API operations.</param>
+        public OrtoDatasPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
             SerializableObjectsPostOptions = new() { Delay = DefaultDelay, BatchMemorySize = DefaultBatchMemorySize };
         }
@@ -62,7 +62,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(ortoDatasList.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(ortoDatasList, code, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(ortoDatasList, code, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;
@@ -89,7 +89,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(ortoDatasList.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(ortoDatasList, countyId, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(ortoDatasList, countyId, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;
@@ -125,7 +125,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(ortoDatasList.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(ortoDatasList, countyIds, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(ortoDatasList, countyIds, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;

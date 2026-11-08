@@ -15,7 +15,7 @@ namespace DiGi.GIS.WebAPI
         /// Reads the stored solar radiation of a building model through <c>gis/buildingsolarradiation/solarradiationbybuildingmodelid</c>.
         /// <para>The query parameter names are the controller's (<c>id</c>, <c>countyid</c>, <c>radius</c>, <c>solverversion</c>, <c>shadingfactors</c>): an unknown name would be ignored by the host and answer an unfiltered 200 (<c>Coding - WebAPI Contracts.md</c> §1).</para>
         /// </summary>
-        /// <param name="gisWebAPIManager">The manager that creates the HTTP client.</param>
+        /// <param name="gISWebAPIManager">The manager that creates the HTTP client.</param>
         /// <param name="buildingModelId">The id of the building model.</param>
         /// <param name="countyId">The county part the building is filed under.</param>
         /// <param name="radius">The neighbour radius, in m, exactly as stored (rounded by the producer to 0.1 m).</param>
@@ -25,7 +25,7 @@ namespace DiGi.GIS.WebAPI
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the stored result, or null when nothing is stored for the key or the request failed.</returns>
         public static async Task<BuildingSolarRadiationResult?> BuildingSolarRadiationAsync(
-            this GISWebAPIManager? gisWebAPIManager,
+            this GISWebAPIManager? gISWebAPIManager,
             long buildingModelId,
             int countyId,
             double radius,
@@ -34,12 +34,12 @@ namespace DiGi.GIS.WebAPI
             PostOptions? postOptions = null,
             CancellationToken cancellationToken = default)
         {
-            if (gisWebAPIManager is null || buildingModelId <= 0 || !double.IsFinite(radius) || radius <= 0 || solverVersion <= 0)
+            if (gISWebAPIManager is null || buildingModelId <= 0 || !double.IsFinite(radius) || radius <= 0 || solverVersion <= 0)
             {
                 return null;
             }
 
-            HttpClient? httpClient = gisWebAPIManager.CreateHttpClient<BuildingSolarRadiationController>(nameof(BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync), out string? path);
+            HttpClient? httpClient = gISWebAPIManager.CreateHttpClient<BuildingSolarRadiationController>(nameof(BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync), out string? path);
             if (httpClient is null || string.IsNullOrWhiteSpace(path))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "HttpClient or path for {Method} could not be resolved", nameof(BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync));

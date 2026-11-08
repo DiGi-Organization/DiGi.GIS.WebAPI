@@ -15,7 +15,7 @@ namespace DiGi.GIS.WebAPI
         /// Asynchronously withdraws the user-provided year built entry of the given buildings, whoever recorded it, through <c>gis/yearbuiltdata/removeuseryearbuiltsbycountyids</c> - the moderation path, by default as a dry run.
         /// <para>Needs the access key and <c>AllowDeleteYearBuiltData</c> on the host. The objects are kept; the derived building data columns of the withdrawn buildings are recomputed on the host when it allows building data updates.</para>
         /// </summary>
-        /// <param name="gisWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
         /// <param name="countyIds">The county parts the buildings are stored under. Normally every polygon part of one county.</param>
         /// <param name="references">The references of the buildings to withdraw the user entry of.</param>
         /// <param name="dryRun">A value indicating whether the buildings are only classified.</param>
@@ -25,7 +25,7 @@ namespace DiGi.GIS.WebAPI
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>A task returning the classification of every reference, or null when the request was refused or failed.</returns>
         public static async Task<UserYearBuiltRemoveResult?> RemoveUserYearBuiltsAsync(
-            this GISWebAPIManager? gisWebAPIManager,
+            this GISWebAPIManager? gISWebAPIManager,
             IEnumerable<int>? countyIds,
             IEnumerable<string>? references,
             bool dryRun = true,
@@ -35,12 +35,12 @@ namespace DiGi.GIS.WebAPI
             CancellationToken cancellationToken = default)
         {
             int[] countyIds_Array = countyIds is null ? [] : [.. countyIds.Distinct()];
-            if (gisWebAPIManager is null || countyIds_Array.Length == 0 || references is null || !references.Any())
+            if (gISWebAPIManager is null || countyIds_Array.Length == 0 || references is null || !references.Any())
             {
                 return null;
             }
 
-            HttpClient? httpClient = gisWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.RemoveUserYearBuiltsByCountyIdsAsync), out string? path);
+            HttpClient? httpClient = gISWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.RemoveUserYearBuiltsByCountyIdsAsync), out string? path);
             if (httpClient is null || string.IsNullOrWhiteSpace(path))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "HttpClient or path for {Method} could not be resolved", nameof(YearBuiltDataController.RemoveUserYearBuiltsByCountyIdsAsync));
@@ -52,7 +52,7 @@ namespace DiGi.GIS.WebAPI
             urlBuilder.AddParameter("dryrun", dryRun);
             urlBuilder.AddParameter("commandtimeout", commandTimeout);
 
-            string? key_Resolved = key ?? (postOptions as SerializableObjectsPostOptions)?.Key ?? gisWebAPIManager.Key;
+            string? key_Resolved = key ?? (postOptions as SerializableObjectsPostOptions)?.Key ?? gISWebAPIManager.Key;
 
             return await PostReferencesAsync<UserYearBuiltRemoveResult>(httpClient, urlBuilder.ToString(), references, commandTimeout, postOptions, key_Resolved, cancellationToken);
         }

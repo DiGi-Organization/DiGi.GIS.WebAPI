@@ -9,11 +9,11 @@ namespace DiGi.GIS.WebAPI
         /// <summary>
         /// Creates and configures an <see cref="HttpClient"/> instance for the Geoportal service, including a custom User-Agent header based on the executing assembly's name and version.
         /// </summary>
-        /// <param name="GISWebAPIManager">The manager used to create the HTTP client instance.</param>
+        /// <param name="gISWebAPIManager">The manager used to create the HTTP client instance.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public static HttpClient? HttpClient_Geoportal(GISWebAPIManager? GISWebAPIManager)
+        public static HttpClient? HttpClient_Geoportal(GISWebAPIManager? gISWebAPIManager)
         {
-            HttpClient? result = GISWebAPIManager?.CreateHttpClient(Constants.Name.Client.Geoportal);
+            HttpClient? result = gISWebAPIManager?.CreateHttpClient(Constants.Name.Client.Geoportal);
             if (result is null)
             {
                 return null;
@@ -31,11 +31,11 @@ namespace DiGi.GIS.WebAPI
         /// <summary>
         /// Creates and configures an <see cref="HttpClient"/> instance for the "Główny Urząd Geodezji i Kartografii" service, including a custom User-Agent header based on the executing assembly's name and version.
         /// </summary>
-        /// <param name="GISWebAPIManager">The manager used to create the HTTP client instance.</param>
+        /// <param name="gISWebAPIManager">The manager used to create the HTTP client instance.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public static HttpClient? HttpClient_GUGiK(GISWebAPIManager? GISWebAPIManager)
+        public static HttpClient? HttpClient_GUGiK(GISWebAPIManager? gISWebAPIManager)
         {
-            HttpClient? result = GISWebAPIManager?.CreateHttpClient(Constants.Name.Client.GUGiK);
+            HttpClient? result = gISWebAPIManager?.CreateHttpClient(Constants.Name.Client.GUGiK);
             if (result is null)
             {
                 return null;

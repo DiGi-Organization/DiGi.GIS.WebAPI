@@ -19,9 +19,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Handles the process of posting orthodata retrieved from the database.
         /// </summary>
-        /// <param name="GISWebAPIManager">The manager responsible for handling GIS PostgreSQL Web API communications.</param>
-        public OrtoDatasFromDatabasePostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The manager responsible for handling GIS PostgreSQL Web API communications.</param>
+        public OrtoDatasFromDatabasePostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -47,13 +47,13 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(OrtoDatasFromDatabasePostTask), nameof(ExecuteAsync));
 
-            if (GISWebAPIManager is null)
+            if (gISWebAPIManager is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "GISWebAPIManager cannot be null");
                 return false;
             }
 
-            HttpClient? httpClient_OrtoDatas = GISWebAPIManager.CreateHttpClient<OrtoDatasController>(nameof(OrtoDatasController.NextBuilding2DReferencesAsync), out string? path_OrtoDatas);
+            HttpClient? httpClient_OrtoDatas = gISWebAPIManager.CreateHttpClient<OrtoDatasController>(nameof(OrtoDatasController.NextBuilding2DReferencesAsync), out string? path_OrtoDatas);
             if (httpClient_OrtoDatas is null || string.IsNullOrWhiteSpace(path_OrtoDatas))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "OrtoDatas HttpClient could not be created");
@@ -62,21 +62,21 @@ namespace DiGi.GIS.WebAPI.Classes
 
             string requestUri_OrtoDatas = new UrlBuilder(path_OrtoDatas).AddParameter("count", Count > 0 ? Count : 5).ToString();
 
-            HttpClient? httpClient_Building2D = GISWebAPIManager.CreateHttpClient<Building2DController>(nameof(Building2DController.GetItemsByBuilding2DReferencesAsync), out string? path_Building2D);
+            HttpClient? httpClient_Building2D = gISWebAPIManager.CreateHttpClient<Building2DController>(nameof(Building2DController.GetItemsByBuilding2DReferencesAsync), out string? path_Building2D);
             if (httpClient_Building2D is null || string.IsNullOrWhiteSpace(path_Building2D))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Building2D HttpClient could not be created");
                 return false;
             }
 
-            HttpClient? httpClient_Geoportal = Create.HttpClient_Geoportal(GISWebAPIManager);
+            HttpClient? httpClient_Geoportal = Create.HttpClient_Geoportal(gISWebAPIManager);
             if (httpClient_Geoportal is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Geoportal HttpClient could not be created");
                 return false;
             }
 
-            HttpClient? httpClient_OrtoDatas_Acknowledge = GISWebAPIManager.CreateHttpClient<OrtoDatasController>(nameof(OrtoDatasController.AcknowledgeBuilding2DReferencesAsync), out string? path_OrtoDatas_Acknowledge);
+            HttpClient? httpClient_OrtoDatas_Acknowledge = gISWebAPIManager.CreateHttpClient<OrtoDatasController>(nameof(OrtoDatasController.AcknowledgeBuilding2DReferencesAsync), out string? path_OrtoDatas_Acknowledge);
 
             string requestUri_Building2D = new UrlBuilder(path_Building2D).ToString();
 
@@ -88,7 +88,7 @@ namespace DiGi.GIS.WebAPI.Classes
             // 25887). Sending every part makes the upload file each entry under the part its building_2d row is in; a single id is
             // written verbatim. Without the list a part stands for itself, which is what a single-part county is anyway.
             Dictionary<int, List<int>> countyIds_Parts = [];
-            HttpClient? httpClient_AdministrativeAreal2D = GISWebAPIManager.CreateHttpClient<AdministrativeAreal2DController>(nameof(AdministrativeAreal2DController.GetAdministrativeAreal2DReferencesByAdministrativeArealTypeAsync), out string? path_AdministrativeAreal2D);
+            HttpClient? httpClient_AdministrativeAreal2D = gISWebAPIManager.CreateHttpClient<AdministrativeAreal2DController>(nameof(AdministrativeAreal2DController.GetAdministrativeAreal2DReferencesByAdministrativeArealTypeAsync), out string? path_AdministrativeAreal2D);
             if (httpClient_AdministrativeAreal2D is not null && !string.IsNullOrWhiteSpace(path_AdministrativeAreal2D))
             {
                 try

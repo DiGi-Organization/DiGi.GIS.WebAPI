@@ -15,9 +15,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the <see cref="BuildingModelsPostTask"/> class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the server.</param>
-        public BuildingModelsPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the server.</param>
+        public BuildingModelsPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -58,7 +58,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(buildingModels_Batch.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(buildingModels_Batch, code, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(buildingModels_Batch, code, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;
@@ -94,7 +94,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(buildingModels_Batch.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(buildingModels_Batch, countyIds, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(buildingModels_Batch, countyIds, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;

@@ -228,13 +228,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the AddressPointsPostTask class\.
 
 ```csharp
-public AddressPointsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public AddressPointsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.AddressPointsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.AddressPointsPostTask.AddressPointsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') used to manage PostgreSQL GIS operations\.
 ### Properties
@@ -1399,13 +1399,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the AdministrativeAreal2DsPostTask class\.
 
 ```csharp
-public AdministrativeAreal2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public AdministrativeAreal2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DsPostTask.AdministrativeAreal2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DsPostTask.AdministrativeAreal2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The GIS PostgreSQL Web API manager used to handle database operations\.
 
@@ -2538,13 +2538,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the Building2DsPostTask class\.
 
 ```csharp
-public Building2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public Building2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.Building2DsPostTask.Building2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.Building2DsPostTask.Building2DsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') used to manage PostgreSQL GIS operations\.
 ### Properties
@@ -4880,13 +4880,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the [BuildingModelsPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingModelsPostTask 'DiGi\.GIS\.WebAPI\.Classes\.BuildingModelsPostTask') class\.
 
 ```csharp
-public BuildingModelsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public BuildingModelsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingModelsPostTask.BuildingModelsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingModelsPostTask.BuildingModelsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the server\.
 ### Properties
@@ -5165,13 +5165,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the [BuildingsPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingsPostTask 'DiGi\.GIS\.WebAPI\.Classes\.BuildingsPostTask') class\.
 
 ```csharp
-public BuildingsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public BuildingsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingsPostTask.BuildingsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingsPostTask.BuildingsPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The GIS PostgreSQL Web API manager used to handle data persistence\.
 ### Properties
@@ -5541,13 +5541,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the [EPWFilesPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.EPWFilesPostTask 'DiGi\.GIS\.WebAPI\.Classes\.EPWFilesPostTask') class\.
 
 ```csharp
-public EPWFilesPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public EPWFilesPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.EPWFilesPostTask.EPWFilesPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.EPWFilesPostTask.EPWFilesPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') used to manage PostgreSQL GIS operations\.
 ### Methods
@@ -6812,13 +6812,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the OccupancyDatasPostTask class\.
 
 ```csharp
-public OccupancyDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public OccupancyDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.OccupancyDatasPostTask.OccupancyDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OccupancyDatasPostTask.OccupancyDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager used to handle GIS PostgreSQL Web API operations\.
 ### Properties
@@ -8322,13 +8322,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Handles the process of posting orthodata retrieved from the database\.
 
 ```csharp
-public OrtoDatasFromDatabasePostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public OrtoDatasFromDatabasePostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasFromDatabasePostTask.OrtoDatasFromDatabasePostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasFromDatabasePostTask.OrtoDatasFromDatabasePostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager responsible for handling GIS PostgreSQL Web API communications\.
 ### Properties
@@ -8401,13 +8401,13 @@ Handles the posting of OrtoDatas objects to the PostgreSQL web API\.
 OrtoDatas carry imagery, so [SerializableObjectsPostOptions](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.SerializableObjectsPostTask_T_.SerializableObjectsPostOptions 'DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostTask\<T\>\.SerializableObjectsPostOptions') defaults to [DefaultDelay](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.OrtoDatasPostTask.DefaultDelay 'DiGi\.GIS\.WebAPI\.Classes\.OrtoDatasPostTask\.DefaultDelay') per attempt and [DefaultBatchMemorySize](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.OrtoDatasPostTask.DefaultBatchMemorySize 'DiGi\.GIS\.WebAPI\.Classes\.OrtoDatasPostTask\.DefaultBatchMemorySize') per request instead of the general 20 s and 3 MB. No host exposes these settings, so these defaults are the production values.
 
 ```csharp
-public OrtoDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public OrtoDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasPostTask.OrtoDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasPostTask.OrtoDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to handle PostgreSQL web API operations\.
 ### Fields
@@ -8531,13 +8531,13 @@ Implements [DiGi\.GIS\.PostgreSQL\.Interfaces\.IGISPostgreSQLObject](https://lea
 Initializes a new instance of the OrtoDatasTask class\.
 
 ```csharp
-public OrtoDatasTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, DiGi.GIS.PostgreSQL.Classes.GISPostgreSQLConverterManager? gISPostgreSQLConverterManager);
+public OrtoDatasTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, DiGi.GIS.PostgreSQL.Classes.GISPostgreSQLConverterManager? gISPostgreSQLConverterManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasTask.OrtoDatasTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.PostgreSQL.Classes.GISPostgreSQLConverterManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoDatasTask.OrtoDatasTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.PostgreSQL.Classes.GISPostgreSQLConverterManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager responsible for handling GIS PostgreSQL Web API operations\.
 
@@ -11055,13 +11055,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the YearBuiltDatasPostTask class\.
 
 ```csharp
-public YearBuiltDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager GISWebAPIManager);
+public YearBuiltDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.YearBuiltDatasPostTask.YearBuiltDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.YearBuiltDatasPostTask.YearBuiltDatasPostTask(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The GIS PostgreSQL Web API manager used to handle data persistence\.
 ### Properties

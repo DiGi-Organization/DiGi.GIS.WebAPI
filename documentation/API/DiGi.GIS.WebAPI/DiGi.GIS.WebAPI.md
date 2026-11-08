@@ -92,13 +92,13 @@ A new [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISW
 Creates and configures an [System\.Net\.Http\.HttpClient](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpclient 'System\.Net\.Http\.HttpClient') instance for the Geoportal service, including a custom User\-Agent header based on the executing assembly's name and version\.
 
 ```csharp
-public static System.Net.Http.HttpClient? HttpClient_Geoportal(DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager);
+public static System.Net.Http.HttpClient? HttpClient_Geoportal(DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Create.HttpClient_Geoportal(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Create.HttpClient_Geoportal(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager used to create the HTTP client instance\.
 
@@ -113,13 +113,13 @@ A task that represents the asynchronous operation\.
 Creates and configures an [System\.Net\.Http\.HttpClient](https://learn.microsoft.com/en-us/dotnet/api/system.net.http.httpclient 'System\.Net\.Http\.HttpClient') instance for the "Główny Urząd Geodezji i Kartografii" service, including a custom User\-Agent header based on the executing assembly's name and version\.
 
 ```csharp
-public static System.Net.Http.HttpClient? HttpClient_GUGiK(DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager);
+public static System.Net.Http.HttpClient? HttpClient_GUGiK(DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Create.HttpClient_GUGiK(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Create.HttpClient_GUGiK(DiGi.GIS.WebAPI.Classes.GISWebAPIManager).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager used to create the HTTP client instance\.
 
@@ -475,13 +475,13 @@ Asynchronously removes one prediction run from the stored year built data object
 The run is named by its stamp as [System\.DateTime\.Ticks](https://learn.microsoft.com/en-us/dotnet/api/system.datetime.ticks 'System\.DateTime\.Ticks') - the value [PredictedYearBuiltRunsAsync\(this GISWebAPIManager, IEnumerable&lt;int&gt;, int, PostOptions, CancellationToken\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.PredictedYearBuiltRunsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Query\.PredictedYearBuiltRunsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<int\>, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)') reports. Needs the access key and `AllowDeleteYearBuiltData` on the host, and `AllowUpdateBuildingData` as well with [updateBuildingData](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.RemovePredictedYearBuiltsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,long,System.Collections.Generic.IEnumerable_string_,bool,int,bool,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).updateBuildingData 'DiGi\.GIS\.WebAPI\.Modify\.RemovePredictedYearBuiltsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<int\>, long, System\.Collections\.Generic\.IEnumerable\<string\>, bool, int, bool, int, DiGi\.WebAPI\.Classes\.PostOptions, string, System\.Threading\.CancellationToken\)\.updateBuildingData'). A run on more objects than [limit](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.RemovePredictedYearBuiltsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,long,System.Collections.Generic.IEnumerable_string_,bool,int,bool,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).limit 'DiGi\.GIS\.WebAPI\.Modify\.RemovePredictedYearBuiltsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<int\>, long, System\.Collections\.Generic\.IEnumerable\<string\>, bool, int, bool, int, DiGi\.WebAPI\.Classes\.PostOptions, string, System\.Threading\.CancellationToken\)\.limit') is refused whole (HTTP 413) and answers null here.
 
 ```csharp
-public static System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.PredictedYearBuiltRemoveResult?> RemovePredictedYearBuiltsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, long ticks, System.Collections.Generic.IEnumerable<string>? references=null, bool dryRun=true, int limit=10000, bool updateBuildingData=false, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.PredictedYearBuiltRemoveResult?> RemovePredictedYearBuiltsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, long ticks, System.Collections.Generic.IEnumerable<string>? references=null, bool dryRun=true, int limit=10000, bool updateBuildingData=false, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.RemovePredictedYearBuiltsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,long,System.Collections.Generic.IEnumerable_string_,bool,int,bool,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.RemovePredictedYearBuiltsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,long,System.Collections.Generic.IEnumerable_string_,bool,int,bool,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the Web API\.
 
@@ -558,13 +558,13 @@ Asynchronously withdraws the user\-provided year built entry of the given buildi
 Needs the access key and `AllowDeleteYearBuiltData` on the host. The objects are kept; the derived building data columns of the withdrawn buildings are recomputed on the host when it allows building data updates.
 
 ```csharp
-public static System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.UserYearBuiltRemoveResult?> RemoveUserYearBuiltsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, System.Collections.Generic.IEnumerable<string>? references, bool dryRun=true, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.UserYearBuiltRemoveResult?> RemoveUserYearBuiltsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, System.Collections.Generic.IEnumerable<string>? references, bool dryRun=true, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.RemoveUserYearBuiltsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,bool,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.RemoveUserYearBuiltsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,bool,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the Web API\.
 
@@ -623,13 +623,13 @@ Asynchronously deletes stored year built data objects of the given county parts 
 Needs the access key and `AllowDeleteYearBuiltData` on the host. Without references only [emptyOnly](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.RemoveYearBuiltDatasAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,bool,bool,int,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).emptyOnly 'DiGi\.GIS\.WebAPI\.Modify\.RemoveYearBuiltDatasAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<int\>, System\.Collections\.Generic\.IEnumerable\<string\>, bool, bool, int, int, DiGi\.WebAPI\.Classes\.PostOptions, string, System\.Threading\.CancellationToken\)\.emptyOnly') is accepted. A scope matching more rows than [limit](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.RemoveYearBuiltDatasAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,bool,bool,int,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).limit 'DiGi\.GIS\.WebAPI\.Modify\.RemoveYearBuiltDatasAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<int\>, System\.Collections\.Generic\.IEnumerable\<string\>, bool, bool, int, int, DiGi\.WebAPI\.Classes\.PostOptions, string, System\.Threading\.CancellationToken\)\.limit') is refused whole (HTTP 413) and answers null here - run it as a dry run first to read the count.
 
 ```csharp
-public static System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.YearBuiltDataRemoveResult?> RemoveYearBuiltDatasAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, System.Collections.Generic.IEnumerable<string>? references=null, bool emptyOnly=true, bool dryRun=true, int limit=10000, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.YearBuiltDataRemoveResult?> RemoveYearBuiltDatasAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, System.Collections.Generic.IEnumerable<string>? references=null, bool emptyOnly=true, bool dryRun=true, int limit=10000, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.RemoveYearBuiltDatasAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,bool,bool,int,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.RemoveYearBuiltDatasAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,bool,bool,int,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the Web API\.
 
@@ -700,13 +700,13 @@ Stores the solar radiation of a building through `gis/buildingsolarradiation/set
 The body is the DiGi JSON of [buildingSolarRadiationResult](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).buildingSolarRadiationResult 'DiGi\.GIS\.WebAPI\.Modify\.SetBuildingSolarRadiationAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, DiGi\.GIS\.Classes\.BuildingSolarRadiationResult, string, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.buildingSolarRadiationResult') (`ToJsonObject()`, keeping `_type` and the declared names), never `JsonContent.Create`, which would write System.Text.Json's camelCase shape (`Coding - WebAPI Contracts.md` §2). The host stamps the user email from the token and the time itself, and needs `AllowUpdateSolarRadiationData`.
 
 ```csharp
-public static System.Threading.Tasks.Task<System.Nullable<long>> SetBuildingSolarRadiationAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, DiGi.GIS.Classes.BuildingSolarRadiationResult? buildingSolarRadiationResult, string? tokenString, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<System.Nullable<long>> SetBuildingSolarRadiationAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, DiGi.GIS.Classes.BuildingSolarRadiationResult? buildingSolarRadiationResult, string? tokenString, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager that creates the HTTP client\.
 
@@ -747,13 +747,13 @@ Asynchronously recomputes the derived building data year built columns \- predic
 Needs the access key and `AllowUpdateBuildingData` on the host.
 
 ```csharp
-public static System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.BuildingDataYearBuiltUpdateResult?> UpdateBuildingDataYearBuiltAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, System.Collections.Generic.IEnumerable<string>? references=null, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<DiGi.GIS.PostgreSQL.Classes.BuildingDataYearBuiltUpdateResult?> UpdateBuildingDataYearBuiltAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, System.Collections.Generic.IEnumerable<string>? references=null, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateBuildingDataYearBuiltAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateBuildingDataYearBuiltAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the Web API\.
 
@@ -806,13 +806,13 @@ Asynchronously updates building items for one explicitly identified county row f
 For a county stored as several polygon parts, pass every part to the [System\.Collections\.Generic\.IEnumerable&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1') overload instead - naming one part files the whole batch there whether or not the buildings belong to it.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, byte[]? utf8Json, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, byte[]? utf8Json, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,byte[],int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,byte[],int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -853,13 +853,13 @@ Asynchronously updates building items from an already\-serialized UTF\-8 JSON pa
 Used by [BuildingsPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingsPostTask 'DiGi\.GIS\.WebAPI\.Classes\.BuildingsPostTask'), where the batch was serialized once while being sized, so it must not be serialized again here.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, byte[]? utf8Json, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, byte[]? utf8Json, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,byte[],string,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,byte[],string,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -900,13 +900,13 @@ Asynchronously updates building items for an explicitly identified county row fr
 Used by [BuildingsPostTask](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingsPostTask 'DiGi\.GIS\.WebAPI\.Classes\.BuildingsPostTask'), where the batch was serialized once while being sized, so it must not be serialized again here.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, byte[]? utf8Json, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, byte[]? utf8Json, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,byte[],System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,byte[],System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -947,13 +947,13 @@ Asynchronously updates building data items for one explicitly identified county 
 For a county stored as several polygon parts, pass every part to the [System\.Collections\.Generic\.IEnumerable&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1') overload instead - naming one part files the whole batch there whether or not the buildings belong to it.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, DiGi.Core.IO.Table.Classes.Table? table, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, DiGi.Core.IO.Table.Classes.Table? table, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.Core.IO.Table.Classes.Table,int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.Core.IO.Table.Classes.Table,int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -994,13 +994,13 @@ Asynchronously updates building data items for candidate county rows via the Pos
 A multi-part county holds one `administrative_areal_2d` row per polygon part, so pass every part rather than picking one - the server files each item under the part it belongs to.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, DiGi.Core.IO.Table.Classes.Table? table, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, DiGi.Core.IO.Table.Classes.Table? table, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.Core.IO.Table.Classes.Table,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.Core.IO.Table.Classes.Table,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -1039,13 +1039,13 @@ A task that represents the asynchronous operation\.
 Updates a single administrative area item asynchronously\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, DiGi.GIS.Classes.AdministrativeAreal2D? administrativeAreal2D, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, DiGi.GIS.Classes.AdministrativeAreal2D? administrativeAreal2D, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.AdministrativeAreal2D,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.AdministrativeAreal2D,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The GIS PostgreSQL Web API manager instance\.
 
@@ -1078,13 +1078,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates a single 2D building item for an explicitly identified county row via the PostgreSQL Web API\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, DiGi.GIS.Classes.Building2D? building2D, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, DiGi.GIS.Classes.Building2D? building2D, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.Building2D,int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.Building2D,int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -1123,13 +1123,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates building items in the PostgreSQL GIS database via the web API\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, DiGi.GIS.Classes.Building2D? building2D, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, DiGi.GIS.Classes.Building2D? building2D, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.Building2D,string,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.Building2D,string,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to handle communication with the PostgreSQL Web API\.
 
@@ -1168,13 +1168,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates items from the specified file system path\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, string? path, bool oT_ADJA_A=true, bool oT_ADMS_A=true, bool oT_BUBD_A=true, DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions? serializableObjectsPostOptions=null, System.IProgress<long>? progress=null, System.Nullable<System.Threading.CancellationToken> cancellationToken=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, string? path, bool oT_ADJA_A=true, bool oT_ADMS_A=true, bool oT_BUBD_A=true, DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions? serializableObjectsPostOptions=null, System.IProgress<long>? progress=null, System.Nullable<System.Threading.CancellationToken> cancellationToken=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,string,bool,bool,bool,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.IProgress_long_,System.Nullable_System.Threading.CancellationToken_,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,string,bool,bool,bool,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.IProgress_long_,System.Nullable_System.Threading.CancellationToken_,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The GIS PostgreSQL Web API manager instance\.
 
@@ -1239,13 +1239,13 @@ Asynchronously updates multiple building models for one explicitly identified co
 For a county stored as several polygon parts, pass every part to the [System\.Collections\.Generic\.IEnumerable&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1') overload instead - naming one part files the whole batch there whether or not the models belong to it.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.Analytical.Building.Classes.BuildingModel>? buildingModels, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.Analytical.Building.Classes.BuildingModel>? buildingModels, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.Analytical.Building.Classes.BuildingModel_,int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.Analytical.Building.Classes.BuildingModel_,int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -1284,13 +1284,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates multiple building models via the PostgreSQL Web API\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.Analytical.Building.Classes.BuildingModel>? buildingModels, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.Analytical.Building.Classes.BuildingModel>? buildingModels, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.Analytical.Building.Classes.BuildingModel_,string,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.Analytical.Building.Classes.BuildingModel_,string,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -1331,13 +1331,13 @@ Asynchronously updates multiple building models for an explicitly identified cou
 The counterpart of the `code` overload, for a caller that already holds the identifiers: a multi-part county holds one `administrative_areal_2d` row per polygon part, so pass every part rather than picking one - the server files each item under the part it belongs to.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.Analytical.Building.Classes.BuildingModel>? buildingModels, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.Analytical.Building.Classes.BuildingModel>? buildingModels, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.Analytical.Building.Classes.BuildingModel_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.Analytical.Building.Classes.BuildingModel_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -1378,13 +1378,13 @@ Asynchronously updates multiple building items for one explicitly identified cou
 For a county stored as several polygon parts, pass every part to the [System\.Collections\.Generic\.IEnumerable&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1') overload instead - naming one part files the whole batch there whether or not the buildings belong to it.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.CityGML.Classes.Building>? buildings, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.CityGML.Classes.Building>? buildings, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.CityGML.Classes.Building_,int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.CityGML.Classes.Building_,int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -1423,13 +1423,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates multiple building items via the PostgreSQL Web API\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.CityGML.Classes.Building>? buildings, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.CityGML.Classes.Building>? buildings, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.CityGML.Classes.Building_,string,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.CityGML.Classes.Building_,string,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -1470,13 +1470,13 @@ Asynchronously updates multiple building items for an explicitly identified coun
 The counterpart of the `code` overload, for a caller that already holds the identifiers: a multi-part county holds one `administrative_areal_2d` row per polygon part, so pass every part rather than picking one - the server files each item under the part it belongs to.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.CityGML.Classes.Building>? buildings, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.CityGML.Classes.Building>? buildings, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.CityGML.Classes.Building_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.CityGML.Classes.Building_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -1515,13 +1515,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates a collection of EPW files\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.EPW.Classes.EPWFile>? ePWFiles, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.EPW.Classes.EPWFile>? ePWFiles, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.EPW.Classes.EPWFile_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.EPW.Classes.EPWFile_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The GIS PostgreSQL Web API manager instance\.
 
@@ -1556,13 +1556,13 @@ Asynchronously stores PRG address points for explicitly identified county rows v
 A multi-part county holds one `administrative_areal_2d` row per polygon part, so pass every part rather than picking one - the server assigns each point to the part it lies in. There is deliberately no single-id or `code` overload.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.AddressPoint>? addressPoints, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.AddressPoint>? addressPoints, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AddressPoint_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AddressPoint_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -1601,13 +1601,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates a collection of administrative area items\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.AdministrativeAreal2D>? administrativeAreal2Ds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.AdministrativeAreal2D>? administrativeAreal2Ds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AdministrativeAreal2D_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.AdministrativeAreal2D_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The GIS PostgreSQL Web API manager instance\.
 
@@ -1642,13 +1642,13 @@ Asynchronously updates multiple 2D building items for one explicitly identified 
 For a county stored as several polygon parts, pass every part to the [System\.Collections\.Generic\.IEnumerable&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1') overload instead - naming one part files the whole batch there whether or not the buildings belong to it.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.Building2D>? building2Ds, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.Building2D>? building2Ds, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.Building2D_,int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.Building2D_,int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -1687,13 +1687,13 @@ A task that represents the asynchronous operation\.
 Updates multiple 2D building items asynchronously\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.Building2D>? building2Ds, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.Building2D>? building2Ds, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.Building2D_,string,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.Building2D_,string,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The GIS PostgreSQL Web API manager instance\.
 
@@ -1734,13 +1734,13 @@ Asynchronously updates multiple 2D building items for an explicitly identified c
 The counterpart of the `code` overload, for a caller that already holds the identifiers: a multi-part county holds one `administrative_areal_2d` row per polygon part, so pass every part rather than picking one - the server files each item under the part it belongs to.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.Building2D>? building2Ds, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.Building2D>? building2Ds, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.Building2D_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.Building2D_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -1779,13 +1779,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates multiple occupancy data items via the PostgreSQL Web API\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? occupancyDatas, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? occupancyDatas, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OccupancyData_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OccupancyData_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the API communication\.
 
@@ -1820,13 +1820,13 @@ Asynchronously updates multiple building 2D occupancy data items for one explici
 For a county stored as several polygon parts, pass every part to the [System\.Collections\.Generic\.IEnumerable&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1') overload instead - naming one part files the whole batch there whether or not the data belong to it.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? occupancyDatas, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? occupancyDatas, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OccupancyData_,int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OccupancyData_,int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to create the HTTP client for the request\.
 
@@ -1865,13 +1865,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates multiple occupancy data items via the Web API\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? occupancyDatas, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? occupancyDatas, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OccupancyData_,string,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OccupancyData_,string,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to create the HTTP client for the request\.
 
@@ -1912,13 +1912,13 @@ Asynchronously updates multiple building 2D occupancy data items for an explicit
 The counterpart of the `code` overload, for a caller that already holds the identifiers: a multi-part county holds one `administrative_areal_2d` row per polygon part, so pass every part rather than picking one - the server files each item under the part it belongs to.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? occupancyDatas, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? occupancyDatas, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OccupancyData_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OccupancyData_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to create the HTTP client for the request\.
 
@@ -1959,13 +1959,13 @@ Updates multiple ortho data items for one explicitly identified county row\.
 For a county stored as several polygon parts, pass every part to the [System\.Collections\.Generic\.IEnumerable&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1') overload instead - naming one part files the whole batch there whether or not the data belong to it.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OrtoDatas>? ortoDatas, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OrtoDatas>? ortoDatas, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OrtoDatas_,int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OrtoDatas_,int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -2004,13 +2004,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates multiple ortho data items via the PostgreSQL Web API\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OrtoDatas>? ortoDatas, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OrtoDatas>? ortoDatas, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OrtoDatas_,string,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OrtoDatas_,string,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -2049,13 +2049,13 @@ A task that represents the asynchronous operation\.
 Updates multiple ortho data items for a specific county\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OrtoDatas>? ortoDatas, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OrtoDatas>? ortoDatas, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OrtoDatas_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.OrtoDatas_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to perform the update operation\.
 
@@ -2096,13 +2096,13 @@ Asynchronously updates multiple year built data items for one explicitly identif
 For a county stored as several polygon parts, pass every part to the [System\.Collections\.Generic\.IEnumerable&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1') overload instead - naming one part files the whole batch there whether or not the data belong to it.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.YearBuiltData>? yearBuiltDatas, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.YearBuiltData>? yearBuiltDatas, int countyId, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.YearBuiltData_,int,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.YearBuiltData_,int,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -2141,13 +2141,13 @@ A task that represents the asynchronous operation\.
 Asynchronously updates multiple year built data items via the PostgreSQL Web API\.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.YearBuiltData>? yearBuiltDatas, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.YearBuiltData>? yearBuiltDatas, string? code=null, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.YearBuiltData_,string,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.YearBuiltData_,string,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -2188,13 +2188,13 @@ Asynchronously updates multiple year built data items for an explicitly identifi
 The counterpart of the `code` overload, for a caller that already holds the identifiers: a multi-part county holds one `administrative_areal_2d` row per polygon part, so pass every part rather than picking one - the server files each item under the part it belongs to.
 
 ```csharp
-public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? GISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.YearBuiltData>? yearBuiltDatas, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
+public static System.Threading.Tasks.Task<bool> UpdateItemsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.YearBuiltData>? yearBuiltDatas, System.Collections.Generic.IEnumerable<int>? countyIds, DiGi.WebAPI.Classes.PostOptions? postOptions=null, string? key=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.YearBuiltData_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).GISWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Modify.UpdateItemsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.YearBuiltData_,System.Collections.Generic.IEnumerable_int_,DiGi.WebAPI.Classes.PostOptions,string).gISWebAPIManager'></a>
 
-`GISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager instance used to facilitate the web API communication\.
 
@@ -2361,13 +2361,13 @@ Reads the stored solar radiation of a building model through `gis/buildingsolarr
 The query parameter names are the controller's (`id`, `countyid`, `radius`, `solverversion`, `shadingfactors`): an unknown name would be ignored by the host and answer an unfiltered 200 (`Coding - WebAPI Contracts.md` §1).
 
 ```csharp
-public static System.Threading.Tasks.Task<DiGi.GIS.Classes.BuildingSolarRadiationResult?> BuildingSolarRadiationAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, long buildingModelId, int countyId, double radius, int solverVersion, bool includeShadingFactors=false, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<DiGi.GIS.Classes.BuildingSolarRadiationResult?> BuildingSolarRadiationAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, long buildingModelId, int countyId, double radius, int solverVersion, bool includeShadingFactors=false, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The manager that creates the HTTP client\.
 
@@ -2594,13 +2594,13 @@ Asynchronously lists the prediction runs stored under the given county parts thr
 The stamp is [System\.DateTime\.Ticks](https://learn.microsoft.com/en-us/dotnet/api/system.datetime.ticks 'System\.DateTime\.Ticks'), the value [RemovePredictedYearBuiltsAsync\(this GISWebAPIManager, IEnumerable&lt;int&gt;, long, IEnumerable&lt;string&gt;, bool, int, bool, int, PostOptions, string, CancellationToken\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.RemovePredictedYearBuiltsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,long,System.Collections.Generic.IEnumerable_string_,bool,int,bool,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Modify\.RemovePredictedYearBuiltsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<int\>, long, System\.Collections\.Generic\.IEnumerable\<string\>, bool, int, bool, int, DiGi\.WebAPI\.Classes\.PostOptions, string, System\.Threading\.CancellationToken\)') takes. An empty list means no prediction is stored; null means the request failed.
 
 ```csharp
-public static System.Threading.Tasks.Task<System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.PredictedYearBuiltRunResult>?> PredictedYearBuiltRunsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.PredictedYearBuiltRunResult>?> PredictedYearBuiltRunsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<int>? countyIds, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Query.PredictedYearBuiltRunsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Query.PredictedYearBuiltRunsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the Web API\.
 
@@ -2691,13 +2691,13 @@ The subdivision identifiers keyed by county identifier; empty when there is noth
 Asynchronously retrieves the number of year built data items stored for a specified county identifier\.
 
 ```csharp
-public static System.Threading.Tasks.Task<System.Nullable<long>> YearBuiltDataCountAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, int countyId, bool estimated=false, bool analyze=false, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<System.Nullable<long>> YearBuiltDataCountAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, int countyId, bool estimated=false, bool analyze=false, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Query.YearBuiltDataCountAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,bool,bool,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Query.YearBuiltDataCountAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,bool,bool,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the Web API\.
 
@@ -2748,13 +2748,13 @@ A task returning the record count, or null when the county has no partition or t
 Asynchronously retrieves the building references that carry stored year built data for a specified county identifier\.
 
 ```csharp
-public static System.Threading.Tasks.Task<System.Collections.Generic.HashSet<string>?> YearBuiltDataReferencesAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, int countyId, int commandTimeout=30, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<System.Collections.Generic.HashSet<string>?> YearBuiltDataReferencesAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, int countyId, int commandTimeout=30, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Query.YearBuiltDataReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Query.YearBuiltDataReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the Web API\.
 
@@ -2795,13 +2795,13 @@ Asynchronously retrieves year built data items for the specified references, opt
 If the number of references exceeds the endpoint's maximum request limit (10,000), requests are automatically partitioned into batches.
 
 ```csharp
-public static System.Threading.Tasks.Task<System.Collections.Generic.List<DiGi.GIS.Classes.YearBuiltData>?> YearBuiltDatasAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gisWebAPIManager, System.Collections.Generic.IEnumerable<string>? references, System.Nullable<int> countyId=null, bool fallbackByReference=false, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public static System.Threading.Tasks.Task<System.Collections.Generic.List<DiGi.GIS.Classes.YearBuiltData>?> YearBuiltDatasAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<string>? references, System.Nullable<int> countyId=null, bool fallbackByReference=false, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Query.YearBuiltDatasAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_string_,System.Nullable_int_,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gisWebAPIManager'></a>
+<a name='DiGi.GIS.WebAPI.Query.YearBuiltDatasAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_string_,System.Nullable_int_,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
 
-`gisWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
 
 The [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager') instance used to communicate with the Web API\.
 

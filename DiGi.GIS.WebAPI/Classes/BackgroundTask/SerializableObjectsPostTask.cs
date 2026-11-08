@@ -12,7 +12,7 @@ namespace DiGi.GIS.WebAPI.Classes
     /// <typeparam name="T">The type of serializable object being posted, which must implement <see cref="ISerializableObject"/>.</typeparam>
     public abstract class SerializableObjectsPostTask<T> : ReportableBackgroundTask<long>, IGISWebAPIObject where T : ISerializableObject
     {
-        protected readonly GISWebAPIManager GISWebAPIManager;
+        protected readonly GISWebAPIManager gISWebAPIManager;
 
         /// <summary>
         /// Initializes a new instance of the SerializableObjectsPostTask class.
@@ -20,7 +20,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <param name="gISWebAPIManager">The GIS PostgreSQL Web API manager used to perform database operations.</param>
         public SerializableObjectsPostTask(GISWebAPIManager gISWebAPIManager)
         {
-            GISWebAPIManager = gISWebAPIManager ?? throw new ArgumentNullException(nameof(gISWebAPIManager));
+            this.gISWebAPIManager = gISWebAPIManager ?? throw new ArgumentNullException(nameof(gISWebAPIManager));
         }
 
         /// <summary>

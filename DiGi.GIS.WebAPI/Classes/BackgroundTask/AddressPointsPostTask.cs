@@ -16,9 +16,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the AddressPointsPostTask class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The <see cref="GISWebAPIManager"/> used to manage PostgreSQL GIS operations.</param>
-        public AddressPointsPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> used to manage PostgreSQL GIS operations.</param>
+        public AddressPointsPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -53,7 +53,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(addressPoints.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(addressPoints, countyIds, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(addressPoints, countyIds, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;

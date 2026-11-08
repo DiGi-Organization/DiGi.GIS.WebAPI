@@ -13,7 +13,7 @@ namespace DiGi.GIS.WebAPI
         /// <summary>
         /// Asynchronously retrieves the number of year built data items stored for a specified county identifier.
         /// </summary>
-        /// <param name="gisWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
         /// <param name="countyId">The unique identifier of the county.</param>
         /// <param name="estimated">A boolean value indicating whether to return an estimated count from table statistics rather than an exact count.</param>
         /// <param name="analyze">A boolean value indicating whether to perform an ANALYZE operation before reading the estimate.</param>
@@ -21,14 +21,14 @@ namespace DiGi.GIS.WebAPI
         /// <param name="postOptions">Optional configuration options for the HTTP request.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>A task returning the record count, or null when the county has no partition or the request failed.</returns>
-        public static async Task<long?> YearBuiltDataCountAsync(this GISWebAPIManager? gisWebAPIManager, int countyId, bool estimated = false, bool analyze = false, int commandTimeout = 600, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
+        public static async Task<long?> YearBuiltDataCountAsync(this GISWebAPIManager? gISWebAPIManager, int countyId, bool estimated = false, bool analyze = false, int commandTimeout = 600, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
         {
-            if (gisWebAPIManager is null || countyId <= 0 || commandTimeout < 0)
+            if (gISWebAPIManager is null || countyId <= 0 || commandTimeout < 0)
             {
                 return null;
             }
 
-            HttpClient? httpClient = gisWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.GetCountByCountyIdAsync), out string? path);
+            HttpClient? httpClient = gISWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.GetCountByCountyIdAsync), out string? path);
             if (httpClient is null || string.IsNullOrWhiteSpace(path))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "HttpClient or path for {Method} could not be resolved", nameof(YearBuiltDataController.GetCountByCountyIdAsync));

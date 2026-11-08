@@ -16,21 +16,21 @@ namespace DiGi.GIS.WebAPI
         /// Asynchronously lists the prediction runs stored under the given county parts through <c>gis/yearbuiltdata/predictedyearbuiltruns</c>: one entry per part, stamp and model identifier, with the number of objects carrying it.
         /// <para>The stamp is <see cref="DateTime.Ticks"/>, the value <see cref="Modify.RemovePredictedYearBuiltsAsync"/> takes. An empty list means no prediction is stored; null means the request failed.</para>
         /// </summary>
-        /// <param name="gisWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
         /// <param name="countyIds">The county parts to list.</param>
         /// <param name="commandTimeout">The timeout in seconds for the query on the server. A value of 0 disables it.</param>
         /// <param name="postOptions">Optional configuration options for the HTTP request.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>A task returning the runs, or null when the request failed.</returns>
-        public static async Task<List<PredictedYearBuiltRunResult>?> PredictedYearBuiltRunsAsync(this GISWebAPIManager? gisWebAPIManager, IEnumerable<int>? countyIds, int commandTimeout = 600, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
+        public static async Task<List<PredictedYearBuiltRunResult>?> PredictedYearBuiltRunsAsync(this GISWebAPIManager? gISWebAPIManager, IEnumerable<int>? countyIds, int commandTimeout = 600, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
         {
             int[] countyIds_Array = countyIds is null ? [] : [.. countyIds.Distinct()];
-            if (gisWebAPIManager is null || countyIds_Array.Length == 0 || commandTimeout < 0)
+            if (gISWebAPIManager is null || countyIds_Array.Length == 0 || commandTimeout < 0)
             {
                 return null;
             }
 
-            HttpClient? httpClient = gisWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.GetPredictedYearBuiltRunsAsync), out string? path);
+            HttpClient? httpClient = gISWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.GetPredictedYearBuiltRunsAsync), out string? path);
             if (httpClient is null || string.IsNullOrWhiteSpace(path))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "HttpClient or path for {Method} could not be resolved", nameof(YearBuiltDataController.GetPredictedYearBuiltRunsAsync));

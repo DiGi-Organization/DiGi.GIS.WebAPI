@@ -16,9 +16,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Initializes a new instance of the <see cref="EPWFilesPostTask"/> class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The <see cref="GISWebAPIManager"/> used to manage PostgreSQL GIS operations.</param>
-        public EPWFilesPostTask(GISWebAPIManager GISWebAPIManager)
-            : base(GISWebAPIManager)
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> used to manage PostgreSQL GIS operations.</param>
+        public EPWFilesPostTask(GISWebAPIManager gISWebAPIManager)
+            : base(gISWebAPIManager)
         {
         }
 
@@ -47,7 +47,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 longProgressWrapper?.Increment(ePWFiles_Batch.Count);
 
-                result = await GISWebAPIManager.UpdateItemsAsync(ePWFiles_Batch, SerializableObjectsPostOptions);
+                result = await gISWebAPIManager.UpdateItemsAsync(ePWFiles_Batch, SerializableObjectsPostOptions);
                 if (!result)
                 {
                     break;

@@ -14,20 +14,20 @@ namespace DiGi.GIS.WebAPI
         /// <summary>
         /// Asynchronously retrieves the building references that carry stored year built data for a specified county identifier.
         /// </summary>
-        /// <param name="gisWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
+        /// <param name="gISWebAPIManager">The <see cref="GISWebAPIManager"/> instance used to communicate with the Web API.</param>
         /// <param name="countyId">The unique identifier of the county.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout. Defaults to 30 seconds.</param>
         /// <param name="postOptions">Optional configuration options for the HTTP request.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>A task returning the set of reference strings, or null when the request failed or no partition was found.</returns>
-        public static async Task<HashSet<string>?> YearBuiltDataReferencesAsync(this GISWebAPIManager? gisWebAPIManager, int countyId, int commandTimeout = 30, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
+        public static async Task<HashSet<string>?> YearBuiltDataReferencesAsync(this GISWebAPIManager? gISWebAPIManager, int countyId, int commandTimeout = 30, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
         {
-            if (gisWebAPIManager is null || countyId <= 0 || commandTimeout < 0)
+            if (gISWebAPIManager is null || countyId <= 0 || commandTimeout < 0)
             {
                 return null;
             }
 
-            HttpClient? httpClient = gisWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.GetReferencesByCountyIdAsync), out string? path);
+            HttpClient? httpClient = gISWebAPIManager.CreateHttpClient<YearBuiltDataController>(nameof(YearBuiltDataController.GetReferencesByCountyIdAsync), out string? path);
             if (httpClient is null || string.IsNullOrWhiteSpace(path))
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "HttpClient or path for {Method} could not be resolved", nameof(YearBuiltDataController.GetReferencesByCountyIdAsync));

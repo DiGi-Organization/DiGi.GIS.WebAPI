@@ -18,16 +18,16 @@ namespace DiGi.GIS.WebAPI.Classes
     public class OrtoDatasTask : ReportableBackgroundTask<long>, IGISPostgreSQLObject
     {
         private readonly GISPostgreSQLConverterManager? gISPostgreSQLConverterManager;
-        private readonly GISWebAPIManager? GISWebAPIManager;
+        private readonly GISWebAPIManager? gISWebAPIManager;
 
         /// <summary>
         /// Initializes a new instance of the OrtoDatasTask class.
         /// </summary>
-        /// <param name="GISWebAPIManager">The manager responsible for handling GIS PostgreSQL Web API operations.</param>
+        /// <param name="gISWebAPIManager">The manager responsible for handling GIS PostgreSQL Web API operations.</param>
         /// <param name="gISPostgreSQLConverterManager">The manager that handles conversion processes for GIS data within a PostgreSQL database context.</param>
-        public OrtoDatasTask(GISWebAPIManager? GISWebAPIManager, GISPostgreSQLConverterManager? gISPostgreSQLConverterManager)
+        public OrtoDatasTask(GISWebAPIManager? gISWebAPIManager, GISPostgreSQLConverterManager? gISPostgreSQLConverterManager)
         {
-            this.GISWebAPIManager = GISWebAPIManager ?? throw new ArgumentNullException(nameof(GISWebAPIManager));
+            this.gISWebAPIManager = gISWebAPIManager ?? throw new ArgumentNullException(nameof(gISWebAPIManager));
             this.gISPostgreSQLConverterManager = gISPostgreSQLConverterManager ?? throw new ArgumentNullException(nameof(gISPostgreSQLConverterManager));
         }
 
@@ -35,7 +35,7 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(OrtoDatasTask), nameof(ExecuteAsync));
 
-            if (GISWebAPIManager is null)
+            if (gISWebAPIManager is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "GISWebAPIManager cannot be null");
                 return false;
@@ -55,7 +55,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return false;
             }
 
-            HttpClient? httpClient_Geoportal = Create.HttpClient_Geoportal(GISWebAPIManager);
+            HttpClient? httpClient_Geoportal = Create.HttpClient_Geoportal(gISWebAPIManager);
             if (httpClient_Geoportal is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Geoportal HttpClient cannot be null");
