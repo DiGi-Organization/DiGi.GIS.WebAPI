@@ -3,7 +3,6 @@ using DiGi.GIS.Enums;
 using DiGi.GIS.PostgreSQL.Classes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,7 +15,8 @@ namespace DiGi.GIS.WebAPI.Classes
 {
     /// <summary>
     /// Serves the building shape labelling campaign of the Building Shape Accuracy feature (DiGi.GIS#12, DiGi.GIS.WebAPI#80): the next unlabelled footprint of a fixed sample for the signed-in annotator, the annotator's progress, the label write, the export of the sample and its labels, and the key-authorized sample load.
-    /// <para>Every annotator route sits behind the user session: the bearer token is resolved with <see cref="Query.GetUserEmail"/> and a missing or invalid one answers 401. The interpreter of a label is that session's e-mail and its timestamp is the server clock - never the body's. <c>nextsample</c> carries no solver shape, so the labelling stays blind; the solver shapes are served only by the <c>sampleitems</c> export. The writes are gated by <see cref="GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel"/> (400 when disabled); the sample load additionally needs the <c>key</c> header.</para>
+    /// <para>Every annotator route sits behind the user session: the bearer token is resolved with <see cref="Query.GetUserEmail"/> and a missing or invalid one answers 401. The interpreter of a label is that session's e-mail and its timestamp is the server clock - never the body's. <c>nextsample</c> carries no solver shape, so the labelling stays blind; the solver shapes are served only by the <c>sampleitems</c> export. The writes are gated by <see cref="GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel"/>: the label write answers 400 when it is disabled (a 401 there would read as an expired session and sign the annotator out), while the sample load, which additionally needs the <c>key</c> header, answers the key gate's 401 for both denials.</para>
+    /// <para>A transient database failure is left to <see cref="TransientDatabaseFailureAttribute"/> (503 with <c>Retry-After</c>); every other failure is logged and answered 500.</para>
     /// <para>The query names (<c>samplekey</c>, <c>afterordinal</c>, <c>countyids</c>, <c>size</c>, <c>seed</c>) are a hand-matched wire contract consumed by DiGi.GIS.WebAPI.UI#86 - renaming one breaks the relay silently.</para>
     /// </summary>
     [ApiController]
@@ -24,7 +24,7 @@ namespace DiGi.GIS.WebAPI.Classes
     [TransientDatabaseFailure]
     public class BuildingShapeController : DiGi.WebAPI.Classes.WebAPIController
     {
-        private readonly GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher;
+        private readonly GISWebAPIConfigurationFileWatcher gISWebAPIConfigurationFileWatcher;
         private readonly Building2DPostgreSQLConverter building2DPostgreSQLConverter;
         private readonly BuildingShapePostgreSQLConverter buildingShapePostgreSQLConverter;
         private readonly DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager;
@@ -34,14 +34,14 @@ namespace DiGi.GIS.WebAPI.Classes
         // ActivatorUtilities.CreateFactory(type, Type.EmptyTypes), and a second public constructor turns every
         // action into an HTTP 500 before its body runs (DiGi.GIS.WebAPI#6).
         /// <summary> Initializes a new instance of the <see cref="BuildingShapeController"/> class. </summary>
-        /// <param name="GISWebAPIConfigurationFileWatcher">The configuration file watcher for the GIS PostgreSQL Web API, holding the <see cref="GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel"/> gate and the access key.</param>
+        /// <param name="gISWebAPIConfigurationFileWatcher">The configuration file watcher for the GIS PostgreSQL Web API, holding the <see cref="GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel"/> gate and the access key.</param>
         /// <param name="building2DPostgreSQLConverter">The converter for Building2D objects, used to serve the footprint of a sample item and to draw a sample (Main database).</param>
         /// <param name="buildingShapePostgreSQLConverter">The converter for the labelling samples and their labels (Main database).</param>
         /// <param name="securityKeyManager">The user extension&apos;s security key manager; <c>null</c> when the user extension is not loaded, in which case every user-token check denies.</param>
         /// <param name="tokenRevocationStore">The user extension&apos;s token revocation store; <c>null</c> when the user extension is not loaded, in which case every user-token check denies.</param>
-        public BuildingShapeController(GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, Building2DPostgreSQLConverter building2DPostgreSQLConverter, BuildingShapePostgreSQLConverter buildingShapePostgreSQLConverter, DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager = null, DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore = null)
+        public BuildingShapeController(GISWebAPIConfigurationFileWatcher gISWebAPIConfigurationFileWatcher, Building2DPostgreSQLConverter building2DPostgreSQLConverter, BuildingShapePostgreSQLConverter buildingShapePostgreSQLConverter, DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager = null, DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore = null)
         {
-            this.GISWebAPIConfigurationFileWatcher = GISWebAPIConfigurationFileWatcher;
+            this.gISWebAPIConfigurationFileWatcher = gISWebAPIConfigurationFileWatcher;
             this.building2DPostgreSQLConverter = building2DPostgreSQLConverter;
             this.buildingShapePostgreSQLConverter = buildingShapePostgreSQLConverter;
             this.securityKeyManager = securityKeyManager;
@@ -91,7 +91,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 JsonObject? jsonObject_Building2D = null;
                 if (!string.IsNullOrWhiteSpace(buildingShapeSampleItem.Reference))
                 {
-                    PostgreSQL.Classes.Building2D? building2D = await building2DPostgreSQLConverter.GetBuilding2DByReferenceAsync(buildingShapeSampleItem.Reference, buildingShapeSampleItem.CountyId, true, cancellationToken: cancellationToken);
+                    PostgreSQL.Classes.Building2D? building2D = await building2DPostgreSQLConverter.GetBuilding2DByReferenceAsync(buildingShapeSampleItem.Reference, buildingShapeSampleItem.CountyId, fallbackByReference: true, cancellationToken: cancellationToken);
                     jsonObject_Building2D = building2D?.ToDiGi()?.ToJsonObject();
                 }
 
@@ -111,11 +111,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 throw;
             }
-            catch (NpgsqlException exception) when (exception.IsTransient)
-            {
-                return TransientFailure(exception, nameof(NextSampleAsync));
-            }
-            catch (Exception exception)
+            catch (Exception exception) when (!TransientDatabaseFailureAttribute.IsTransient(exception))
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingShapeController), nameof(NextSampleAsync));
                 return StatusCode(500, "Internal server error while reading the next sample item");
@@ -171,11 +167,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 throw;
             }
-            catch (NpgsqlException exception) when (exception.IsTransient)
-            {
-                return TransientFailure(exception, nameof(ProgressAsync));
-            }
-            catch (Exception exception)
+            catch (Exception exception) when (!TransientDatabaseFailureAttribute.IsTransient(exception))
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingShapeController), nameof(ProgressAsync));
                 return StatusCode(500, "Internal server error while reading the labelling progress");
@@ -207,7 +199,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return Unauthorized();
             }
 
-            if (!GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel)
+            if (!gISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Name} rejected: AllowUpdateBuildingShapeLabel is disabled", nameof(SetLabelAsync));
                 return BadRequest();
@@ -256,11 +248,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 throw;
             }
-            catch (NpgsqlException exception) when (exception.IsTransient)
-            {
-                return TransientFailure(exception, nameof(SetLabelAsync));
-            }
-            catch (Exception exception)
+            catch (Exception exception) when (!TransientDatabaseFailureAttribute.IsTransient(exception))
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingShapeController), nameof(SetLabelAsync));
                 return StatusCode(500, "Internal server error during building shape label write");
@@ -308,11 +296,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 throw;
             }
-            catch (NpgsqlException exception) when (exception.IsTransient)
-            {
-                return TransientFailure(exception, nameof(LabelsAsync));
-            }
-            catch (Exception exception)
+            catch (Exception exception) when (!TransientDatabaseFailureAttribute.IsTransient(exception))
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingShapeController), nameof(LabelsAsync));
                 return StatusCode(500, "Internal server error while reading the building shape labels");
@@ -361,11 +345,7 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 throw;
             }
-            catch (NpgsqlException exception) when (exception.IsTransient)
-            {
-                return TransientFailure(exception, nameof(SampleItemsAsync));
-            }
-            catch (Exception exception)
+            catch (Exception exception) when (!TransientDatabaseFailureAttribute.IsTransient(exception))
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingShapeController), nameof(SampleItemsAsync));
                 return StatusCode(500, "Internal server error while reading the sample items");
@@ -374,7 +354,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Draws a stratified labelling sample from the footprints of the given county parts and stores it under a new sample key.
-        /// <para>Authorized by the <c>key</c> header (401 otherwise) and gated by <see cref="GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel"/> (400 when disabled). An existing key answers 409 before any footprint is read, so a sample is never overwritten. The draw solves every footprint of the counties with the default <see cref="BuildingShapeSolver"/>, which takes minutes for tens of thousands of footprints - call it with a long client timeout. The answer is <c>{ "SampleKey", "Count", "Shapes": { "&lt;shape&gt;": count } }</c>.</para>
+        /// <para>Authorized by the <c>key</c> header and gated by <see cref="GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel"/>; both denials answer the same bodyless 401 and are told apart only in the log. An existing key answers 409 before any footprint is read, so a sample is never overwritten. The draw solves every footprint of the counties with the default <see cref="BuildingShapeSolver"/>, which takes minutes for tens of thousands of footprints - call it with a long client timeout. The answer is <c>{ "SampleKey", "Count", "Shapes": { "&lt;shape&gt;": count } }</c>.</para>
         /// </summary>
         /// <param name="sampleKey">The identity of the new sample.</param>
         /// <param name="countyIds">The county part ids (not codes) to draw from.</param>
@@ -382,7 +362,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <param name="seed">The seed of the draw.</param>
         /// <param name="key">The secret access key supplied in the request header.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous operation. 200 with the summary, 401 without a valid key, 400 for a disabled flag or invalid parameters, 404 when the counties hold no classifiable footprint, 409 when the sample key exists, 503 on a transient database failure, or 500 when the draw or the write failed.</returns>
+        /// <returns>A task that represents the asynchronous operation. 200 with the summary, 401 without a valid key or with the flag disabled, 400 for invalid parameters, 404 when the counties hold no classifiable footprint, 409 when the sample key exists, 503 on a transient database failure, or 500 when the draw or the write failed.</returns>
         [HttpPost("sample", Name = $"{nameof(BuildingShapeController)}_{nameof(CreateSampleAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -396,16 +376,16 @@ namespace DiGi.GIS.WebAPI.Classes
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingShapeController), nameof(CreateSampleAsync));
 
-            if (!GISWebAPIConfigurationFileWatcher.IsAuthorized(key))
+            if (!gISWebAPIConfigurationFileWatcher.IsAuthorized(key))
             {
-                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Name} rejected: not authorized", nameof(CreateSampleAsync));
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Name} rejected: no valid access key", nameof(CreateSampleAsync));
                 return Unauthorized();
             }
 
-            if (!GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel)
+            if (!gISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Name} rejected: AllowUpdateBuildingShapeLabel is disabled", nameof(CreateSampleAsync));
-                return BadRequest();
+                return Unauthorized();
             }
 
             if (string.IsNullOrWhiteSpace(sampleKey) || countyIds is null || countyIds.Length == 0 || size is not int size_Value || size_Value < 1 || size_Value > 10000 || seed is not int seed_Value)
@@ -469,28 +449,11 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 throw;
             }
-            catch (NpgsqlException exception) when (exception.IsTransient)
-            {
-                return TransientFailure(exception, nameof(CreateSampleAsync));
-            }
-            catch (Exception exception)
+            catch (Exception exception) when (!TransientDatabaseFailureAttribute.IsTransient(exception))
             {
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingShapeController), nameof(CreateSampleAsync));
                 return StatusCode(500, "Internal server error while drawing the building shape sample");
             }
-        }
-
-        /// <summary>
-        /// Answers a transient database failure with 503 and a <c>Retry-After</c> of 30 s, logging the action that met it.
-        /// </summary>
-        /// <param name="exception">The transient <see cref="NpgsqlException"/>.</param>
-        /// <param name="name">The name of the failing action.</param>
-        /// <returns>The 503 result.</returns>
-        private ObjectResult TransientFailure(NpgsqlException exception, string name)
-        {
-            Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingShapeController), name);
-            HttpContext.Response.Headers["Retry-After"] = "30";
-            return StatusCode(503, "Database temporarily unavailable; retry shortly");
         }
     }
 }

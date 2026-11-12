@@ -5004,7 +5004,9 @@ A task that represents the asynchronous operation\. The task result is true if a
 
 Serves the building shape labelling campaign of the Building Shape Accuracy feature \(DiGi\.GIS\#12, DiGi\.GIS\.WebAPI\#80\): the next unlabelled footprint of a fixed sample for the signed\-in annotator, the annotator's progress, the label write, the export of the sample and its labels, and the key\-authorized sample load\.
 
-Every annotator route sits behind the user session: the bearer token is resolved with [GetUserEmail\(SecurityKeyManager, TokenRevocationStore, string\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.GetUserEmail(DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,string) 'DiGi\.GIS\.WebAPI\.Query\.GetUserEmail\(DiGi\.WebAPI\.Classes\.SecurityKeyManager, DiGi\.WebAPI\.Classes\.TokenRevocationStore, string\)') and a missing or invalid one answers 401. The interpreter of a label is that session's e-mail and its timestamp is the server clock - never the body's. `nextsample` carries no solver shape, so the labelling stays blind; the solver shapes are served only by the `sampleitems` export. The writes are gated by [AllowUpdateBuildingShapeLabel](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateBuildingShapeLabel') (400 when disabled); the sample load additionally needs the `key` header.
+Every annotator route sits behind the user session: the bearer token is resolved with [GetUserEmail\(SecurityKeyManager, TokenRevocationStore, string\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.GetUserEmail(DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,string) 'DiGi\.GIS\.WebAPI\.Query\.GetUserEmail\(DiGi\.WebAPI\.Classes\.SecurityKeyManager, DiGi\.WebAPI\.Classes\.TokenRevocationStore, string\)') and a missing or invalid one answers 401. The interpreter of a label is that session's e-mail and its timestamp is the server clock - never the body's. `nextsample` carries no solver shape, so the labelling stays blind; the solver shapes are served only by the `sampleitems` export. The writes are gated by [AllowUpdateBuildingShapeLabel](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateBuildingShapeLabel'): the label write answers 400 when it is disabled (a 401 there would read as an expired session and sign the annotator out), while the sample load, which additionally needs the `key` header, answers the key gate's 401 for both denials.
+
+A transient database failure is left to [TransientDatabaseFailureAttribute](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TransientDatabaseFailureAttribute 'DiGi\.GIS\.WebAPI\.Classes\.TransientDatabaseFailureAttribute') (503 with `Retry-After`); every other failure is logged and answered 500.
 
 The query names (`samplekey`, `afterordinal`, `countyids`, `size`, `seed`) are a hand-matched wire contract consumed by DiGi.GIS.WebAPI.UI#86 - renaming one breaks the relay silently.
 
@@ -5022,13 +5024,13 @@ Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system
 Initializes a new instance of the [BuildingShapeController](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingShapeController 'DiGi\.GIS\.WebAPI\.Classes\.BuildingShapeController') class\.
 
 ```csharp
-public BuildingShapeController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.BuildingShapePostgreSQLConverter buildingShapePostgreSQLConverter, DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager=null, DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore=null);
+public BuildingShapeController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher gISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.BuildingShapePostgreSQLConverter buildingShapePostgreSQLConverter, DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager=null, DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingShapeController.BuildingShapeController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.BuildingShapePostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).GISWebAPIConfigurationFileWatcher'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingShapeController.BuildingShapeController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.BuildingShapePostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).gISWebAPIConfigurationFileWatcher'></a>
 
-`GISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
+`gISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
 
 The configuration file watcher for the GIS PostgreSQL Web API, holding the [AllowUpdateBuildingShapeLabel](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateBuildingShapeLabel') gate and the access key\.
 
@@ -5063,7 +5065,7 @@ The user extension's token revocation store; `null` when the user extension is n
 
 Draws a stratified labelling sample from the footprints of the given county parts and stores it under a new sample key\.
 
-Authorized by the `key` header (401 otherwise) and gated by [AllowUpdateBuildingShapeLabel](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateBuildingShapeLabel') (400 when disabled). An existing key answers 409 before any footprint is read, so a sample is never overwritten. The draw solves every footprint of the counties with the default [DiGi\.GIS\.Classes\.BuildingShapeSolver](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingshapesolver 'DiGi\.GIS\.Classes\.BuildingShapeSolver'), which takes minutes for tens of thousands of footprints - call it with a long client timeout. The answer is `{ "SampleKey", "Count", "Shapes": { "<shape>": count } }`.
+Authorized by the `key` header and gated by [AllowUpdateBuildingShapeLabel](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateBuildingShapeLabel 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateBuildingShapeLabel'); both denials answer the same bodyless 401 and are told apart only in the log. An existing key answers 409 before any footprint is read, so a sample is never overwritten. The draw solves every footprint of the counties with the default [DiGi\.GIS\.Classes\.BuildingShapeSolver](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingshapesolver 'DiGi\.GIS\.Classes\.BuildingShapeSolver'), which takes minutes for tens of thousands of footprints - call it with a long client timeout. The answer is `{ "SampleKey", "Count", "Shapes": { "<shape>": count } }`.
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> CreateSampleAsync(string? sampleKey, int[]? countyIds, System.Nullable<int> size, System.Nullable<int> seed, string? key=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -5108,7 +5110,7 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
-A task that represents the asynchronous operation\. 200 with the summary, 401 without a valid key, 400 for a disabled flag or invalid parameters, 404 when the counties hold no classifiable footprint, 409 when the sample key exists, 503 on a transient database failure, or 500 when the draw or the write failed\.
+A task that represents the asynchronous operation\. 200 with the summary, 401 without a valid key or with the flag disabled, 400 for invalid parameters, 404 when the counties hold no classifiable footprint, 409 when the sample key exists, 503 on a transient database failure, or 500 when the draw or the write failed\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingShapeController.LabelsAsync(string,System.Threading.CancellationToken)'></a>
 
@@ -5256,33 +5258,6 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. 200 when the label was stored, 401 without a valid user token, 400 for a disabled flag, an invalid body or an item that is not in the sample, 503 on a transient database failure, or 500 when the write failed\.
-
-<a name='DiGi.GIS.WebAPI.Classes.BuildingShapeController.TransientFailure(Npgsql.NpgsqlException,string)'></a>
-
-## BuildingShapeController\.TransientFailure\(NpgsqlException, string\) Method
-
-Answers a transient database failure with 503 and a `Retry-After` of 30 s, logging the action that met it\.
-
-```csharp
-private Microsoft.AspNetCore.Mvc.ObjectResult TransientFailure(Npgsql.NpgsqlException exception, string name);
-```
-#### Parameters
-
-<a name='DiGi.GIS.WebAPI.Classes.BuildingShapeController.TransientFailure(Npgsql.NpgsqlException,string).exception'></a>
-
-`exception` [Npgsql\.NpgsqlException](https://learn.microsoft.com/en-us/dotnet/api/npgsql.npgsqlexception 'Npgsql\.NpgsqlException')
-
-The transient [Npgsql\.NpgsqlException](https://learn.microsoft.com/en-us/dotnet/api/npgsql.npgsqlexception 'Npgsql\.NpgsqlException')\.
-
-<a name='DiGi.GIS.WebAPI.Classes.BuildingShapeController.TransientFailure(Npgsql.NpgsqlException,string).name'></a>
-
-`name` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
-
-The name of the failing action\.
-
-#### Returns
-[Microsoft\.AspNetCore\.Mvc\.ObjectResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.objectresult 'Microsoft\.AspNetCore\.Mvc\.ObjectResult')  
-The 503 result\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController'></a>
 
