@@ -3,6 +3,131 @@
 ## DiGi\.GIS\.WebAPI\.Classes\.Parameter Namespace
 ### Classes
 
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter'></a>
+
+## BuildingShapeLabelParameter Class
+
+The body of the `gis/buildingshape/label` write: one signed\-in annotator's building shape label of one sample item \(DiGi\.GIS\.WebAPI\#80\)\.
+
+Every member is bound nullable so an omitted field is representable and can be rejected explicitly. [Shape](DiGi.GIS.WebAPI.Classes.Parameter.md#DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.Shape 'DiGi\.GIS\.WebAPI\.Classes\.Parameter\.BuildingShapeLabelParameter\.Shape') is the integer value of [DiGi\.GIS\.Enums\.BuildingShape](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.enums.buildingshape 'DiGi\.GIS\.Enums\.BuildingShape'), where `0` ([DiGi\.GIS\.Enums\.BuildingShape\.Undefined](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.enums.buildingshape.undefined 'DiGi\.GIS\.Enums\.BuildingShape\.Undefined')) records that the footprint could not be classified. The interpreter and the timestamp are never taken from this body: they are stamped server-side from the bearer token and the clock.
+
+```csharp
+public class BuildingShapeLabelParameter : DiGi.WebAPI.Classes.Parameter
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [DiGi\.Core\.Classes\.Object](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.object 'DiGi\.Core\.Classes\.Object') → [DiGi\.Core\.Classes\.SerializableObject](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.serializableobject 'DiGi\.Core\.Classes\.SerializableObject') → [DiGi\.WebAPI\.Classes\.Parameter](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.parameter 'DiGi\.WebAPI\.Classes\.Parameter') → BuildingShapeLabelParameter
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.BuildingShapeLabelParameter()'></a>
+
+## BuildingShapeLabelParameter\(\) Constructor
+
+Initializes a new instance of the [BuildingShapeLabelParameter](DiGi.GIS.WebAPI.Classes.Parameter.md#DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter 'DiGi\.GIS\.WebAPI\.Classes\.Parameter\.BuildingShapeLabelParameter') class\.
+
+```csharp
+public BuildingShapeLabelParameter();
+```
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.BuildingShapeLabelParameter(DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter)'></a>
+
+## BuildingShapeLabelParameter\(BuildingShapeLabelParameter\) Constructor
+
+Initializes a new instance of the [BuildingShapeLabelParameter](DiGi.GIS.WebAPI.Classes.Parameter.md#DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter 'DiGi\.GIS\.WebAPI\.Classes\.Parameter\.BuildingShapeLabelParameter') class by copying the values from an existing instance\.
+
+```csharp
+public BuildingShapeLabelParameter(DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter buildingShapeLabelParameter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.BuildingShapeLabelParameter(DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter).buildingShapeLabelParameter'></a>
+
+`buildingShapeLabelParameter` [BuildingShapeLabelParameter](DiGi.GIS.WebAPI.Classes.Parameter.md#DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter 'DiGi\.GIS\.WebAPI\.Classes\.Parameter\.BuildingShapeLabelParameter')
+
+The source instance from which to copy the values\.
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.BuildingShapeLabelParameter(System.Text.Json.Nodes.JsonObject)'></a>
+
+## BuildingShapeLabelParameter\(JsonObject\) Constructor
+
+Initializes a new instance of the [BuildingShapeLabelParameter](DiGi.GIS.WebAPI.Classes.Parameter.md#DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter 'DiGi\.GIS\.WebAPI\.Classes\.Parameter\.BuildingShapeLabelParameter') class using the provided JSON object\.
+
+```csharp
+public BuildingShapeLabelParameter(System.Text.Json.Nodes.JsonObject jsonObject);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.BuildingShapeLabelParameter(System.Text.Json.Nodes.JsonObject).jsonObject'></a>
+
+`jsonObject` [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
+The [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject') containing the data used to initialize the parameter\.
+### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.CountyId'></a>
+
+## BuildingShapeLabelParameter\.CountyId Property
+
+Gets or sets the county id \(not code\) the item is filed under; `null` \(an omitted field\) is rejected\.
+
+```csharp
+public System.Nullable<int> CountyId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.Note'></a>
+
+## BuildingShapeLabelParameter\.Note Property
+
+Gets or sets an optional free\-text note\.
+
+```csharp
+public string? Note { get; set; }
+```
+
+#### Property Value
+[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.Reference'></a>
+
+## BuildingShapeLabelParameter\.Reference Property
+
+Gets or sets the building reference of the item; a blank value is rejected\.
+
+```csharp
+public string? Reference { get; set; }
+```
+
+#### Property Value
+[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.SampleKey'></a>
+
+## BuildingShapeLabelParameter\.SampleKey Property
+
+Gets or sets the identity of the sample the labelled item belongs to; a blank value is rejected\.
+
+```csharp
+public string? SampleKey { get; set; }
+```
+
+#### Property Value
+[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+<a name='DiGi.GIS.WebAPI.Classes.Parameter.BuildingShapeLabelParameter.Shape'></a>
+
+## BuildingShapeLabelParameter\.Shape Property
+
+Gets or sets the label as the integer value of [DiGi\.GIS\.Enums\.BuildingShape](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.enums.buildingshape 'DiGi\.GIS\.Enums\.BuildingShape'); `null` and values outside the enumeration are rejected\.
+
+```csharp
+public System.Nullable<short> Shape { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int16](https://learn.microsoft.com/en-us/dotnet/api/system.int16 'System\.Int16')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
 <a name='DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaLabelParameter'></a>
 
 ## OrtoAreaLabelParameter Class
