@@ -147,7 +147,7 @@ namespace DiGi.GIS.WebAPI.Classes
 
         /// <summary>
         /// Gets a value indicating whether the building shape labelling writes are permitted: signed-in users filing labels (<c>gis/buildingshape/label</c>) and the key-authorized sample load (<c>gis/buildingshape/sample</c>) (DiGi.GIS.WebAPI#80).
-        /// <para>The label write is authorized by the user's bearer token, not by the access key, so this flag is the host's only switch for it. A missing value denies; the committed configuration ships it disabled.</para>
+        /// <para>The label write is authorized by the user's bearer token, not by the access key, so this flag is the host's only switch for it. A missing value denies; the committed configuration ships it enabled for the labelling campaign of DiGi.GIS#12.</para>
         /// </summary>
         public bool AllowUpdateBuildingShapeLabel
         {

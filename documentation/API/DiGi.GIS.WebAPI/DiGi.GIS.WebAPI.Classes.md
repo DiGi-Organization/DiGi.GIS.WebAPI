@@ -6034,7 +6034,7 @@ public bool AllowUpdateBuildingModel { get; }
 
 Gets a value indicating whether the building shape labelling writes are permitted: signed\-in users filing labels \(`gis/buildingshape/label`\) and the key\-authorized sample load \(`gis/buildingshape/sample`\) \(DiGi\.GIS\.WebAPI\#80\)\.
 
-The label write is authorized by the user's bearer token, not by the access key, so this flag is the host's only switch for it. A missing value denies; the committed configuration ships it disabled.
+The label write is authorized by the user's bearer token, not by the access key, so this flag is the host's only switch for it. A missing value denies; the committed configuration ships it enabled for the labelling campaign of DiGi.GIS#12.
 
 ```csharp
 public bool AllowUpdateBuildingShapeLabel { get; }
