@@ -7140,6 +7140,123 @@ public System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? V
 #### Property Value
 [System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[DiGi\.GIS\.Classes\.OccupancyData](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.occupancydata 'DiGi\.GIS\.Classes\.OccupancyData')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
 
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController'></a>
+
+## OpenBuildingController Class
+
+Web API controller for the open building datasets \(EUBUCCO, Overture, OSM, DBSM, Microsoft, GHS\-OBAT\) stored beside BDOT10k: the release register and per\-county summaries of the footprint tables \(DiGi\.GIS\.PostgreSQL\#121\)\.
+
+Read-only. It exposes the evidence paper 01 needs to state which release of each dataset was compared, when it was fetched, and how much of it comes from a register, OpenStreetMap or a detector.
+
+```csharp
+public class OpenBuildingController : DiGi.WebAPI.Classes.WebAPIController
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [Microsoft\.AspNetCore\.Mvc\.ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase 'Microsoft\.AspNetCore\.Mvc\.ControllerBase') → [DiGi\.WebAPI\.Classes\.WebAPIController](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.webapicontroller 'DiGi\.WebAPI\.Classes\.WebAPIController') → OpenBuildingController
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.OpenBuildingController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter)'></a>
+
+## OpenBuildingController\(GISWebAPIConfigurationFileWatcher, OpenBuildingPostgreSQLConverter\) Constructor
+
+Initializes a new instance of the [OpenBuildingController](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.OpenBuildingController 'DiGi\.GIS\.WebAPI\.Classes\.OpenBuildingController') class\.
+
+```csharp
+public OpenBuildingController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter openBuildingPostgreSQLConverter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.OpenBuildingController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).GISWebAPIConfigurationFileWatcher'></a>
+
+`GISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
+
+The configuration file watcher for the GIS PostgreSQL Web API\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.OpenBuildingController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).openBuildingPostgreSQLConverter'></a>
+
+`openBuildingPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OpenBuildingPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.openbuildingpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OpenBuildingPostgreSQLConverter')
+
+The converter used to read the open building release register and footprint tables in PostgreSQL\.
+### Methods
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetDatasetsAsync(string,int,System.Threading.CancellationToken)'></a>
+
+## OpenBuildingController\.GetDatasetsAsync\(string, int, CancellationToken\) Method
+
+Asynchronously retrieves the releases recorded in the `building_dataset` register: dataset key, version, download date, source URL, licence, observation date, file name, SHA\-256, row count and attribute list\.
+
+The register identifier of each release is the `DatasetId` that `summariesbycountyids` reports.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetDatasetsAsync(string? datasetKey=null, int commandTimeout=30, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetDatasetsAsync(string,int,System.Threading.CancellationToken).datasetKey'></a>
+
+`datasetKey` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The dataset key to read \(`eubucco`, `overture`, `osm`, `dbsm`, `microsoft`, `ghs_obat`\)\. Omit to read every dataset\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetDatasetsAsync(string,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 30 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetDatasetsAsync(string,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the releases as JSON \(an empty list when none is registered for the key\), 404 when the register does not exist yet, or an error status\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken)'></a>
+
+## OpenBuildingController\.GetSummariesByCountyIdsAsync\(string, List\<int\>, int, CancellationToken\) Method
+
+Asynchronously summarises one dataset's footprint table per county part and release: the footprint count, its split by primary source \(register, OpenStreetMap, Microsoft, Esri, other\) and the number of footprints carrying a licence exception\.
+
+The data of the provenance diagram of paper 01 (figure R1, DiGi.GIS.PostgreSQL#126). Keyed by county part, never by code: a multi-part county is summarised by naming every part. A part holding no footprints is absent from the result rather than present with a zero.
+
+The licence-exception count reads the serialized footprint of every row, so a whole-table summary takes minutes; name the county parts in scope.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSummariesByCountyIdsAsync(string? datasetKey, System.Collections.Generic.List<int>? countyIds, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).datasetKey'></a>
+
+`datasetKey` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The dataset key to summarise \(`eubucco`, `overture`, `osm`, `dbsm`, `microsoft`\)\. Required; `ghs_obat` holds attributes, not footprints, and is refused\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The identifiers of the county parts to summarise, repeated once per part\. At most [MaximumSummaryCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoDatas.MaximumSummaryCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.OrtoDatas\.MaximumSummaryCountyCount'); omit to summarise every partition\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the summaries as JSON, 404 when the dataset's table does not exist yet, or an error status\.
+
 <a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController'></a>
 
 ## OrtoAreaController Class
@@ -7159,70 +7276,76 @@ public class OrtoAreaController : DiGi.WebAPI.Classes.WebAPIController
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [Microsoft\.AspNetCore\.Mvc\.ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase 'Microsoft\.AspNetCore\.Mvc\.ControllerBase') → [DiGi\.WebAPI\.Classes\.WebAPIController](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.webapicontroller 'DiGi\.WebAPI\.Classes\.WebAPIController') → OrtoAreaController
 ### Constructors
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore)'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter)'></a>
 
-## OrtoAreaController\(GISWebAPIConfigurationFileWatcher, Building2DPostgreSQLConverter, OrtoAreaImagePostgreSQLConverter, OrtoAreaLabelPostgreSQLConverter, OrtoAreaObjectPostgreSQLConverter, OrtoAreaPostgreSQLConverter, OrtoSheetPostgreSQLConverter, SecurityKeyManager, TokenRevocationStore\) Constructor
+## OrtoAreaController\(GISWebAPIConfigurationFileWatcher, Building2DPostgreSQLConverter, OrtoAreaImagePostgreSQLConverter, OrtoAreaLabelPostgreSQLConverter, OrtoAreaObjectPostgreSQLConverter, OrtoAreaPostgreSQLConverter, OrtoSheetPostgreSQLConverter, SecurityKeyManager, TokenRevocationStore, OpenBuildingPostgreSQLConverter\) Constructor
 
 Initializes a new instance of the [OrtoAreaController](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.OrtoAreaController 'DiGi\.GIS\.WebAPI\.Classes\.OrtoAreaController') class\.
 
 ```csharp
-public OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter ortoAreaImagePostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter ortoAreaLabelPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter ortoAreaObjectPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter ortoAreaPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter ortoSheetPostgreSQLConverter, DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager=null, DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore=null);
+public OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter ortoAreaImagePostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter ortoAreaLabelPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter ortoAreaObjectPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter ortoAreaPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter ortoSheetPostgreSQLConverter, DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager=null, DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore=null, DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter? openBuildingPostgreSQLConverter=null);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).GISWebAPIConfigurationFileWatcher'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).GISWebAPIConfigurationFileWatcher'></a>
 
 `GISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
 
 The configuration file watcher for the GIS PostgreSQL Web API, holding the [AllowUpdateOrtoAreaLabel](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateOrtoAreaLabel 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateOrtoAreaLabel') gate of the label write\.
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).building2DPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).building2DPostgreSQLConverter'></a>
 
 `building2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter')
 
 The converter for Building2D objects, used to resolve the footprint box a label's observation dates are read against \(Main database\)\.
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoAreaImagePostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).ortoAreaImagePostgreSQLConverter'></a>
 
 `ortoAreaImagePostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaImagePostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareaimagepostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaImagePostgreSQLConverter')
 
 The converter for the materialised area imagery of one epoch \(Storage database\)\.
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoAreaLabelPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).ortoAreaLabelPostgreSQLConverter'></a>
 
 `ortoAreaLabelPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaLabelPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoarealabelpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaLabelPostgreSQLConverter')
 
 The converter for the interpretation label rows of an area \(Main database\)\.
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoAreaObjectPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).ortoAreaObjectPostgreSQLConverter'></a>
 
 `ortoAreaObjectPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObjectPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareaobjectpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObjectPostgreSQLConverter')
 
 The converter for the drawn polygon rows of an area \(Main database\)\.
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoAreaPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).ortoAreaPostgreSQLConverter'></a>
 
 `ortoAreaPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortoareapostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaPostgreSQLConverter')
 
 The converter for the test\-area registry with its sampled cells \(Main database\)\.
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).ortoSheetPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).ortoSheetPostgreSQLConverter'></a>
 
 `ortoSheetPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OrtoSheetPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.ortosheetpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OrtoSheetPostgreSQLConverter')
 
 The converter for the orthophoto sheet index, used for the epoch list and the observation dates \(Storage database\)\.
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).securityKeyManager'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).securityKeyManager'></a>
 
 `securityKeyManager` [DiGi\.WebAPI\.Classes\.SecurityKeyManager](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.securitykeymanager 'DiGi\.WebAPI\.Classes\.SecurityKeyManager')
 
 The user extension's security key manager; `null` when the user extension is not loaded, in which case every user\-token check denies\.
 
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore).tokenRevocationStore'></a>
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).tokenRevocationStore'></a>
 
 `tokenRevocationStore` [DiGi\.WebAPI\.Classes\.TokenRevocationStore](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.tokenrevocationstore 'DiGi\.WebAPI\.Classes\.TokenRevocationStore')
 
 The user extension's token revocation store; `null` when the user extension is not loaded, in which case every user\-token check denies\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.OrtoAreaController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaImagePostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaLabelPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaObjectPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoAreaPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.OrtoSheetPostgreSQLConverter,DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,DiGi.GIS.PostgreSQL.Classes.OpenBuildingPostgreSQLConverter).openBuildingPostgreSQLConverter'></a>
+
+`openBuildingPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.OpenBuildingPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.openbuildingpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.OpenBuildingPostgreSQLConverter')
+
+The converter reading the open building footprint tables for `validationsummary`; `null` when not registered, in which case a request naming datasets answers 400\.
 ### Fields
 
 <a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.imageStatus_FetchError'></a>
@@ -7637,6 +7760,73 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. 200 when the label was stored, 401 without a valid user token, 400 for a disabled flag, an invalid body, or an uninitialized area, 404 when no building holds the footprint reference or the area holds no drawn object under the objectId, 503 on a transient database failure, or 500 when the write failed\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken)'></a>
+
+## OrtoAreaController\.ValidationSummaryAsync\(double, double, double, double, Nullable\<short\>, List\<string\>, int, CancellationToken\) Method
+
+Compares the interpreted reference sample of the area of a bounding box with BDOT10k and, optionally, with open building datasets \(paper 01, sections 4\.4 and 5\.2\)\.
+
+Labels of one epoch are resolved per object across interpreters (disagreement resolves to indeterminate). The result gives BDOT10k commission (footprints seen as absent), omission (drawn objects seen as present) and the indeterminate share; for each dataset named, how many reference objects it detects and how its footprints in the area split into matched, matching only absent or indeterminate objects, and unmatched. See [DiGi\.GIS\.PostgreSQL\.Query\.OrtoAreaValidationAsync\(DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaPostgreSQLConverter,DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaLabelPostgreSQLConverter,DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObjectPostgreSQLConverter,DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter,DiGi\.GIS\.PostgreSQL\.Classes\.OpenBuildingPostgreSQLConverter,System\.String,System\.Nullable\{System\.Int16\},System\.Collections\.Generic\.IEnumerable\{System\.String\},System\.Int32,System\.Threading\.CancellationToken\)](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.query.ortoareavalidationasync#digi-gis-postgresql-query-ortoareavalidationasync(digi-gis-postgresql-classes-ortoareapostgresqlconverter-digi-gis-postgresql-classes-ortoarealabelpostgresqlconverter-digi-gis-postgresql-classes-ortoareaobjectpostgresqlconverter-digi-gis-postgresql-classes-building2dpostgresqlconverter-digi-gis-postgresql-classes-openbuildingpostgresqlconverter-system-string-system-nullable{system-int16}-system-collections-generic-ienumerable{system-string}-system-int32-system-threading-cancellationtoken) 'DiGi\.GIS\.PostgreSQL\.Query\.OrtoAreaValidationAsync\(DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaPostgreSQLConverter,DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaLabelPostgreSQLConverter,DiGi\.GIS\.PostgreSQL\.Classes\.OrtoAreaObjectPostgreSQLConverter,DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter,DiGi\.GIS\.PostgreSQL\.Classes\.OpenBuildingPostgreSQLConverter,System\.String,System\.Nullable\{System\.Int16\},System\.Collections\.Generic\.IEnumerable\{System\.String\},System\.Int32,System\.Threading\.CancellationToken\)') for the matching rule.
+
+Answers counts only - no interpreter identity - but sits behind the user session like every route of this controller.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> ValidationSummaryAsync(double x_1, double y_1, double x_2, double y_2, System.Nullable<short> epochYear, System.Collections.Generic.List<string>? datasetKeys, int commandTimeout=120, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).x_1'></a>
+
+`x_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).y_1'></a>
+
+`y_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).x_2'></a>
+
+`x_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).y_2'></a>
+
+`y_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).epochYear'></a>
+
+`epochYear` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int16](https://learn.microsoft.com/en-us/dotnet/api/system.int16 'System\.Int16')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The imagery epoch to evaluate\. Omit for the latest epoch labelled in the area\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).datasetKeys'></a>
+
+`datasetKeys` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The open building datasets to compare \(`eubucco`, `overture`, `osm`, `dbsm`, `microsoft`\), repeated once per dataset\. Omit to evaluate BDOT10k only\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for each database command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 120 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.ValidationSummaryAsync(double,double,double,double,System.Nullable_short_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the comparison, 401 without a valid user token, 400 for an invalid bounding box, an unknown dataset key or an uninitialized area, 404 when a named dataset's table does not exist yet, 503 on a transient database failure, or 500 when the read failed\.
 
 <a name='DiGi.GIS.WebAPI.Classes.OrtoAreaItems'></a>
 
@@ -10115,34 +10305,40 @@ public class UnitController : DiGi.WebAPI.Classes.WebAPIController
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [Microsoft\.AspNetCore\.Mvc\.ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase 'Microsoft\.AspNetCore\.Mvc\.ControllerBase') → [DiGi\.WebAPI\.Classes\.WebAPIController](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.webapicontroller 'DiGi\.WebAPI\.Classes\.WebAPIController') → UnitController
 ### Constructors
 
-<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter)'></a>
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.StatisticalDataCollectionPostgreSQLConverter)'></a>
 
-## UnitController\(GISWebAPIConfigurationFileWatcher, UnitPostgreSQLConverter, AdministrativeAreal2DPostgreSQLConverter\) Constructor
+## UnitController\(GISWebAPIConfigurationFileWatcher, UnitPostgreSQLConverter, AdministrativeAreal2DPostgreSQLConverter, StatisticalDataCollectionPostgreSQLConverter\) Constructor
 
 Initializes a new instance of the [UnitController](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UnitController 'DiGi\.GIS\.WebAPI\.Classes\.UnitController') class\.
 
 ```csharp
-public UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter unitPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter);
+public UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter unitPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.StatisticalDataCollectionPostgreSQLConverter statisticalDataCollectionPostgreSQLConverter);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).GISWebAPIConfigurationFileWatcher'></a>
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.StatisticalDataCollectionPostgreSQLConverter).GISWebAPIConfigurationFileWatcher'></a>
 
 `GISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
 
 The configuration file watcher for GIS Web API settings\.
 
-<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).unitPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.StatisticalDataCollectionPostgreSQLConverter).unitPostgreSQLConverter'></a>
 
 `unitPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.UnitPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.unitpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.UnitPostgreSQLConverter')
 
 The converter used for handling territorial unit operations\.
 
-<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).administrativeAreal2DPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.StatisticalDataCollectionPostgreSQLConverter).administrativeAreal2DPostgreSQLConverter'></a>
 
 `administrativeAreal2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter')
 
 The converter used for administrative area operations\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.UnitController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.UnitPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.StatisticalDataCollectionPostgreSQLConverter).statisticalDataCollectionPostgreSQLConverter'></a>
+
+`statisticalDataCollectionPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.StatisticalDataCollectionPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.statisticaldatacollectionpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.StatisticalDataCollectionPostgreSQLConverter')
+
+The converter used to read the stored BDL variable values of a statistical unit\.
 ### Methods
 
 <a name='DiGi.GIS.WebAPI.Classes.UnitController.GetComplianceAsync(System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Threading.CancellationToken)'></a>
@@ -10286,6 +10482,61 @@ The cancellation token\.
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 The matched statistical unit if found; otherwise, 404 Not Found\.
 
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.GetStatisticalDataCollectionAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken)'></a>
+
+## UnitController\.GetStatisticalDataCollectionAsync\(string, Nullable\<AdministrativeArealType\>, Nullable\<int\>, List\<string\>, int, CancellationToken\) Method
+
+Asynchronously retrieves the stored BDL variable values \([DiGi\.GIS\.Classes\.StatisticalDataCollection](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.statisticaldatacollection 'DiGi\.GIS\.Classes\.StatisticalDataCollection')\) of the statistical unit matching an administrative area, optionally only the named variables\.
+
+The unit is resolved exactly as by `match`. Each variable carries its yearly values. BDL answers 0 for years it has not published (the population series for 2024 and 2025, paper 01 section 3.5), so a 0 must be read as a possible gap, not as a measurement; this endpoint returns the stored values unchanged.
+
+A gmina of the urban-rural type is one BDL unit for the whole gmina plus two partial units; the match resolves the whole-gmina unit, which is the one paper 01 compares with BDOT10k aggregates.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetStatisticalDataCollectionAsync(string? code=null, System.Nullable<DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType> administrativeArealType=null, System.Nullable<int> id=null, System.Collections.Generic.List<string>? names=null, int commandTimeout=30, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.GetStatisticalDataCollectionAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).code'></a>
+
+`code` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The unique administrative code\. Either \(code and administrativearealtype\) or id must be supplied\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.GetStatisticalDataCollectionAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).administrativeArealType'></a>
+
+`administrativeArealType` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[DiGi\.GIS\.PostgreSQL\.Enums\.AdministrativeArealType](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.enums.administrativearealtype 'DiGi\.GIS\.PostgreSQL\.Enums\.AdministrativeArealType')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The administrative area type\. Either \(code and administrativearealtype\) or id must be supplied\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.GetStatisticalDataCollectionAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).id'></a>
+
+`id` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The integer identifier of the administrative area in PostgreSQL\. Either \(code and administrativearealtype\) or id must be supplied\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.GetStatisticalDataCollectionAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).names'></a>
+
+`names` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The variables to return, repeated once per variable; each value matches a variable's stored name \(`population [person/km2]`\) or its BDL variable identifier \(`60559`\), exactly\. Omit to return every stored variable\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.GetStatisticalDataCollectionAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 30 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.GetStatisticalDataCollectionAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+The collection as JSON \(with only the named variables found, possibly none\), 404 when no unit matches or no values are stored for it, 400 for invalid input, or an error status\.
+
 <a name='DiGi.GIS.WebAPI.Classes.UnitController.GetStatisticalUnitAsync(System.Threading.CancellationToken)'></a>
 
 ## UnitController\.GetStatisticalUnitAsync\(CancellationToken\) Method
@@ -10306,6 +10557,45 @@ The cancellation token\.
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 The root statistical unit tree\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.MatchAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Threading.CancellationToken)'></a>
+
+## UnitController\.MatchAsync\(string, Nullable\<AdministrativeArealType\>, Nullable\<int\>, CancellationToken\) Method
+
+Resolves the statistical unit matching an administrative area given by its code and type, or by its integer identifier \- the resolution shared by `match` and `statisticaldatacollection`\.
+
+```csharp
+private System.Threading.Tasks.Task<(DiGi.GIS.Classes.StatisticalUnit? StatisticalUnit,Microsoft.AspNetCore.Mvc.IActionResult? ActionResult)> MatchAsync(string? code, System.Nullable<DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType> administrativeArealType, System.Nullable<int> id, System.Threading.CancellationToken cancellationToken);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.MatchAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Threading.CancellationToken).code'></a>
+
+`code` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The unique administrative code, or null when [id](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UnitController.MatchAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Threading.CancellationToken).id 'DiGi\.GIS\.WebAPI\.Classes\.UnitController\.MatchAsync\(string, System\.Nullable\<DiGi\.GIS\.PostgreSQL\.Enums\.AdministrativeArealType\>, System\.Nullable\<int\>, System\.Threading\.CancellationToken\)\.id') is supplied\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.MatchAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Threading.CancellationToken).administrativeArealType'></a>
+
+`administrativeArealType` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[DiGi\.GIS\.PostgreSQL\.Enums\.AdministrativeArealType](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.enums.administrativearealtype 'DiGi\.GIS\.PostgreSQL\.Enums\.AdministrativeArealType')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The administrative area type, or null when [id](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UnitController.MatchAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Threading.CancellationToken).id 'DiGi\.GIS\.WebAPI\.Classes\.UnitController\.MatchAsync\(string, System\.Nullable\<DiGi\.GIS\.PostgreSQL\.Enums\.AdministrativeArealType\>, System\.Nullable\<int\>, System\.Threading\.CancellationToken\)\.id') is supplied\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.MatchAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Threading.CancellationToken).id'></a>
+
+`id` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The integer identifier of the administrative area, or null when the code and type are supplied\.
+
+<a name='DiGi.GIS.WebAPI.Classes.UnitController.MatchAsync(string,System.Nullable_DiGi.GIS.PostgreSQL.Enums.AdministrativeArealType_,System.Nullable_int_,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[DiGi\.GIS\.Classes\.StatisticalUnit](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.statisticalunit 'DiGi\.GIS\.Classes\.StatisticalUnit')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+The matched unit with a null action result, or a null unit with the status to answer \(400 for invalid input or a missing converter, 404 when nothing matches\)\.
 
 <a name='DiGi.GIS.WebAPI.Classes.UnitController.UpdateItemsAsync(System.Text.Json.Nodes.JsonArray,string,System.Threading.CancellationToken)'></a>
 

@@ -59,6 +59,7 @@ namespace DiGi.GIS.WebAPI.Classes
         private readonly GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher;
         private readonly Building2DPostgreSQLConverter building2DPostgreSQLConverter;
         private readonly OrtoAreaImagePostgreSQLConverter ortoAreaImagePostgreSQLConverter;
+        private readonly OpenBuildingPostgreSQLConverter? openBuildingPostgreSQLConverter;
         private readonly OrtoAreaLabelPostgreSQLConverter ortoAreaLabelPostgreSQLConverter;
         private readonly OrtoAreaObjectPostgreSQLConverter ortoAreaObjectPostgreSQLConverter;
         private readonly OrtoAreaPostgreSQLConverter ortoAreaPostgreSQLConverter;
@@ -90,6 +91,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <param name="ortoSheetPostgreSQLConverter">The converter for the orthophoto sheet index, used for the epoch list and the observation dates (Storage database).</param>
         /// <param name="securityKeyManager">The user extension&apos;s security key manager; <c>null</c> when the user extension is not loaded, in which case every user-token check denies.</param>
         /// <param name="tokenRevocationStore">The user extension&apos;s token revocation store; <c>null</c> when the user extension is not loaded, in which case every user-token check denies.</param>
+        /// <param name="openBuildingPostgreSQLConverter">The converter reading the open building footprint tables for <c>validationsummary</c>; <c>null</c> when not registered, in which case a request naming datasets answers 400.</param>
         public OrtoAreaController(
             GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher,
             Building2DPostgreSQLConverter building2DPostgreSQLConverter,
@@ -99,7 +101,8 @@ namespace DiGi.GIS.WebAPI.Classes
             OrtoAreaPostgreSQLConverter ortoAreaPostgreSQLConverter,
             OrtoSheetPostgreSQLConverter ortoSheetPostgreSQLConverter,
             DiGi.WebAPI.Classes.SecurityKeyManager? securityKeyManager = null,
-            DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore = null)
+            DiGi.WebAPI.Classes.TokenRevocationStore? tokenRevocationStore = null,
+            OpenBuildingPostgreSQLConverter? openBuildingPostgreSQLConverter = null)
         {
             this.GISWebAPIConfigurationFileWatcher = GISWebAPIConfigurationFileWatcher;
             this.building2DPostgreSQLConverter = building2DPostgreSQLConverter;
@@ -110,6 +113,7 @@ namespace DiGi.GIS.WebAPI.Classes
             this.ortoSheetPostgreSQLConverter = ortoSheetPostgreSQLConverter;
             this.securityKeyManager = securityKeyManager;
             this.tokenRevocationStore = tokenRevocationStore;
+            this.openBuildingPostgreSQLConverter = openBuildingPostgreSQLConverter;
         }
 
         /// <summary>
@@ -816,6 +820,115 @@ namespace DiGi.GIS.WebAPI.Classes
             Serilog.Modify.Log("LabelsByBoundingBox answered {Count} label row(s) for area {AreaKey}", ortoAreaLabels.Count, areaKey);
 
             return Ok(ortoAreaLabels);
+        }
+
+        /// <summary>
+        /// Compares the interpreted reference sample of the area of a bounding box with BDOT10k and, optionally, with open building datasets (paper 01, sections 4.4 and 5.2).
+        /// <para>Labels of one epoch are resolved per object across interpreters (disagreement resolves to indeterminate). The result gives BDOT10k commission (footprints seen as absent), omission (drawn objects seen as present) and the indeterminate share; for each dataset named, how many reference objects it detects and how its footprints in the area split into matched, matching only absent or indeterminate objects, and unmatched. See <see cref="PostgreSQL.Query.OrtoAreaValidationAsync"/> for the matching rule.</para>
+        /// <para>Answers counts only - no interpreter identity - but sits behind the user session like every route of this controller.</para>
+        /// </summary>
+        /// <param name="x_1">The easting of the first corner of the bounding box, in EPSG:2180 metres.</param>
+        /// <param name="y_1">The northing of the first corner of the bounding box, in EPSG:2180 metres.</param>
+        /// <param name="x_2">The easting of the second corner of the bounding box, in EPSG:2180 metres.</param>
+        /// <param name="y_2">The northing of the second corner of the bounding box, in EPSG:2180 metres.</param>
+        /// <param name="epochYear">The imagery epoch to evaluate. Omit for the latest epoch labelled in the area.</param>
+        /// <param name="datasetKeys">The open building datasets to compare (<c>eubucco</c>, <c>overture</c>, <c>osm</c>, <c>dbsm</c>, <c>microsoft</c>), repeated once per dataset. Omit to evaluate BDOT10k only.</param>
+        /// <param name="commandTimeout">The timeout in seconds for each database command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 120 seconds.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with the comparison, 401 without a valid user token, 400 for an invalid bounding box, an unknown dataset key or an uninitialized area, 404 when a named dataset's table does not exist yet, 503 on a transient database failure, or 500 when the read failed.</returns>
+        [HttpGet("validationsummary", Name = $"{nameof(OrtoAreaController)}_{nameof(ValidationSummaryAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(OrtoAreaValidationResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ValidationSummaryAsync([BindRequired, FromQuery(Name = "x_1")] double x_1, [BindRequired, FromQuery(Name = "y_1")] double y_1, [BindRequired, FromQuery(Name = "x_2")] double x_2, [BindRequired, FromQuery(Name = "y_2")] double y_2, [FromQuery(Name = "epochyear")] short? epochYear, [FromQuery(Name = "datasetkeys")] List<string>? datasetKeys, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 120, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for {DatasetCount} datasets", nameof(OrtoAreaController), nameof(ValidationSummaryAsync), datasetKeys?.Count ?? 0);
+
+            string? email = Query.GetUserEmail(securityKeyManager, tokenRevocationStore, HttpContext.Request.Headers.Authorization);
+            if (email is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ValidationSummary rejected: no valid user token");
+                return Unauthorized();
+            }
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ValidationSummary rejected: CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(x_1, y_1, x_2, y_2);
+            string? areaKey = boundingBox2D?.OrtoLocationKey();
+            if (boundingBox2D is null || string.IsNullOrWhiteSpace(areaKey))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ValidationSummary rejected: bounding box is not finite, not ordered, or exceeds the maximum area side");
+                return BadRequest("Bounding box must be finite, ordered (min <= max) and no side longer than the maximum area side.");
+            }
+
+            List<string> datasetKeys_List = datasetKeys is null ? [] : [.. datasetKeys.Where(x => !string.IsNullOrWhiteSpace(x))];
+            foreach (string datasetKey in datasetKeys_List)
+            {
+                string? tableName = PostgreSQL.Query.OpenBuildingTableName(datasetKey);
+                if (tableName is null || string.Equals(tableName, PostgreSQL.Constants.TableName.GHS_OBAT_Building, StringComparison.Ordinal))
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ValidationSummary rejected: dataset key {DatasetKey} does not name a footprint table", datasetKey);
+                    return BadRequest($"Dataset key '{datasetKey}' does not name a footprint table.");
+                }
+            }
+
+            if (datasetKeys_List.Count != 0 && openBuildingPostgreSQLConverter is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "ValidationSummary rejected: OpenBuildingPostgreSQLConverter is not registered");
+                return BadRequest("Open building datasets are not available on this host.");
+            }
+
+            OrtoAreaValidationResult? ortoAreaValidationResult;
+            try
+            {
+                OrtoArea? ortoArea = await ortoAreaPostgreSQLConverter.GetOrtoAreaAsync(areaKey, commandTimeout, cancellationToken);
+                if (ortoArea is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ValidationSummary rejected: area {AreaKey} is not initialized", areaKey);
+                    return BadRequest("The area does not exist yet; call areabyboundingbox to initialize it first.");
+                }
+
+                ortoAreaValidationResult = await PostgreSQL.Query.OrtoAreaValidationAsync(ortoAreaPostgreSQLConverter, ortoAreaLabelPostgreSQLConverter, ortoAreaObjectPostgreSQLConverter, building2DPostgreSQLConverter, openBuildingPostgreSQLConverter, areaKey, epochYear, datasetKeys_List, commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(OrtoAreaController), nameof(ValidationSummaryAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(OrtoAreaController), nameof(ValidationSummaryAsync));
+                return StatusCode(500, "Internal server error during validation read");
+            }
+
+            if (ortoAreaValidationResult is null)
+            {
+                // The area exists and every key was validated, so a null here is a dataset table not created yet.
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ValidationSummary: a named dataset table does not exist for area {AreaKey}", areaKey);
+                return NotFound("A named dataset has not been imported yet.");
+            }
+
+            string? json = Core.Convert.ToSystem_String(ortoAreaValidationResult);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return StatusCode(500, "Internal server error during serialization");
+            }
+
+            Serilog.Modify.Log("ValidationSummary answered epoch {EpochYear} for area {AreaKey}", ortoAreaValidationResult.EpochYear?.ToString(CultureInfo.InvariantCulture) ?? string.Empty, areaKey);
+            return Content(json, "application/json");
         }
 
         /// <summary>

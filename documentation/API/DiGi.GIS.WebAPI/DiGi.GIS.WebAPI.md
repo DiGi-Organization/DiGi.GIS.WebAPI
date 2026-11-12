@@ -2661,6 +2661,35 @@ The maximum number of rejections to include\. Defaults to 20\.
 [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')  
 A comma\-separated list of `reference (reason)` entries, empty when there is nothing to render\.
 
+<a name='DiGi.GIS.WebAPI.Query.StatisticalDataCollectionByNames(thisDiGi.GIS.Classes.StatisticalDataCollection,System.Collections.Generic.IEnumerable_string_)'></a>
+
+## Query\.StatisticalDataCollectionByNames\(this StatisticalDataCollection, IEnumerable\<string\>\) Method
+
+Narrows a statistical data collection to the requested variables, keeping its identifier and unit code\.
+
+A requested value selects a variable when it equals, ordinally, the variable's stored name (`population [person/km2]`) or its BDL variable identifier ([DiGi\.GIS\.Interfaces\.IStatisticalData\.Reference](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.interfaces.istatisticaldata.reference 'DiGi\.GIS\.Interfaces\.IStatisticalData\.Reference'), `60559`): callers working from BDL metadata hold the identifier, not the name. Variables keep the collection's order and appear once, whichever and however many values selected them.
+
+```csharp
+public static DiGi.GIS.Classes.StatisticalDataCollection? StatisticalDataCollectionByNames(this DiGi.GIS.Classes.StatisticalDataCollection? statisticalDataCollection, System.Collections.Generic.IEnumerable<string>? names);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.StatisticalDataCollectionByNames(thisDiGi.GIS.Classes.StatisticalDataCollection,System.Collections.Generic.IEnumerable_string_).statisticalDataCollection'></a>
+
+`statisticalDataCollection` [DiGi\.GIS\.Classes\.StatisticalDataCollection](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.statisticaldatacollection 'DiGi\.GIS\.Classes\.StatisticalDataCollection')
+
+The collection to narrow\.
+
+<a name='DiGi.GIS.WebAPI.Query.StatisticalDataCollectionByNames(thisDiGi.GIS.Classes.StatisticalDataCollection,System.Collections.Generic.IEnumerable_string_).names'></a>
+
+`names` [System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
+
+The requested names or BDL variable identifiers; blank values are ignored\.
+
+#### Returns
+[DiGi\.GIS\.Classes\.StatisticalDataCollection](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.statisticaldatacollection 'DiGi\.GIS\.Classes\.StatisticalDataCollection')  
+The original collection when no non\-blank value is requested, a new collection holding the selected variables \(possibly none\) otherwise, or null when the collection is null\.
+
 <a name='DiGi.GIS.WebAPI.Query.SubdivisionIdsByCountyId(thisSystem.Collections.Generic.IEnumerable_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference_)'></a>
 
 ## Query\.SubdivisionIdsByCountyId\(this IEnumerable\<AdministrativeAreal2DReference\>\) Method
