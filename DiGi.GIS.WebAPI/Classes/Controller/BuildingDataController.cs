@@ -1219,39 +1219,12 @@ namespace DiGi.GIS.WebAPI.Classes
                     strings_ColumnUniqueIds = null;
                 }
 
-                List<Column>? columns = await buildingDataPostgreSQLConverter.GetColumnsByUniqueIdsAsync(strings_ColumnUniqueIds, commandTimeout, cancellationToken);
-                if (columns is null || columns.Count == 0)
-                {
-                    return NotFound();
-                }
-
-                Table table_Result = new(columns);
-
-                // The county partition is folded into the filter rather than written into the statement, so the read still
-                // goes through the base PullAsync: it resolves county_id against the stored column list and rejects anything
-                // not on it before a statement is built. A caller county_id condition is left as-is and this one is ANDed
-                // with it, so a conflicting pair answers empty (DiGi-Organization/DiGi.GIS.WebAPI#55).
-                DiGi.PostgreSQL.Table.Classes.FilterGroup filterGroup_Effective = buildingDataByFilterGroupParameter.FilterGroup;
-                if (buildingDataByFilterGroupParameter.CountyId is int countyId)
-                {
-                    filterGroup_Effective = new DiGi.PostgreSQL.Table.Classes.FilterGroup
-                    {
-                        LogicalOperator = DiGi.PostgreSQL.Table.Enums.FilterLogicalOperator.And,
-                        FilterConditions =
-                        [
-                            new DiGi.PostgreSQL.Table.Classes.FilterCondition
-                            {
-                                ColumnUniqueId = IO.Constants.Column.CountyId.UniqueId(),
-                                FilterOperator = DiGi.PostgreSQL.Table.Enums.FilterOperator.Equals,
-                                Value = countyId,
-                            },
-                        ],
-                        FilterGroups = buildingDataByFilterGroupParameter.FilterGroup is null ? [] : [buildingDataByFilterGroupParameter.FilterGroup],
-                    };
-                }
-
-                bool isSuccess = await buildingDataPostgreSQLConverter.PullAsync(table_Result, filterGroup_Effective, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
-                if (!isSuccess)
+                // One connection for the column resolution and the read. The converter folds the county partition into the
+                // filter rather than writing it into the statement, so county_id is resolved against the stored column
+                // list like any filter column. A caller county_id condition is left as-is and this one is ANDed with it,
+                // so a conflicting pair answers empty (DiGi-Organization/DiGi.GIS.WebAPI#55).
+                Table? table_Result = await buildingDataPostgreSQLConverter.PullByFilterGroupAsync(buildingDataByFilterGroupParameter.FilterGroup, buildingDataByFilterGroupParameter.CountyId, strings_ColumnUniqueIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                if (table_Result is null)
                 {
                     return NotFound();
                 }
