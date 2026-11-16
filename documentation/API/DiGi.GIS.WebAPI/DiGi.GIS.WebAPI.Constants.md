@@ -89,6 +89,36 @@ public static readonly int MaximumAggregateSummariesMeasureCount;
 #### Field Value
 [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData.MaximumLimit'></a>
+
+## BuildingData\.MaximumLimit Field
+
+The largest accepted value of `BuildingDataByFilterGroupParameter.Limit` on a filter\-group table read\.
+
+The ceiling bounds the rows one request may return and the sort work behind them; it is far above any realistic top-N question (DiGi-Organization/DiGi.GIS.WebAPI#84).
+
+```csharp
+public static readonly int MaximumLimit;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData.MinimumLimit'></a>
+
+## BuildingData\.MinimumLimit Field
+
+The smallest accepted value of `BuildingDataByFilterGroupParameter.Limit` on a filter\-group table read\.
+
+A [null](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/null 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/keywords/null') limit reads every matching row; a set limit outside these bounds is refused with 400 before any connection is opened - refused, never clamped (DiGi-Organization/DiGi.GIS.WebAPI#84).
+
+```csharp
+public static readonly int MinimumLimit;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Constants.Compression'></a>
 
 ## Compression Class

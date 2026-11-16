@@ -1296,8 +1296,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// <para>Per-operator value shapes: each <c>FilterCondition</c>'s <c>Value</c> takes a scalar for the comparison operators, a JSON array for <c>In</c>/<c>NotIn</c>, and a case-insensitive substring for <c>Contains</c>; an unconvertible value is refused with 400 (see <c>FilterCondition.Value</c> for the full contract; DiGi-Organization/DiGi.PostgreSQL#13).</para>
         /// <para>Area scope: send <c>AdministrativeAreal2DId</c> instead of <c>CountyId</c> (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use <c>countbyadministrativeareal2did</c> to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
+        /// <para>Top-N ordering: <c>SortConditions</c> orders the rows in list order (<c>NULLS LAST</c> in both directions) and <c>Limit</c> caps the count (1 to 1000, refused outside the range, never clamped) - one call answers "the tallest building in an area" instead of a maximum lookup followed by a fragile equality re-filter. Equal sort values are tie-broken deterministically by <c>reference</c>, so the same call answers the same rows every time; a sort column the stored table does not hold is refused with 400 exactly like a filter column (DiGi-Organization/DiGi.GIS.WebAPI#84). Recipe - the tallest building of an administrative area: body <c>{"administrativeAreal2DId": 55540, "sortConditions": [{"columnUniqueId": "storeys", "descending": true}], "limit": 1, "columnUniqueIds": ["reference", "storeys", "total_area"]}</c>. Ordering does not change the cost class: the sort runs on the scope the county or area gives, while an unscoped top-N still reads every partition - the cross-partition warning above applies to the scan even though the answer is one row.</para>
         /// </summary>
-        /// <param name="buildingDataByFilterGroupParameter">The parameter containing the dynamic filter group, the optional county partition, and the optional column unique identifiers.</param>
+        /// <param name="buildingDataByFilterGroupParameter">The parameter containing the dynamic filter group, the optional county partition, the optional column unique identifiers, the optional sort conditions and the optional row limit.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>A task representing the asynchronous operation, returning the populated filtered table.</returns>
@@ -1306,7 +1307,7 @@ namespace DiGi.GIS.WebAPI.Classes
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(DiGi.Core.IO.Table.Classes.Table), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold (as a filter or sort column), carries a filter value the column's type cannot convert, or a limit outside 1-1000. The body names the offending column and, where known, the filter operator.")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetTableByFilterGroupAsync([FromBody] BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
@@ -1317,6 +1318,14 @@ namespace DiGi.GIS.WebAPI.Classes
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
                 return BadRequest();
+            }
+
+            // The limit is refused, never clamped, and refused before any connection is opened
+            // (DiGi-Organization/DiGi.GIS.WebAPI#84).
+            if (buildingDataByFilterGroupParameter.Limit is int int_Limit && (int_Limit < Constants.BuildingData.MinimumLimit || int_Limit > Constants.BuildingData.MaximumLimit))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Limit {Limit} is outside the accepted range {Minimum}-{Maximum}", int_Limit, Constants.BuildingData.MinimumLimit, Constants.BuildingData.MaximumLimit);
+                return Problem(detail: $"Limit must be between {Constants.BuildingData.MinimumLimit} and {Constants.BuildingData.MaximumLimit}; {int_Limit} is refused, not clamped.", statusCode: 400);
             }
 
             try
@@ -1337,7 +1346,7 @@ namespace DiGi.GIS.WebAPI.Classes
                     return actionResult_Scope;
                 }
 
-                Table? table_Result = await buildingDataPostgreSQLConverter.PullByFilterGroupAsync(filterGroup, countyId, strings_ColumnUniqueIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                Table? table_Result = await buildingDataPostgreSQLConverter.PullByFilterGroupAsync(filterGroup, countyId, strings_ColumnUniqueIds, orderBy: buildingDataByFilterGroupParameter.SortConditions, limit: buildingDataByFilterGroupParameter.Limit, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
                 if (table_Result is null)
                 {
                     return NotFound();

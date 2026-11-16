@@ -22,5 +22,17 @@ namespace DiGi.GIS.WebAPI.Constants
         /// <para>The measures share one filter, one connection and one SQL command, so the cost follows the measure count. The ceiling of 100 is a guardrail against pathological requests - far above any realistic client - and stays at the converter's own cap so the 400 pre-check and the converter's refusal agree (DiGi-Organization/DiGi.GIS.WebAPI#56).</para>
         /// </summary>
         public static readonly int MaximumAggregateSummariesMeasureCount = 100;
+
+        /// <summary>
+        /// The smallest accepted value of <c>BuildingDataByFilterGroupParameter.Limit</c> on a filter-group table read.
+        /// <para>A <see langword="null"/> limit reads every matching row; a set limit outside these bounds is refused with 400 before any connection is opened - refused, never clamped (DiGi-Organization/DiGi.GIS.WebAPI#84).</para>
+        /// </summary>
+        public static readonly int MinimumLimit = 1;
+
+        /// <summary>
+        /// The largest accepted value of <c>BuildingDataByFilterGroupParameter.Limit</c> on a filter-group table read.
+        /// <para>The ceiling bounds the rows one request may return and the sort work behind them; it is far above any realistic top-N question (DiGi-Organization/DiGi.GIS.WebAPI#84).</para>
+        /// </summary>
+        public static readonly int MaximumLimit = 1000;
     }
 }

@@ -3168,7 +3168,7 @@ public BuildingDataByFilterGroupParameter();
 
 Initializes a new instance of the [BuildingDataByFilterGroupParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter') class by copying another instance\.
 
-The filter group is shared, not cloned: [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup') is not a serializable object.
+The filter group is shared, not cloned: [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup') is not a serializable object. The sort conditions are copied into a new list, the items shared.
 
 ```csharp
 public BuildingDataByFilterGroupParameter(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter);
@@ -3260,6 +3260,39 @@ public DiGi.PostgreSQL.Table.Classes.FilterGroup FilterGroup { get; set; }
 
 #### Property Value
 [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.Limit'></a>
+
+## BuildingDataByFilterGroupParameter\.Limit Property
+
+Gets or sets the optional maximum number of rows to return, for top\-N questions \("the tallest building", "the largest five"\)\.
+
+Accepted values are 1 to 1000; outside that range the request is refused with 400, never clamped. Null reads every matching row. A limit without [SortConditions](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.SortConditions 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter\.SortConditions') returns that many rows ordered by `reference` (DiGi-Organization/DiGi.GIS.WebAPI#84).
+
+```csharp
+public System.Nullable<int> Limit { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+1
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.SortConditions'></a>
+
+## BuildingDataByFilterGroupParameter\.SortConditions Property
+
+Gets or sets the optional sort order of the returned rows, applied in list order\.
+
+Each entry names a column the stored table must hold (validated like a filter column) and its direction; null or empty reads unordered. Null values sort last in both directions, and equal sort values are tie-broken deterministically by `reference` unless the list already sorts by it. A column the table does not hold is refused with 400 (DiGi-Organization/DiGi.GIS.WebAPI#84).
+
+```csharp
+public System.Collections.Generic.List<DiGi.PostgreSQL.Table.Classes.SortCondition>? SortConditions { get; set; }
+```
+
+#### Property Value
+[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.PostgreSQL\.Table\.Classes\.SortCondition](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.sortcondition 'DiGi\.PostgreSQL\.Table\.Classes\.SortCondition')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataByPagingParameter'></a>
 
@@ -4393,6 +4426,8 @@ Per-operator value shapes: each `FilterCondition`'s `Value` takes a scalar for t
 
 Area scope: send `AdministrativeAreal2DId` instead of `CountyId` (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use `countbyadministrativeareal2did` to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).
 
+Top-N ordering: `SortConditions` orders the rows in list order (`NULLS LAST` in both directions) and `Limit` caps the count (1 to 1000, refused outside the range, never clamped) - one call answers "the tallest building in an area" instead of a maximum lookup followed by a fragile equality re-filter. Equal sort values are tie-broken deterministically by `reference`, so the same call answers the same rows every time; a sort column the stored table does not hold is refused with 400 exactly like a filter column (DiGi-Organization/DiGi.GIS.WebAPI#84). Recipe - the tallest building of an administrative area: body `{"administrativeAreal2DId": 55540, "sortConditions": [{"columnUniqueId": "storeys", "descending": true}], "limit": 1, "columnUniqueIds": ["reference", "storeys", "total_area"]}`. Ordering does not change the cost class: the sort runs on the scope the county or area gives, while an unscoped top-N still reads every partition - the cross-partition warning above applies to the scan even though the answer is one row.
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTableByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -4402,7 +4437,7 @@ public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTa
 
 `buildingDataByFilterGroupParameter` [BuildingDataByFilterGroupParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter')
 
-The parameter containing the dynamic filter group, the optional county partition, and the optional column unique identifiers\.
+The parameter containing the dynamic filter group, the optional county partition, the optional column unique identifiers, the optional sort conditions and the optional row limit\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter,int,System.Threading.CancellationToken).commandTimeout'></a>
 
