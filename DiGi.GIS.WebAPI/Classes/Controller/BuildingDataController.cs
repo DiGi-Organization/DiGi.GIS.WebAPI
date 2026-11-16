@@ -56,6 +56,80 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Resolves the optional <c>AdministrativeAreal2DId</c> of a filtered read to the one county partition and filter group the read runs on (DiGi-Organization/DiGi.GIS.WebAPI#83).
+        /// <para>Without an area the caller's county and filter group pass through unchanged. With one, <see cref="Query.AdministrativeAreal2DScopesAsync"/> resolves it - a Subdivision through its polygon, a County as its own partition, a higher level through its Subdivision children - and the read must land on exactly one county partition: a table, aggregate or histogram cannot be merged across partitions, so an area spanning several answers 400 and points at <c>countbyadministrativeareal2did</c>, which sums across them.</para>
+        /// </summary>
+        /// <param name="countyId">The county partition the caller named; must be null when an area is named.</param>
+        /// <param name="administrativeAreal2DId">The administrative area the caller named, or null.</param>
+        /// <param name="filterGroup">The caller's filter group.</param>
+        /// <param name="commandTimeout">The timeout in seconds for each area read.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous operation. The result carries either the answer to give instead of reading (400, 404 or 204), or the county partition and filter group to read with.</returns>
+        private async Task<(IActionResult? ActionResult, int? CountyId, DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup)> AdministrativeAreal2DScopeAsync(int? countyId, int? administrativeAreal2DId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup, int commandTimeout, CancellationToken cancellationToken)
+        {
+            if (administrativeAreal2DId is null)
+            {
+                return (null, countyId, filterGroup);
+            }
+
+            if (countyId is not null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CountyId and AdministrativeAreal2DId are mutually exclusive");
+                return (BadRequest("CountyId and AdministrativeAreal2DId are mutually exclusive; send one of them."), null, null);
+            }
+
+            if (administrativeAreal2DId.Value <= 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "AdministrativeAreal2DId is not positive");
+                return (BadRequest("AdministrativeAreal2DId must be positive."), null, null);
+            }
+
+            (Enums.AdministrativeAreal2DCountStatus Status, List<AdministrativeAreal2DScope> AdministrativeAreal2DScopes) scopes = await Query.AdministrativeAreal2DScopesAsync(
+                administrativeAreal2DId.Value,
+                filterGroup,
+                (id, token) => administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DReferenceByIdAsync(id, commandTimeout, token),
+                (id, token) => administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DReferencesByAdministrativeArealTypeAsync(PostgreSQL.Enums.AdministrativeArealType.Subdivision, id, commandTimeout: commandTimeout, cancellationToken: token),
+                (id, token) => building2DPostgreSQLConverter.GetBuilding2DReferencesBySubdivisionIdAsync(id, commandTimeout, token),
+                Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount,
+                Constants.BuildingData.MaximumAdministrativeAreal2DReferenceCount,
+                cancellationToken);
+
+            switch (scopes.Status)
+            {
+                case Enums.AdministrativeAreal2DCountStatus.Counted:
+                    if (scopes.AdministrativeAreal2DScopes.Count == 0)
+                    {
+                        Serilog.Modify.Log("Area resolved to no county partition; answering NoContent");
+                        return (NoContent(), null, null);
+                    }
+
+                    if (scopes.AdministrativeAreal2DScopes.Count > 1)
+                    {
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Area spans {Count} county partitions", scopes.AdministrativeAreal2DScopes.Count);
+                        return (BadRequest($"The administrative area spans {scopes.AdministrativeAreal2DScopes.Count} county partitions; this read is confined to one. Narrow the area, or use countbyadministrativeareal2did, which sums across partitions."), null, null);
+                    }
+
+                    AdministrativeAreal2DScope administrativeAreal2DScope = scopes.AdministrativeAreal2DScopes[0];
+                    return (null, administrativeAreal2DScope.CountyId, administrativeAreal2DScope.FilterGroup);
+
+                case Enums.AdministrativeAreal2DCountStatus.NoSubdivisions:
+                case Enums.AdministrativeAreal2DCountStatus.NoBuildings:
+                    Serilog.Modify.Log("Area resolution found nothing to read by; answering NoContent");
+                    return (NoContent(), null, null);
+
+                case Enums.AdministrativeAreal2DCountStatus.TooManyCounties:
+                    return (BadRequest($"The administrative area spans more than {Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount} counties; narrow the area."), null, null);
+
+                case Enums.AdministrativeAreal2DCountStatus.TooManyReferences:
+                    return (BadRequest($"The administrative area holds more than {Constants.BuildingData.MaximumAdministrativeAreal2DReferenceCount} buildings; narrow the area."), null, null);
+
+                default:
+                    Serilog.Modify.Log("Area not found, or no connection; answering NotFound");
+                    return (NotFound(), null, null);
+            }
+        }
+
+        /// <summary>
         /// Asynchronously retrieves all available building data column categories.
         /// </summary>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -685,6 +759,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// Generates a value range distribution histogram for a specific building data column inside a county partition, applying optional dynamic filters.
         /// <para>Each row of the answer is one bucket - <c>{bucket, rangeStart, rangeEnd, count}</c>, the actual minimum and maximum of the values the bucket holds and their count. The buckets are of equal value width unless the body asks for <see cref="DiGi.PostgreSQL.Table.Enums.HistogramBucketing.EqualCount"/> (<c>HistogramBucketing: 1</c>), which gives every bucket the same number of rows and keeps a skewed column's resolution where its rows are (DiGi-Organization/DiGi.GIS.WebAPI#35).</para>
         /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator. A scope that holds no non-NULL values keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
+        /// <para>Area scope: send <c>AdministrativeAreal2DId</c> instead of <c>CountyId</c> (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use <c>countbyadministrativeareal2did</c> to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
         /// </summary>
         /// <param name="histogramRequestParameter">The parameter containing the target column, county identifier, desired bucket count, bucketing rule, and optional dynamic filters.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -692,6 +767,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <returns>A task representing the asynchronous operation, returning the histogram bucket list as a JSON array.</returns>
         [HttpPost("histogramsummary", Name = $"{nameof(BuildingDataController)}_{nameof(GetHistogramSummaryAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(JsonArray), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
@@ -709,7 +785,13 @@ namespace DiGi.GIS.WebAPI.Classes
 
             try
             {
-                JsonArray? histogramArray = await buildingDataPostgreSQLConverter.GetHistogramSummaryAsync(histogramRequestParameter.ColumnUniqueId, histogramRequestParameter.BucketCount, histogramRequestParameter.CountyId, histogramRequestParameter.FilterGroup, histogramRequestParameter.HistogramBucketing, commandTimeout, cancellationToken);
+                (IActionResult? actionResult_Scope, int? countyId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup) = await AdministrativeAreal2DScopeAsync(histogramRequestParameter.CountyId, histogramRequestParameter.AdministrativeAreal2DId, histogramRequestParameter.FilterGroup, commandTimeout, cancellationToken);
+                if (actionResult_Scope is not null)
+                {
+                    return actionResult_Scope;
+                }
+
+                JsonArray? histogramArray = await buildingDataPostgreSQLConverter.GetHistogramSummaryAsync(histogramRequestParameter.ColumnUniqueId, histogramRequestParameter.BucketCount, countyId, filterGroup, histogramRequestParameter.HistogramBucketing, commandTimeout, cancellationToken);
 
                 if (histogramArray is null)
                 {
@@ -747,6 +829,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <para>Group-by count: <c>SplitValueDistribution</c> (<c>multivalueAggregateFunction = 1</c>) on a single-value column returns one <c>{ "item", "count" }</c> object per distinct value, ordered <c>count</c> descending. Worked example (2026-10-12, partition <c>countyId 53477</c>, gmina Łomianki): <c>columnUniqueId "municipality_name"</c> answers <c>[{ "item": "Łomianki", "count": 10502 }, { "item": "Stare Babice", "count": 7976 }, …]</c>.</para>
         /// <para>The result is capped at 1000 groups plus one trailing truncation-marker row (drop the last element when the array is that long). A non-text column is cast to its text form and distributed over it, so a boolean such as <c>is_residential</c> yields <c>true</c>/<c>false</c> items rather than a failure (DiGi-Organization/DiGi.PostgreSQL#11).</para>
         /// <para><c>SplitDistinctCount</c> (<c>multivalueAggregateFunction = 0</c>) counts the distinct split sub-items instead of returning them. For the plain distinct-value list (no split, no count), use <c>uniquevalues</c>.</para>
+        /// <para>Area scope: send <c>AdministrativeAreal2DId</c> instead of <c>CountyId</c> (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use <c>countbyadministrativeareal2did</c> to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
         /// </summary>
         /// <param name="multivalueAggregateRequestParameter">The parameter containing target column, multi-value aggregate function, county identifier, and optional separator.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -754,6 +837,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <returns>A task representing the asynchronous operation, returning the aggregate result as a JSON node.</returns>
         [HttpPost("aggregatesummary/multivalue", Name = $"{nameof(BuildingDataController)}_{nameof(GetMultivalueAggregateSummaryAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(JsonNode), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
@@ -771,7 +855,13 @@ namespace DiGi.GIS.WebAPI.Classes
 
             try
             {
-                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummaryAsync(multivalueAggregateRequestParameter.ColumnUniqueId, multivalueAggregateRequestParameter.MultivalueAggregateFunction, multivalueAggregateRequestParameter.CountyId, multivalueAggregateRequestParameter.Separator, multivalueAggregateRequestParameter.FilterGroup, maxGroups: multivalueAggregateRequestParameter.MaxGroups, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                (IActionResult? actionResult_Scope, int? countyId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup) = await AdministrativeAreal2DScopeAsync(multivalueAggregateRequestParameter.CountyId, multivalueAggregateRequestParameter.AdministrativeAreal2DId, multivalueAggregateRequestParameter.FilterGroup, commandTimeout, cancellationToken);
+                if (actionResult_Scope is not null)
+                {
+                    return actionResult_Scope;
+                }
+
+                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummaryAsync(multivalueAggregateRequestParameter.ColumnUniqueId, multivalueAggregateRequestParameter.MultivalueAggregateFunction, countyId, multivalueAggregateRequestParameter.Separator, filterGroup, maxGroups: multivalueAggregateRequestParameter.MaxGroups, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
 
                 if (resultNode is null)
                 {
@@ -808,6 +898,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <para>An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a valid filter that matches nothing keeps its 200 empty aggregate (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// <para>Row count: to count the matching rows, set <c>columnUniqueId "reference"</c> and <c>singlevalueAggregateFunction 4</c> (<c>Count</c>) - <c>reference</c> is the always-present column and <c>Count</c> tallies the non-null rows, so the pair is the plain "how many rows" recipe. <c>singlevalueAggregateFunction</c> values: 0 <c>Avg</c> (mean of a numeric column), 1 <c>Sum</c> (total), 2 <c>Min</c>, 3 <c>Max</c>, 4 <c>Count</c> (non-null row count), 5 <c>DistinctCount</c> (unique values).</para>
         /// <para>Count with a filter - "residential buildings over 100 m² in gmina Łomianki" (2026-10-12, partition <c>countyId 53477</c>): <c>{ "columnUniqueId": "reference", "singlevalueAggregateFunction": 4, "countyId": 53477, "filterGroup": { "logicalOperator": 0, "filterConditions": [ { "columnUniqueId": "is_residential", "filterOperator": 0, "value": true }, { "columnUniqueId": "floor_area", "filterOperator": 2, "value": 100 } ] } }</c> answers <c>6798</c> (unfiltered anchor <c>13719</c>; DiGi-Organization/DiGi.GIS.WebAPI#53).</para>
+        /// <para>Area scope: send <c>AdministrativeAreal2DId</c> instead of <c>CountyId</c> (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use <c>countbyadministrativeareal2did</c> to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
         /// </summary>
         /// <param name="singlevalueAggregateRequestParameter">The parameter containing target column, single-value aggregate function, and county identifier.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -815,6 +906,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <returns>A task representing the asynchronous operation, returning the aggregate result as a JSON node.</returns>
         [HttpPost("aggregatesummary/singlevalue", Name = $"{nameof(BuildingDataController)}_{nameof(GetSinglevalueAggregateSummaryAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(JsonNode), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
@@ -832,7 +924,13 @@ namespace DiGi.GIS.WebAPI.Classes
 
             try
             {
-                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummaryAsync(singlevalueAggregateRequestParameter.ColumnUniqueId, singlevalueAggregateRequestParameter.SinglevalueAggregateFunction, singlevalueAggregateRequestParameter.CountyId, singlevalueAggregateRequestParameter.FilterGroup, commandTimeout, cancellationToken);
+                (IActionResult? actionResult_Scope, int? countyId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup) = await AdministrativeAreal2DScopeAsync(singlevalueAggregateRequestParameter.CountyId, singlevalueAggregateRequestParameter.AdministrativeAreal2DId, singlevalueAggregateRequestParameter.FilterGroup, commandTimeout, cancellationToken);
+                if (actionResult_Scope is not null)
+                {
+                    return actionResult_Scope;
+                }
+
+                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummaryAsync(singlevalueAggregateRequestParameter.ColumnUniqueId, singlevalueAggregateRequestParameter.SinglevalueAggregateFunction, countyId, filterGroup, commandTimeout, cancellationToken);
 
                 if (resultNode is null)
                 {
@@ -868,6 +966,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// Computes several single-value aggregate measures - different columns, different functions - over one shared partition and filter in one request, served as one database command on one connection (DiGi-Organization/DiGi.GIS.WebAPI#56).
         /// <para>The answers arrive as a JSON array in the request's measure order; a SQL <c>NULL</c> aggregate (for example <c>Avg</c> over zero rows) is preserved as JSON <c>null</c>. An empty <c>Measures</c> list, a list above the cap of <see cref="Constants.BuildingData.MaximumAggregateSummariesMeasureCount"/>, or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result (DiGi-Organization/DiGi.GIS.WebAPI#56).</para>
         /// <para>Out of scope by design: per-measure filters, multi-value measures (<c>SplitValueDistribution</c>, <c>SplitDistinctCount</c>) and histograms (DiGi-Organization/DiGi.GIS.WebAPI#56).</para>
+        /// <para>Area scope: send <c>AdministrativeAreal2DId</c> instead of <c>CountyId</c> (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use <c>countbyadministrativeareal2did</c> to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
         /// </summary>
         /// <param name="aggregateSummariesRequestParameter">The parameter containing the shared county identifier, the shared filter, and the ordered list of measures.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -875,6 +974,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <returns>A task representing the asynchronous operation, returning the measures as a JSON array in request order.</returns>
         [HttpPost("aggregatesummary/batch", Name = $"{nameof(BuildingDataController)}_{nameof(GetAggregateSummariesAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(JsonNode), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "Measures is missing, empty, or above the cap, or a measure or filter names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
@@ -904,7 +1004,13 @@ namespace DiGi.GIS.WebAPI.Classes
 
             try
             {
-                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummariesAsync(aggregateSummariesRequestParameter.Measures, aggregateSummariesRequestParameter.CountyId, aggregateSummariesRequestParameter.FilterGroup, commandTimeout, cancellationToken);
+                (IActionResult? actionResult_Scope, int? countyId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup) = await AdministrativeAreal2DScopeAsync(aggregateSummariesRequestParameter.CountyId, aggregateSummariesRequestParameter.AdministrativeAreal2DId, aggregateSummariesRequestParameter.FilterGroup, commandTimeout, cancellationToken);
+                if (actionResult_Scope is not null)
+                {
+                    return actionResult_Scope;
+                }
+
+                JsonNode? resultNode = await buildingDataPostgreSQLConverter.GetAggregateSummariesAsync(aggregateSummariesRequestParameter.Measures, countyId, filterGroup, commandTimeout, cancellationToken);
 
                 if (resultNode is null)
                 {
@@ -1189,6 +1295,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <para>The table is partitioned by <c>county_id</c>. Supply <see cref="BuildingDataByFilterGroupParameter.CountyId"/> to scope the read to one county partition; omitting it (and not filtering <c>county_id</c> in the filter group) makes the read span every partition of the national table, which is the cost of an unscoped cross-partition read. A caller <c>county_id</c> condition in the filter group is left as-is and the <c>CountyId</c> condition is ANDed with it, so a conflicting pair answers empty.</para>
         /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
         /// <para>Per-operator value shapes: each <c>FilterCondition</c>'s <c>Value</c> takes a scalar for the comparison operators, a JSON array for <c>In</c>/<c>NotIn</c>, and a case-insensitive substring for <c>Contains</c>; an unconvertible value is refused with 400 (see <c>FilterCondition.Value</c> for the full contract; DiGi-Organization/DiGi.PostgreSQL#13).</para>
+        /// <para>Area scope: send <c>AdministrativeAreal2DId</c> instead of <c>CountyId</c> (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use <c>countbyadministrativeareal2did</c> to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
         /// </summary>
         /// <param name="buildingDataByFilterGroupParameter">The parameter containing the dynamic filter group, the optional county partition, and the optional column unique identifiers.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
@@ -1196,6 +1303,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <returns>A task representing the asynchronous operation, returning the populated filtered table.</returns>
         [HttpPost("tablebyfiltergroup", Name = $"{nameof(BuildingDataController)}_{nameof(GetTableByFilterGroupAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(DiGi.Core.IO.Table.Classes.Table), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
@@ -1223,7 +1331,13 @@ namespace DiGi.GIS.WebAPI.Classes
                 // filter rather than writing it into the statement, so county_id is resolved against the stored column
                 // list like any filter column. A caller county_id condition is left as-is and this one is ANDed with it,
                 // so a conflicting pair answers empty (DiGi-Organization/DiGi.GIS.WebAPI#55).
-                Table? table_Result = await buildingDataPostgreSQLConverter.PullByFilterGroupAsync(buildingDataByFilterGroupParameter.FilterGroup, buildingDataByFilterGroupParameter.CountyId, strings_ColumnUniqueIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                (IActionResult? actionResult_Scope, int? countyId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup) = await AdministrativeAreal2DScopeAsync(buildingDataByFilterGroupParameter.CountyId, buildingDataByFilterGroupParameter.AdministrativeAreal2DId, buildingDataByFilterGroupParameter.FilterGroup, commandTimeout, cancellationToken);
+                if (actionResult_Scope is not null)
+                {
+                    return actionResult_Scope;
+                }
+
+                Table? table_Result = await buildingDataPostgreSQLConverter.PullByFilterGroupAsync(filterGroup, countyId, strings_ColumnUniqueIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
                 if (table_Result is null)
                 {
                     return NotFound();
@@ -1325,16 +1439,16 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Asynchronously counts the building data rows of an administrative area, optionally narrowed by a dynamic hierarchical filter group, in one call.
         /// <para>An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
-        /// <para>Resolution: (1) the area reference is read by id, and a missing one answers 404. (2) An area <b>above</b> the Subdivision level (Country, Voivodeship, County, Municipality) is resolved to its Subdivision children, grouped by the county partition they sit in. (3) An area that <b>is</b> a Subdivision is counted by membership, <c>subdivision_id = id</c>. (4) Per distinct county - the <c>building_data</c> partition key - one count runs with <c>subdivision_id IN (that county's subdivisions)</c> plus the caller's filters, and the counts are <b>summed</b>. The counties are counted strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s. (5) An area above the Subdivision level that resolves to no Subdivision answers 204.</para>
+        /// <para>Resolution (DiGi-Organization/DiGi.GIS.WebAPI#83): (1) the area reference is read by id, and a missing one answers 404. (2) A <b>Subdivision</b> is resolved through its <b>polygon</b>: every building whose bounding-box centre lies strictly inside it (a centre on the boundary belongs to neither side), whatever subdivision it is filed under - the same set <c>building2d/building2Dreferencesbyadministrativeareal2Did</c> answers. The buildings are grouped by county partition and each partition is counted with <c>reference IN (those buildings)</c> plus the caller's filters. A subdivision that only partly overlaps the polygon contributes exactly its buildings inside it. A Subdivision whose polygon holds no building centre answers 204. (3) A <b>County</b> is counted as its own partition. (4) A <b>Municipality</b>, <b>Voivodeship</b> or <b>Country</b> is resolved to its Subdivision children, grouped by the county partition they sit in, and each partition is counted with <c>subdivision_id IN (that county's subdivisions)</c> plus the caller's filters; one that resolves to no Subdivision answers 204. (5) The per-partition counts are <b>summed</b>, strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s.</para>
         /// <para>Duration (measured 2026-10-14 on the estate; figures are measurements, not guarantees): a single county area returns in under a second; a voivodeship (typically 10–20 counties) takes roughly 1–3 minutes; a country-level area spans 400+ counties and exceeds normal client timeouts. <c>commandtimeout</c> applies per command, not per request: each sequential per-county count gets its own timeout, so total wall-clock can approach <c>N × commandtimeout</c> in the worst case.</para>
-        /// <para>What the count is not. <c>subdivision_id</c> files a building under its <b>smallest</b> containing subdivision and the Subdivision layer nests, so for a nested Subdivision (a district whose neighbourhoods are also subdivisions) the count covers only the buildings filed under that exact id and undercounts the district (DiGi.GIS.PostgreSQL#75, #77); a polygon-based count is a follow-up. Rows with <c>subdivision_id IS NULL</c> are excluded, so the count of an area is not the count of every building inside its polygon. A building filed in a county partition other than the one its subdivision belongs to (a subdivision of a neighbouring county) is not reached, because each county is counted with only its own subdivisions.</para>
-        /// <para>An unfiltered body is valid (<c>FilterGroup</c> omitted counts every building the area resolves to). At most <see cref="Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount"/> distinct counties are iterated; an area spanning more answers 400 naming that limit and nothing is counted. 204 means <b>the resolution found no subdivision to filter by - not evidence that the area holds no buildings</b>. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.</para>
+        /// <para>What the count is not. The count is of <c>building_data</c> rows, so a building inside the area with no <c>building_data</c> row is not counted. For a Municipality, Voivodeship or Country (step 4), rows with <c>subdivision_id IS NULL</c> are excluded and a building filed in a county partition other than the one its subdivision belongs to is not reached, so the count is not the count of every building inside the area's polygon; a Subdivision (step 2) and a County (step 3) have neither gap.</para>
+        /// <para>An unfiltered body is valid (<c>FilterGroup</c> omitted counts every building the area resolves to). At most <see cref="Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount"/> distinct counties are iterated and a Subdivision may resolve to at most <see cref="Constants.BuildingData.MaximumAdministrativeAreal2DReferenceCount"/> buildings; an area beyond either answers 400 naming the limit and nothing is counted. 204 means <b>the resolution found no subdivision or building to count by</b> - for an area above the Subdivision level it is not evidence that the area holds no buildings. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.</para>
         /// <para>A client that sends the same <c>In</c> filter shape as a JSON array is subject to DiGi-Organization/DiGi.PostgreSQL#10; this endpoint builds its own subdivision list server-side and does not depend on that fix.</para>
         /// </summary>
         /// <param name="parameter">The parameter containing the administrative area identifier and the optional dynamic hierarchical filters.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of each command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-        /// <returns>An <see cref="IActionResult"/> carrying the count as a bare JSON integer, 204 NoContent when no subdivision was found, 404 NotFound, or 400/503/500 on the guarded and failure paths.</returns>
+        /// <returns>An <see cref="IActionResult"/> carrying the count as a bare JSON integer, 204 NoContent when no subdivision or building was found, 404 NotFound, or 400/503/500 on the guarded and failure paths.</returns>
         [HttpPost("countbyadministrativeareal2did", Name = $"{nameof(BuildingDataController)}_{nameof(GetCountByAdministrativeAreal2DIdAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(long), StatusCodes.Status200OK)]
@@ -1367,8 +1481,10 @@ namespace DiGi.GIS.WebAPI.Classes
                     parameter.FilterGroup,
                     (id, token) => administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DReferenceByIdAsync(id, commandTimeout, token),
                     (id, token) => administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DReferencesByAdministrativeArealTypeAsync(PostgreSQL.Enums.AdministrativeArealType.Subdivision, id, commandTimeout: commandTimeout, cancellationToken: token),
+                    (id, token) => building2DPostgreSQLConverter.GetBuilding2DReferencesBySubdivisionIdAsync(id, commandTimeout, token),
                     (filterGroup, countyId, token) => buildingDataPostgreSQLConverter.GetCountByFilterGroupAsync(filterGroup, countyId, commandTimeout, token),
                     Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount,
+                    Constants.BuildingData.MaximumAdministrativeAreal2DReferenceCount,
                     cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -1398,12 +1514,17 @@ namespace DiGi.GIS.WebAPI.Classes
                     return Content(result.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), "application/json");
 
                 case Enums.AdministrativeAreal2DCountStatus.NoSubdivisions:
-                    Serilog.Modify.Log("Resolution found no subdivision to filter by; answering NoContent");
+                case Enums.AdministrativeAreal2DCountStatus.NoBuildings:
+                    Serilog.Modify.Log("Resolution found no subdivision or building to count by; answering NoContent");
                     return NoContent();
 
                 case Enums.AdministrativeAreal2DCountStatus.TooManyCounties:
                     Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Area spans more counties than the limit of {Maximum}", Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount);
                     return BadRequest($"The administrative area spans more than {Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount} counties; narrow the area.");
+
+                case Enums.AdministrativeAreal2DCountStatus.TooManyReferences:
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Area holds more buildings than the limit of {Maximum}", Constants.BuildingData.MaximumAdministrativeAreal2DReferenceCount);
+                    return BadRequest($"The administrative area holds more than {Constants.BuildingData.MaximumAdministrativeAreal2DReferenceCount} buildings; narrow the area.");
 
                 default:
                     Serilog.Modify.Log("Area not found, no connection, or a filter column could not be resolved; answering NotFound");
@@ -1556,6 +1677,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Retrieves unique values for a given <see cref="UniqueValuesByColumnUniqueIdParameter" /> (column unique id and optionally county id), applying optional dynamic filters.
         /// <para>An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).</para>
+        /// <para>Area scope: send <c>AdministrativeAreal2DId</c> instead of <c>CountyId</c> (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use <c>countbyadministrativeareal2did</c> to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
         /// </summary>
         /// <param name="uniqueValuesByColumnUniqueIdParameter">The parameter containing the column unique identifier, optional county identifier, and optional dynamic filters.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 90 seconds; a national (unfiltered) unique-values scan runs well past that and should pass <c>commandtimeout=600</c> explicitly.</param>
@@ -1563,6 +1685,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <returns>An <see cref="IActionResult" /> representing the result of the operation, typically a list of unique values or a not found status.</returns>
         [HttpPost("uniquevaluesbycolumnuniqueidparameter", Name = $"{nameof(BuildingDataController)}_{nameof(GetUniqueValuesByColumnUniqueIdParameterAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(List<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The request names a column the stored table does not hold, or a filter value the column's type cannot convert. The body names the offending column and, where known, the filter operator.")]
@@ -1580,12 +1703,18 @@ namespace DiGi.GIS.WebAPI.Classes
 
             try
             {
+                (IActionResult? actionResult_Scope, int? countyId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup) = await AdministrativeAreal2DScopeAsync(uniqueValuesByColumnUniqueIdParameter.CountyId, uniqueValuesByColumnUniqueIdParameter.AdministrativeAreal2DId, uniqueValuesByColumnUniqueIdParameter.FilterGroup, commandTimeout, cancellationToken);
+                if (actionResult_Scope is not null)
+                {
+                    return actionResult_Scope;
+                }
+
                 IEnumerable<object?>? values;
-                if (uniqueValuesByColumnUniqueIdParameter.CountyId is null)
+                if (countyId is null)
                 {
                     values = await buildingDataPostgreSQLConverter.GetUniqueValuesAsync<object?>(
                         uniqueValuesByColumnUniqueIdParameter.ColumnUniqueId,
-                        uniqueValuesByColumnUniqueIdParameter.FilterGroup,
+                        filterGroup,
                         commandTimeout,
                         cancellationToken);
                 }
@@ -1593,8 +1722,8 @@ namespace DiGi.GIS.WebAPI.Classes
                 {
                     values = await buildingDataPostgreSQLConverter.GetUniqueValuesAsync<object?>(
                         uniqueValuesByColumnUniqueIdParameter.ColumnUniqueId,
-                        uniqueValuesByColumnUniqueIdParameter.CountyId.Value,
-                        uniqueValuesByColumnUniqueIdParameter.FilterGroup,
+                        countyId.Value,
+                        filterGroup,
                         commandTimeout,
                         cancellationToken);
                 }

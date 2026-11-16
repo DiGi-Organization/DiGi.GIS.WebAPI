@@ -18,6 +18,25 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="HistogramRequestParameter"/> class by copying another instance.
+        /// <para>The filter group is shared, not cloned: <see cref="DiGi.PostgreSQL.Table.Classes.FilterGroup"/> is not a serializable object.</para>
+        /// </summary>
+        /// <param name="histogramRequestParameter">The instance to copy; null leaves every member at its default.</param>
+        public HistogramRequestParameter(HistogramRequestParameter histogramRequestParameter)
+            : base(histogramRequestParameter)
+        {
+            if (histogramRequestParameter is not null)
+            {
+                CountyId = histogramRequestParameter.CountyId;
+                AdministrativeAreal2DId = histogramRequestParameter.AdministrativeAreal2DId;
+                ColumnUniqueId = histogramRequestParameter.ColumnUniqueId;
+                BucketCount = histogramRequestParameter.BucketCount;
+                HistogramBucketing = histogramRequestParameter.HistogramBucketing;
+                FilterGroup = histogramRequestParameter.FilterGroup;
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="HistogramRequestParameter"/> class using an <see cref="JsonObject"/> object.
         /// </summary>
         /// <param name="jsonObject">The JSON object containing data used to initialize the parameter.</param>
@@ -31,6 +50,13 @@ namespace DiGi.GIS.WebAPI.Classes
         /// </summary>
         /// <example>10365</example>
         public int? CountyId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the optional administrative area the read is confined to, instead of <see cref="CountyId"/>; the two are mutually exclusive.
+        /// <para>A Subdivision is resolved through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
+        /// </summary>
+        /// <example>55413</example>
+        public int? AdministrativeAreal2DId { get; set; }
 
         /// <summary>
         /// Gets or sets the column unique identifier to calculate value distributions for.

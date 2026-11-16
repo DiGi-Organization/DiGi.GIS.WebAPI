@@ -29,10 +29,34 @@ namespace DiGi.GIS.WebAPI.Classes
         public int? CountyId { get; set; }
 
         /// <summary>
+        /// Gets or sets the optional administrative area the read is confined to, instead of <see cref="CountyId"/>; the two are mutually exclusive.
+        /// <para>A Subdivision is resolved through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition (DiGi-Organization/DiGi.GIS.WebAPI#83).</para>
+        /// </summary>
+        /// <example>55413</example>
+        public int? AdministrativeAreal2DId { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BuildingDataByFilterGroupParameter"/> class.
         /// </summary>
         public BuildingDataByFilterGroupParameter()
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BuildingDataByFilterGroupParameter"/> class by copying another instance.
+        /// <para>The filter group is shared, not cloned: <see cref="DiGi.PostgreSQL.Table.Classes.FilterGroup"/> is not a serializable object.</para>
+        /// </summary>
+        /// <param name="buildingDataByFilterGroupParameter">The instance to copy; null leaves every member at its default.</param>
+        public BuildingDataByFilterGroupParameter(BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter)
+            : base(buildingDataByFilterGroupParameter)
+        {
+            if (buildingDataByFilterGroupParameter is not null)
+            {
+                FilterGroup = buildingDataByFilterGroupParameter.FilterGroup;
+                ColumnUniqueIds = buildingDataByFilterGroupParameter.ColumnUniqueIds is null ? null : [.. buildingDataByFilterGroupParameter.ColumnUniqueIds];
+                CountyId = buildingDataByFilterGroupParameter.CountyId;
+                AdministrativeAreal2DId = buildingDataByFilterGroupParameter.AdministrativeAreal2DId;
+            }
         }
 
         /// <summary>

@@ -1379,6 +1379,71 @@ public string? Text { get; set; }
 #### Property Value
 [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
 
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope'></a>
+
+## AdministrativeAreal2DScope Class
+
+One county partition of `building_data` and the filter group that confines a read of it to the buildings of an administrative area\.
+
+An administrative area resolves to one scope per county partition its buildings sit in; see [AdministrativeAreal2DScopesAsync\(int, FilterGroup, Func&lt;int,CancellationToken,Task&lt;AdministrativeAreal2DReference&gt;&gt;, Func&lt;int,CancellationToken,Task&lt;List&lt;AdministrativeAreal2DReference&gt;&gt;&gt;, Func&lt;int,CancellationToken,Task&lt;List&lt;Building2DReference&gt;&gt;&gt;, int, int, CancellationToken\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.AdministrativeAreal2DScopesAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.Building2DReference___,int,int,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Query\.AdministrativeAreal2DScopesAsync\(int, DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup, System\.Func\<int,System\.Threading\.CancellationToken,System\.Threading\.Tasks\.Task\<DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference\>\>, System\.Func\<int,System\.Threading\.CancellationToken,System\.Threading\.Tasks\.Task\<System\.Collections\.Generic\.List\<DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference\>\>\>, System\.Func\<int,System\.Threading\.CancellationToken,System\.Threading\.Tasks\.Task\<System\.Collections\.Generic\.List\<DiGi\.GIS\.PostgreSQL\.Classes\.Building2DReference\>\>\>, int, int, System\.Threading\.CancellationToken\)').
+
+```csharp
+public class AdministrativeAreal2DScope
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → AdministrativeAreal2DScope
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope.AdministrativeAreal2DScope(int,DiGi.PostgreSQL.Table.Classes.FilterGroup)'></a>
+
+## AdministrativeAreal2DScope\(int, FilterGroup\) Constructor
+
+Initializes a new instance of the [AdministrativeAreal2DScope](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope 'DiGi\.GIS\.WebAPI\.Classes\.AdministrativeAreal2DScope') class\.
+
+```csharp
+public AdministrativeAreal2DScope(int countyId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope.AdministrativeAreal2DScope(int,DiGi.PostgreSQL.Table.Classes.FilterGroup).countyId'></a>
+
+`countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The identifier of the county partition to read\.
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope.AdministrativeAreal2DScope(int,DiGi.PostgreSQL.Table.Classes.FilterGroup).filterGroup'></a>
+
+`filterGroup` [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
+
+The filter group that confines the read to the area, with the caller's own filters nested inside; null reads the whole partition\.
+### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope.CountyId'></a>
+
+## AdministrativeAreal2DScope\.CountyId Property
+
+Gets the identifier of the county partition to read\.
+
+```csharp
+public int CountyId { get; }
+```
+
+#### Property Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope.FilterGroup'></a>
+
+## AdministrativeAreal2DScope\.FilterGroup Property
+
+Gets the filter group that confines the read to the area, with the caller's own filters nested inside; null reads the whole partition\.
+
+```csharp
+public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; }
+```
+
+#### Property Value
+[DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
+
 <a name='DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DsPostTask'></a>
 
 ## AdministrativeAreal2DsPostTask Class
@@ -1432,6 +1497,25 @@ Initializes a new instance of the [AggregateSummariesRequestParameter](DiGi.GIS.
 public AggregateSummariesRequestParameter();
 ```
 
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.AggregateSummariesRequestParameter(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter)'></a>
+
+## AggregateSummariesRequestParameter\(AggregateSummariesRequestParameter\) Constructor
+
+Initializes a new instance of the [AggregateSummariesRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.AggregateSummariesRequestParameter') class by copying another instance\.
+
+The filter group is shared, not cloned: [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup') is not a serializable object.
+
+```csharp
+public AggregateSummariesRequestParameter(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter aggregateSummariesRequestParameter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.AggregateSummariesRequestParameter(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter).aggregateSummariesRequestParameter'></a>
+
+`aggregateSummariesRequestParameter` [AggregateSummariesRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.AggregateSummariesRequestParameter')
+
+The instance to copy; null leaves every member at its default\.
+
 <a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.AggregateSummariesRequestParameter(System.Text.Json.Nodes.JsonObject)'></a>
 
 ## AggregateSummariesRequestParameter\(JsonObject\) Constructor
@@ -1449,6 +1533,24 @@ public AggregateSummariesRequestParameter(System.Text.Json.Nodes.JsonObject json
 
 The JSON object containing data used to initialize the parameter\.
 ### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.AdministrativeAreal2DId'></a>
+
+## AggregateSummariesRequestParameter\.AdministrativeAreal2DId Property
+
+Gets or sets the optional administrative area the read is confined to, instead of [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.AggregateSummariesRequestParameter\.CountyId'); the two are mutually exclusive\.
+
+A Subdivision is resolved through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
+```csharp
+public System.Nullable<int> AdministrativeAreal2DId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+55413
 
 <a name='DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter.CountyId'></a>
 
@@ -3060,6 +3162,25 @@ Initializes a new instance of the [BuildingDataByFilterGroupParameter](DiGi.GIS.
 public BuildingDataByFilterGroupParameter();
 ```
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.BuildingDataByFilterGroupParameter(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter)'></a>
+
+## BuildingDataByFilterGroupParameter\(BuildingDataByFilterGroupParameter\) Constructor
+
+Initializes a new instance of the [BuildingDataByFilterGroupParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter') class by copying another instance\.
+
+The filter group is shared, not cloned: [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup') is not a serializable object.
+
+```csharp
+public BuildingDataByFilterGroupParameter(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.BuildingDataByFilterGroupParameter(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter).buildingDataByFilterGroupParameter'></a>
+
+`buildingDataByFilterGroupParameter` [BuildingDataByFilterGroupParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter')
+
+The instance to copy; null leaves every member at its default\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.BuildingDataByFilterGroupParameter(System.Text.Json.Nodes.JsonObject)'></a>
 
 ## BuildingDataByFilterGroupParameter\(JsonObject\) Constructor
@@ -3077,6 +3198,24 @@ public BuildingDataByFilterGroupParameter(System.Text.Json.Nodes.JsonObject json
 
 The JSON object containing data used to initialize the parameter\.
 ### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.AdministrativeAreal2DId'></a>
+
+## BuildingDataByFilterGroupParameter\.AdministrativeAreal2DId Property
+
+Gets or sets the optional administrative area the read is confined to, instead of [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByFilterGroupParameter\.CountyId'); the two are mutually exclusive\.
+
+A Subdivision is resolved through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
+```csharp
+public System.Nullable<int> AdministrativeAreal2DId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+55413
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter.ColumnUniqueIds'></a>
 
@@ -3500,6 +3639,53 @@ private const int referenceCount_Maximum = 10000;
 [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 ### Methods
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.AdministrativeAreal2DScopeAsync(System.Nullable_int_,System.Nullable_int_,DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken)'></a>
+
+## BuildingDataController\.AdministrativeAreal2DScopeAsync\(Nullable\<int\>, Nullable\<int\>, FilterGroup, int, CancellationToken\) Method
+
+Resolves the optional `AdministrativeAreal2DId` of a filtered read to the one county partition and filter group the read runs on \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#83\)\.
+
+Without an area the caller's county and filter group pass through unchanged. With one, [AdministrativeAreal2DScopesAsync\(int, FilterGroup, Func&lt;int,CancellationToken,Task&lt;AdministrativeAreal2DReference&gt;&gt;, Func&lt;int,CancellationToken,Task&lt;List&lt;AdministrativeAreal2DReference&gt;&gt;&gt;, Func&lt;int,CancellationToken,Task&lt;List&lt;Building2DReference&gt;&gt;&gt;, int, int, CancellationToken\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.AdministrativeAreal2DScopesAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.Building2DReference___,int,int,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Query\.AdministrativeAreal2DScopesAsync\(int, DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup, System\.Func\<int,System\.Threading\.CancellationToken,System\.Threading\.Tasks\.Task\<DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference\>\>, System\.Func\<int,System\.Threading\.CancellationToken,System\.Threading\.Tasks\.Task\<System\.Collections\.Generic\.List\<DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DReference\>\>\>, System\.Func\<int,System\.Threading\.CancellationToken,System\.Threading\.Tasks\.Task\<System\.Collections\.Generic\.List\<DiGi\.GIS\.PostgreSQL\.Classes\.Building2DReference\>\>\>, int, int, System\.Threading\.CancellationToken\)') resolves it - a Subdivision through its polygon, a County as its own partition, a higher level through its Subdivision children - and the read must land on exactly one county partition: a table, aggregate or histogram cannot be merged across partitions, so an area spanning several answers 400 and points at `countbyadministrativeareal2did`, which sums across them.
+
+```csharp
+private System.Threading.Tasks.Task<(Microsoft.AspNetCore.Mvc.IActionResult? ActionResult,System.Nullable<int> CountyId,DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup)> AdministrativeAreal2DScopeAsync(System.Nullable<int> countyId, System.Nullable<int> administrativeAreal2DId, DiGi.PostgreSQL.Table.Classes.FilterGroup? filterGroup, int commandTimeout, System.Threading.CancellationToken cancellationToken);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.AdministrativeAreal2DScopeAsync(System.Nullable_int_,System.Nullable_int_,DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The county partition the caller named; must be null when an area is named\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.AdministrativeAreal2DScopeAsync(System.Nullable_int_,System.Nullable_int_,DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken).administrativeAreal2DId'></a>
+
+`administrativeAreal2DId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The administrative area the caller named, or null\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.AdministrativeAreal2DScopeAsync(System.Nullable_int_,System.Nullable_int_,DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken).filterGroup'></a>
+
+`filterGroup` [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
+
+The caller's filter group\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.AdministrativeAreal2DScopeAsync(System.Nullable_int_,System.Nullable_int_,DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for each area read\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.AdministrativeAreal2DScopeAsync(System.Nullable_int_,System.Nullable_int_,DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The result carries either the answer to give instead of reading \(400, 404 or 204\), or the county partition and filter group to read with\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter,int,System.Threading.CancellationToken)'></a>
 
 ## BuildingDataController\.GetAggregateSummariesAsync\(AggregateSummariesRequestParameter, int, CancellationToken\) Method
@@ -3509,6 +3695,8 @@ Computes several single\-value aggregate measures \- different columns, differen
 The answers arrive as a JSON array in the request's measure order; a SQL `NULL` aggregate (for example `Avg` over zero rows) is preserved as JSON `null`. An empty `Measures` list, a list above the cap of [MaximumAggregateSummariesMeasureCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAggregateSummariesMeasureCount'), or a measure naming a column the stored table does not hold is refused with 400 - a measure failure answers the whole request, never a partial result (DiGi-Organization/DiGi.GIS.WebAPI#56).
 
 Out of scope by design: per-measure filters, multi-value measures (`SplitValueDistribution`, `SplitDistinctCount`) and histograms (DiGi-Organization/DiGi.GIS.WebAPI#56).
+
+Area scope: send `AdministrativeAreal2DId` instead of `CountyId` (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use `countbyadministrativeareal2did` to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter aggregateSummariesRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -3731,13 +3919,13 @@ Asynchronously counts the building data rows of an administrative area, optional
 
 An invalid filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
-Resolution: (1) the area reference is read by id, and a missing one answers 404. (2) An area <b>above</b> the Subdivision level (Country, Voivodeship, County, Municipality) is resolved to its Subdivision children, grouped by the county partition they sit in. (3) An area that <b>is</b> a Subdivision is counted by membership, `subdivision_id = id`. (4) Per distinct county - the `building_data` partition key - one count runs with `subdivision_id IN (that county's subdivisions)` plus the caller's filters, and the counts are <b>summed</b>. The counties are counted strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s. (5) An area above the Subdivision level that resolves to no Subdivision answers 204.
+Resolution (DiGi-Organization/DiGi.GIS.WebAPI#83): (1) the area reference is read by id, and a missing one answers 404. (2) A <b>Subdivision</b> is resolved through its <b>polygon</b>: every building whose bounding-box centre lies strictly inside it (a centre on the boundary belongs to neither side), whatever subdivision it is filed under - the same set `building2d/building2Dreferencesbyadministrativeareal2Did` answers. The buildings are grouped by county partition and each partition is counted with `reference IN (those buildings)` plus the caller's filters. A subdivision that only partly overlaps the polygon contributes exactly its buildings inside it. A Subdivision whose polygon holds no building centre answers 204. (3) A <b>County</b> is counted as its own partition. (4) A <b>Municipality</b>, <b>Voivodeship</b> or <b>Country</b> is resolved to its Subdivision children, grouped by the county partition they sit in, and each partition is counted with `subdivision_id IN (that county's subdivisions)` plus the caller's filters; one that resolves to no Subdivision answers 204. (5) The per-partition counts are <b>summed</b>, strictly one after another, never in parallel, because concurrent requests exhaust the Npgsql pool and turn healthy endpoints into 500s.
 
 Duration (measured 2026-10-14 on the estate; figures are measurements, not guarantees): a single county area returns in under a second; a voivodeship (typically 10–20 counties) takes roughly 1–3 minutes; a country-level area spans 400+ counties and exceeds normal client timeouts. `commandtimeout` applies per command, not per request: each sequential per-county count gets its own timeout, so total wall-clock can approach `N × commandtimeout` in the worst case.
 
-What the count is not. `subdivision_id` files a building under its <b>smallest</b> containing subdivision and the Subdivision layer nests, so for a nested Subdivision (a district whose neighbourhoods are also subdivisions) the count covers only the buildings filed under that exact id and undercounts the district (DiGi.GIS.PostgreSQL#75, #77); a polygon-based count is a follow-up. Rows with `subdivision_id IS NULL` are excluded, so the count of an area is not the count of every building inside its polygon. A building filed in a county partition other than the one its subdivision belongs to (a subdivision of a neighbouring county) is not reached, because each county is counted with only its own subdivisions.
+What the count is not. The count is of `building_data` rows, so a building inside the area with no `building_data` row is not counted. For a Municipality, Voivodeship or Country (step 4), rows with `subdivision_id IS NULL` are excluded and a building filed in a county partition other than the one its subdivision belongs to is not reached, so the count is not the count of every building inside the area's polygon; a Subdivision (step 2) and a County (step 3) have neither gap.
 
-An unfiltered body is valid (`FilterGroup` omitted counts every building the area resolves to). At most [MaximumAdministrativeAreal2DCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAdministrativeAreal2DCountyCount') distinct counties are iterated; an area spanning more answers 400 naming that limit and nothing is counted. 204 means <b>the resolution found no subdivision to filter by - not evidence that the area holds no buildings</b>. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.
+An unfiltered body is valid (`FilterGroup` omitted counts every building the area resolves to). At most [MaximumAdministrativeAreal2DCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAdministrativeAreal2DCountyCount') distinct counties are iterated and a Subdivision may resolve to at most [MaximumAdministrativeAreal2DReferenceCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAdministrativeAreal2DReferenceCount 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.MaximumAdministrativeAreal2DReferenceCount') buildings; an area beyond either answers 400 naming the limit and nothing is counted. 204 means <b>the resolution found no subdivision or building to count by</b> - for an area above the Subdivision level it is not evidence that the area holds no buildings. 404 means the area does not exist, or no connection could be built, or a filter column could not be resolved. A filter value that cannot be converted to its column's type answers 400.
 
 A client that sends the same `In` filter shape as a JSON array is subject to DiGi-Organization/DiGi.PostgreSQL#10; this endpoint builds its own subdivision list server-side and does not depend on that fix.
 
@@ -3766,7 +3954,7 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
-An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the count as a bare JSON integer, 204 NoContent when no subdivision was found, 404 NotFound, or 400/503/500 on the guarded and failure paths\.
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the count as a bare JSON integer, 204 NoContent when no subdivision or building was found, 404 NotFound, or 400/503/500 on the guarded and failure paths\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByCountyIdAsync(int,bool,bool,int,System.Threading.CancellationToken)'></a>
 
@@ -3973,6 +4161,8 @@ Each row of the answer is one bucket - `{bucket, rangeStart, rangeEnd, count}`, 
 
 An invalid target or filter column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator. A scope that holds no non-NULL values keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).
 
+Area scope: send `AdministrativeAreal2DId` instead of `CountyId` (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use `countbyadministrativeareal2did` to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetHistogramSummaryAsync(DiGi.GIS.WebAPI.Classes.HistogramRequestParameter histogramRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -4014,6 +4204,8 @@ The result is capped at 1000 groups plus one trailing truncation-marker row (dro
 
 `SplitDistinctCount` (`multivalueAggregateFunction = 0`) counts the distinct split sub-items instead of returning them. For the plain distinct-value list (no split, no count), use `uniquevalues`.
 
+Area scope: send `AdministrativeAreal2DId` instead of `CountyId` (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use `countbyadministrativeareal2did` to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetMultivalueAggregateSummaryAsync(DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter multivalueAggregateRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -4052,6 +4244,8 @@ An invalid target or filter column, or a filter value the column's type cannot c
 Row count: to count the matching rows, set `columnUniqueId "reference"` and `singlevalueAggregateFunction 4` (`Count`) - `reference` is the always-present column and `Count` tallies the non-null rows, so the pair is the plain "how many rows" recipe. `singlevalueAggregateFunction` values: 0 `Avg` (mean of a numeric column), 1 `Sum` (total), 2 `Min`, 3 `Max`, 4 `Count` (non-null row count), 5 `DistinctCount` (unique values).
 
 Count with a filter - "residential buildings over 100 m² in gmina Łomianki" (2026-10-12, partition `countyId 53477`): `{ "columnUniqueId": "reference", "singlevalueAggregateFunction": 4, "countyId": 53477, "filterGroup": { "logicalOperator": 0, "filterConditions": [ { "columnUniqueId": "is_residential", "filterOperator": 0, "value": true }, { "columnUniqueId": "floor_area", "filterOperator": 2, "value": 100 } ] } }` answers `6798` (unfiltered anchor `13719`; DiGi-Organization/DiGi.GIS.WebAPI#53).
+
+Area scope: send `AdministrativeAreal2DId` instead of `CountyId` (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use `countbyadministrativeareal2did` to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSinglevalueAggregateSummaryAsync(DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter singlevalueAggregateRequestParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -4197,6 +4391,8 @@ An invalid filter column, or a filter value the column's type cannot convert, is
 
 Per-operator value shapes: each `FilterCondition`'s `Value` takes a scalar for the comparison operators, a JSON array for `In`/`NotIn`, and a case-insensitive substring for `Contains`; an unconvertible value is refused with 400 (see `FilterCondition.Value` for the full contract; DiGi-Organization/DiGi.PostgreSQL#13).
 
+Area scope: send `AdministrativeAreal2DId` instead of `CountyId` (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use `countbyadministrativeareal2did` to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTableByFilterGroupAsync(DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter buildingDataByFilterGroupParameter, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
@@ -4311,6 +4507,8 @@ A task that represents the asynchronous operation\.
 Retrieves unique values for a given [UniqueValuesByColumnUniqueIdParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter 'DiGi\.GIS\.WebAPI\.Classes\.UniqueValuesByColumnUniqueIdParameter') \(column unique id and optionally county id\), applying optional dynamic filters\.
 
 An invalid column, or a filter value the column's type cannot convert, is refused with 400 Bad Request naming the offending column and, where known, the operator; a scope that holds nothing keeps its documented 404 empty answer (DiGi-Organization/DiGi.GIS.WebAPI#54).
+
+Area scope: send `AdministrativeAreal2DId` instead of `CountyId` (the two are mutually exclusive; both answer 400) to confine the read to the buildings of an administrative area - a Subdivision through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition: one spanning several answers 400 (use `countbyadministrativeareal2did` to count across them); 204 means the resolution found no building or subdivision to read by; 404 means the area does not exist (DiGi-Organization/DiGi.GIS.WebAPI#83).
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetUniqueValuesByColumnUniqueIdParameterAsync(DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter uniqueValuesByColumnUniqueIdParameter, int commandTimeout=90, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -6409,6 +6607,25 @@ Initializes a new instance of the [HistogramRequestParameter](DiGi.GIS.WebAPI.Cl
 public HistogramRequestParameter();
 ```
 
+<a name='DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.HistogramRequestParameter(DiGi.GIS.WebAPI.Classes.HistogramRequestParameter)'></a>
+
+## HistogramRequestParameter\(HistogramRequestParameter\) Constructor
+
+Initializes a new instance of the [HistogramRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.HistogramRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.HistogramRequestParameter') class by copying another instance\.
+
+The filter group is shared, not cloned: [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup') is not a serializable object.
+
+```csharp
+public HistogramRequestParameter(DiGi.GIS.WebAPI.Classes.HistogramRequestParameter histogramRequestParameter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.HistogramRequestParameter(DiGi.GIS.WebAPI.Classes.HistogramRequestParameter).histogramRequestParameter'></a>
+
+`histogramRequestParameter` [HistogramRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.HistogramRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.HistogramRequestParameter')
+
+The instance to copy; null leaves every member at its default\.
+
 <a name='DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.HistogramRequestParameter(System.Text.Json.Nodes.JsonObject)'></a>
 
 ## HistogramRequestParameter\(JsonObject\) Constructor
@@ -6426,6 +6643,24 @@ public HistogramRequestParameter(System.Text.Json.Nodes.JsonObject jsonObject);
 
 The JSON object containing data used to initialize the parameter\.
 ### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.AdministrativeAreal2DId'></a>
+
+## HistogramRequestParameter\.AdministrativeAreal2DId Property
+
+Gets or sets the optional administrative area the read is confined to, instead of [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.HistogramRequestParameter\.CountyId'); the two are mutually exclusive\.
+
+A Subdivision is resolved through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
+```csharp
+public System.Nullable<int> AdministrativeAreal2DId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+55413
 
 <a name='DiGi.GIS.WebAPI.Classes.HistogramRequestParameter.BucketCount'></a>
 
@@ -6622,6 +6857,25 @@ Initializes a new instance of the [MultivalueAggregateRequestParameter](DiGi.GIS
 public MultivalueAggregateRequestParameter();
 ```
 
+<a name='DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter.MultivalueAggregateRequestParameter(DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter)'></a>
+
+## MultivalueAggregateRequestParameter\(MultivalueAggregateRequestParameter\) Constructor
+
+Initializes a new instance of the [MultivalueAggregateRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.MultivalueAggregateRequestParameter') class by copying another instance\.
+
+The filter group is shared, not cloned: [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup') is not a serializable object.
+
+```csharp
+public MultivalueAggregateRequestParameter(DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter multivalueAggregateRequestParameter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter.MultivalueAggregateRequestParameter(DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter).multivalueAggregateRequestParameter'></a>
+
+`multivalueAggregateRequestParameter` [MultivalueAggregateRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.MultivalueAggregateRequestParameter')
+
+The instance to copy; null leaves every member at its default\.
+
 <a name='DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter.MultivalueAggregateRequestParameter(System.Text.Json.Nodes.JsonObject)'></a>
 
 ## MultivalueAggregateRequestParameter\(JsonObject\) Constructor
@@ -6639,6 +6893,24 @@ public MultivalueAggregateRequestParameter(System.Text.Json.Nodes.JsonObject jso
 
 The JSON object containing data used to initialize the parameter\.
 ### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter.AdministrativeAreal2DId'></a>
+
+## MultivalueAggregateRequestParameter\.AdministrativeAreal2DId Property
+
+Gets or sets the optional administrative area the read is confined to, instead of [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.MultivalueAggregateRequestParameter\.CountyId'); the two are mutually exclusive\.
+
+A Subdivision is resolved through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
+```csharp
+public System.Nullable<int> AdministrativeAreal2DId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+55413
 
 <a name='DiGi.GIS.WebAPI.Classes.MultivalueAggregateRequestParameter.ColumnUniqueId'></a>
 
@@ -9300,6 +9572,25 @@ Initializes a new instance of the [SinglevalueAggregateRequestParameter](DiGi.GI
 public SinglevalueAggregateRequestParameter();
 ```
 
+<a name='DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter.SinglevalueAggregateRequestParameter(DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter)'></a>
+
+## SinglevalueAggregateRequestParameter\(SinglevalueAggregateRequestParameter\) Constructor
+
+Initializes a new instance of the [SinglevalueAggregateRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.SinglevalueAggregateRequestParameter') class by copying another instance\.
+
+The filter group is shared, not cloned: [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup') is not a serializable object.
+
+```csharp
+public SinglevalueAggregateRequestParameter(DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter singlevalueAggregateRequestParameter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter.SinglevalueAggregateRequestParameter(DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter).singlevalueAggregateRequestParameter'></a>
+
+`singlevalueAggregateRequestParameter` [SinglevalueAggregateRequestParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter 'DiGi\.GIS\.WebAPI\.Classes\.SinglevalueAggregateRequestParameter')
+
+The instance to copy; null leaves every member at its default\.
+
 <a name='DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter.SinglevalueAggregateRequestParameter(System.Text.Json.Nodes.JsonObject)'></a>
 
 ## SinglevalueAggregateRequestParameter\(JsonObject\) Constructor
@@ -9317,6 +9608,24 @@ public SinglevalueAggregateRequestParameter(System.Text.Json.Nodes.JsonObject js
 
 The JSON object containing data used to initialize the parameter\.
 ### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter.AdministrativeAreal2DId'></a>
+
+## SinglevalueAggregateRequestParameter\.AdministrativeAreal2DId Property
+
+Gets or sets the optional administrative area the read is confined to, instead of [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.SinglevalueAggregateRequestParameter\.CountyId'); the two are mutually exclusive\.
+
+A Subdivision is resolved through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
+```csharp
+public System.Nullable<int> AdministrativeAreal2DId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+55413
 
 <a name='DiGi.GIS.WebAPI.Classes.SinglevalueAggregateRequestParameter.ColumnUniqueId'></a>
 
@@ -10255,6 +10564,25 @@ Initializes a new instance of the [UniqueValuesByColumnUniqueIdParameter](DiGi.G
 public UniqueValuesByColumnUniqueIdParameter();
 ```
 
+<a name='DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter.UniqueValuesByColumnUniqueIdParameter(DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter)'></a>
+
+## UniqueValuesByColumnUniqueIdParameter\(UniqueValuesByColumnUniqueIdParameter\) Constructor
+
+Initializes a new instance of the [UniqueValuesByColumnUniqueIdParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter 'DiGi\.GIS\.WebAPI\.Classes\.UniqueValuesByColumnUniqueIdParameter') class by copying another instance\.
+
+The filter group is shared, not cloned: [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup') is not a serializable object.
+
+```csharp
+public UniqueValuesByColumnUniqueIdParameter(DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter uniqueValuesByColumnUniqueIdParameter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter.UniqueValuesByColumnUniqueIdParameter(DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter).uniqueValuesByColumnUniqueIdParameter'></a>
+
+`uniqueValuesByColumnUniqueIdParameter` [UniqueValuesByColumnUniqueIdParameter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter 'DiGi\.GIS\.WebAPI\.Classes\.UniqueValuesByColumnUniqueIdParameter')
+
+The instance to copy; null leaves every member at its default\.
+
 <a name='DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter.UniqueValuesByColumnUniqueIdParameter(string,System.Nullable_int_)'></a>
 
 ## UniqueValuesByColumnUniqueIdParameter\(string, Nullable\<int\>\) Constructor
@@ -10295,6 +10623,24 @@ public UniqueValuesByColumnUniqueIdParameter(System.Text.Json.Nodes.JsonObject j
 
 The [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject') containing the data used to initialize the parameter\.
 ### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter.AdministrativeAreal2DId'></a>
+
+## UniqueValuesByColumnUniqueIdParameter\.AdministrativeAreal2DId Property
+
+Gets or sets the optional administrative area the read is confined to, instead of [CountyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter.CountyId 'DiGi\.GIS\.WebAPI\.Classes\.UniqueValuesByColumnUniqueIdParameter\.CountyId'); the two are mutually exclusive\.
+
+A Subdivision is resolved through its polygon (every building whose bounding-box centre lies inside it, whatever subdivision it is filed under), a County as its own partition, a higher level through its Subdivision children. The area must resolve to one county partition (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
+```csharp
+public System.Nullable<int> AdministrativeAreal2DId { get; set; }
+```
+
+#### Property Value
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+### Example
+55413
 
 <a name='DiGi.GIS.WebAPI.Classes.UniqueValuesByColumnUniqueIdParameter.ColumnUniqueId'></a>
 

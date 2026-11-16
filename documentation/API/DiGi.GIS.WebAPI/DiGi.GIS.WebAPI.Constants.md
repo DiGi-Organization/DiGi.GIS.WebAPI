@@ -59,6 +59,21 @@ public static readonly int MaximumAdministrativeAreal2DCountyCount;
 #### Field Value
 [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAdministrativeAreal2DReferenceCount'></a>
+
+## BuildingData\.MaximumAdministrativeAreal2DReferenceCount Field
+
+The largest number of building references a Subdivision's polygon may resolve to when a building data read is confined to that Subdivision\.
+
+The references travel into one `reference = ANY(@array)` parameter per county partition and are built server-side, so this is not the 10 000 cap on client-supplied references; Bemowo (55413) resolves to 6 435 (measured 2026-11-16). The ceiling of 200 000 bounds the statement against a pathological polygon (DiGi-Organization/DiGi.GIS.WebAPI#83).
+
+```csharp
+public static readonly int MaximumAdministrativeAreal2DReferenceCount;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAggregateSummariesMeasureCount'></a>
 
 ## BuildingData\.MaximumAggregateSummariesMeasureCount Field
