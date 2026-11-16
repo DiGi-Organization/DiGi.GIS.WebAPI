@@ -5375,6 +5375,49 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. 200 with the [DiGi\.GIS\.Classes\.BuildingSolarRadiationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult'), 204 when nothing is stored for the key, 400 for a missing or invalid parameter, 503 for a transient database failure, or 500\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,int,System.Threading.CancellationToken)'></a>
+
+## BuildingSolarRadiationController\.GetSummariesByCountyIdsAsync\(List\<int\>, Nullable\<int\>, int, CancellationToken\) Method
+
+Summarises what each of the named county parts holds per neighbour radius and solver version: the rows stored, the residential buildings covered against all residential buildings, the first and last write, and the size of the part's partition\.
+
+The production measure of a batch solve (DiGi.GIS.PostgreSQL#137): the solve keeps its counts in memory, and production is read only through this API, never through a configuration file (`Coding - PostgreSQL.md` §6). Counts and sizes only - no building data leaves. Open to every visitor, like the other `summariesbycountyids` reads.
+
+Naming no county part summarises every part holding results. A part holding none is absent rather than present with zeros, and a missing table answers an empty list.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSummariesByCountyIdsAsync(System.Collections.Generic.List<int>? countyIds, System.Nullable<int> solverVersion=null, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,int,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The identifiers of the county parts to summarise, repeated once per part \(`countyids=55417&countyids=53477`\)\. Omit to summarise every part\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,int,System.Threading.CancellationToken).solverVersion'></a>
+
+`solverVersion` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The solver version to summarise; omit to summarise every version, one entry per version\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of each command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with a JSON list of [DiGi\.GIS\.PostgreSQL\.Classes\.BuildingSolarRadiationCountyResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.buildingsolarradiationcountyresult 'DiGi\.GIS\.PostgreSQL\.Classes\.BuildingSolarRadiationCountyResult') \(empty when nothing is stored\), 400 for a negative timeout, 503 for a transient database failure, or 500\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationAsync(System.Text.Json.Nodes.JsonObject,System.Threading.CancellationToken)'></a>
 
 ## BuildingSolarRadiationController\.SetSolarRadiationAsync\(JsonObject, CancellationToken\) Method

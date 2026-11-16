@@ -128,6 +128,76 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Summarises what each of the named county parts holds per neighbour radius and solver version: the rows stored, the residential buildings covered against all residential buildings, the first and last write, and the size of the part's partition.
+        /// <para>The production measure of a batch solve (DiGi.GIS.PostgreSQL#137): the solve keeps its counts in memory, and production is read only through this API, never through a configuration file (<c>Coding - PostgreSQL.md</c> §6). Counts and sizes only - no building data leaves. Open to every visitor, like the other <c>summariesbycountyids</c> reads.</para>
+        /// <para>Naming no county part summarises every part holding results. A part holding none is absent rather than present with zeros, and a missing table answers an empty list.</para>
+        /// </summary>
+        /// <param name="countyIds">The identifiers of the county parts to summarise, repeated once per part (<c>countyids=55417&amp;countyids=53477</c>). Omit to summarise every part.</param>
+        /// <param name="solverVersion">The solver version to summarise; omit to summarise every version, one entry per version.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of each command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with a JSON list of <see cref="BuildingSolarRadiationCountyResult"/> (empty when nothing is stored), 400 for a negative timeout, 503 for a transient database failure, or 500.</returns>
+        [HttpGet("summariesbycountyids", Name = $"{nameof(BuildingSolarRadiationController)}_{nameof(GetSummariesByCountyIdsAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<BuildingSolarRadiationCountyResult>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetSummariesByCountyIdsAsync([FromQuery(Name = "countyids")] List<int>? countyIds, [FromQuery(Name = "solverversion")] int? solverVersion = null, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for {CountyCount} county parts", nameof(BuildingSolarRadiationController), nameof(GetSummariesByCountyIdsAsync), countyIds?.Count ?? 0);
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name} rejected: commandtimeout cannot be negative", nameof(BuildingSolarRadiationController), nameof(GetSummariesByCountyIdsAsync));
+                return BadRequest();
+            }
+
+            List<BuildingSolarRadiationCountyResult>? buildingSolarRadiationCountyResults;
+            try
+            {
+                buildingSolarRadiationCountyResults = await buildingSolarRadiationPostgreSQLConverter.GetSummariesByCountyIdsAsync(countyIds is null || countyIds.Count == 0 ? null : countyIds, solverVersion, commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingSolarRadiationController), nameof(GetSummariesByCountyIdsAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingSolarRadiationController), nameof(GetSummariesByCountyIdsAsync));
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            // Null is a failure to reach the database, never "nothing stored" - an empty list says that (Coding - WebAPI Contracts.md).
+            if (buildingSolarRadiationCountyResults is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} failed: no connection to the Storage database", nameof(BuildingSolarRadiationController), nameof(GetSummariesByCountyIdsAsync));
+                return StatusCode(500, "Solar radiation summaries could not be read");
+            }
+
+            if (buildingSolarRadiationCountyResults.Count == 0)
+            {
+                return Content("[]", "application/json");
+            }
+
+            string? json = Core.Convert.ToSystem_String(buildingSolarRadiationCountyResults);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name}: {Count} summaries could not be serialized", nameof(BuildingSolarRadiationController), nameof(GetSummariesByCountyIdsAsync), buildingSolarRadiationCountyResults.Count);
+                return StatusCode(500, "Solar radiation summaries could not be serialized");
+            }
+
+            Serilog.Modify.Log("{Type}:{Name} returns {Count} summaries", nameof(BuildingSolarRadiationController), nameof(GetSummariesByCountyIdsAsync), buildingSolarRadiationCountyResults.Count);
+            return Content(json, "application/json");
+        }
+
+        /// <summary>
         /// Stores the solar radiation of a building on behalf of the signed-in visitor, replacing the result stored for the same key.
         /// <para>The bearer token identifies the user, as for <c>yearbuiltdata/setuseryearbuilt</c>, and <see cref="GISWebAPIConfigurationFileWatcher.AllowUpdateSolarRadiationData"/> gates the write; each refusal is logged distinctly so the cause of a 4xx is recoverable where the status is shared. The server stamps <see cref="GIS.Classes.BuildingSolarRadiationResult.UserEmail"/> from the token, ignoring any value in the body, and sets <see cref="GIS.Classes.BuildingSolarRadiationResult.CreatedAt"/> to now.</para>
         /// <para>The body is the DiGi JSON of a <see cref="GIS.Classes.BuildingSolarRadiationResult"/> (<c>ToJsonObject()</c>, with <c>_type</c>), bound as a <see cref="JsonObject"/> so the host's System.Text.Json formatter never sees the DiGi layout. The county part is resolved from the body's reference through <c>building_2d</c>, widened to the sibling parts of the body's <c>CountyId</c>; the body's part is only the candidate (<c>Coding - GIS Administrative Data.md</c>).</para>
