@@ -44,6 +44,51 @@ public static class BuildingData
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → BuildingData
 ### Fields
 
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData.ByAddressDefaultColumnUniqueIds'></a>
+
+## BuildingData\.ByAddressDefaultColumnUniqueIds Field
+
+The projection `byaddress` reads with when the caller sends no `columns`\.
+
+Chosen for one question - what the building is, how big it is, when it was built, where it stands - and small enough that a handful of matches stays a few kilobytes instead of the 93 809 bytes an unprojected `tablebyreference` answered for one building (measured 2026-11-16; DiGi-Organization/DiGi.GIS.WebAPI#85). Every id was checked against the 246-column catalogue on that date. A default column the stored table no longer holds is dropped with a warning when read, never refused.
+
+```csharp
+public static readonly List<string> ByAddressDefaultColumnUniqueIds;
+```
+
+#### Field Value
+[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData.ByAddressLimit_Maximum'></a>
+
+## BuildingData\.ByAddressLimit\_Maximum Field
+
+The largest number of address matches `byaddress` answers in one request\.
+
+The ceiling of 100 matches the one `addresspoint/buildingsbyaddress` accepts, because byaddress ranks and caps its matches the same way; each match costs one row of building data read (DiGi-Organization/DiGi.GIS.WebAPI#85).
+
+```csharp
+public const int ByAddressLimit_Maximum = 100;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.BuildingData.ByAddressLimit_Minimum'></a>
+
+## BuildingData\.ByAddressLimit\_Minimum Field
+
+The smallest accepted value of `limit` on an address search or on `byaddress`\.
+
+A [null](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/null 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/keywords/null') limit is refused by both endpoints; a set limit outside the bounds of [ByAddressLimit\_Maximum](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.ByAddressLimit_Maximum 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.ByAddressLimit\_Maximum') is refused with 400, never clamped. The two endpoints share this pair so a caller cannot pick one county answer set on `buildingsbyaddress` and a different one on `byaddress` (DiGi-Organization/DiGi.GIS.WebAPI#85).
+
+```csharp
+public const int ByAddressLimit_Minimum = 1;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Constants.BuildingData.MaximumAdministrativeAreal2DCountyCount'></a>
 
 ## BuildingData\.MaximumAdministrativeAreal2DCountyCount Field

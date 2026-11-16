@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Threading;
 using System;
@@ -39,20 +40,24 @@ namespace DiGi.GIS.WebAPI.Classes
 
         private readonly AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;
 
+        private readonly AddressPointPostgreSQLConverter addressPointPostgreSQLConverter;
+
         /// <summary>
         /// Initializes a new instance of the BuildingDataController class.
-        /// <para>Both converters and the configuration watcher are taken on the one constructor, because the coverage read compares two tables that sit in different databases and write operations require authorization. A second constructor is not an option: a controller with more than one public constructor fails activation and answers 500 on every one of its endpoints.</para>
+        /// <para>All converters and the configuration watcher are taken on the one constructor, because the coverage read compares two tables that sit in different databases, <c>byaddress</c> reads a third, and write operations require authorization. A second constructor is not an option: a controller with more than one public constructor fails activation and answers 500 on every one of its endpoints.</para>
         /// </summary>
         /// <param name="GISWebAPIConfigurationFileWatcher">The <see cref="Classes.GISWebAPIConfigurationFileWatcher" /> used to verify authorization and permissions for write operations.</param>
         /// <param name="buildingDataPostgreSQLConverter">The <see cref="BuildingDataPostgreSQLConverter" /> used to handle building data operations and database conversions.</param>
         /// <param name="building2DPostgreSQLConverter">The <see cref="Building2DPostgreSQLConverter" /> used to read the buildings a county holds, which is the other half of the coverage comparison.</param>
         /// <param name="administrativeAreal2DPostgreSQLConverter">The <see cref="AdministrativeAreal2DPostgreSQLConverter" /> used to widen a row no named part holds to every part of the named county.</param>
-        public BuildingDataController(GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, BuildingDataPostgreSQLConverter buildingDataPostgreSQLConverter, Building2DPostgreSQLConverter building2DPostgreSQLConverter, AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter)
+        /// <param name="addressPointPostgreSQLConverter">The <see cref="AddressPointPostgreSQLConverter" /> used by <c>byaddress</c> to search the address points the building data is read for.</param>
+        public BuildingDataController(GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, BuildingDataPostgreSQLConverter buildingDataPostgreSQLConverter, Building2DPostgreSQLConverter building2DPostgreSQLConverter, AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter, AddressPointPostgreSQLConverter addressPointPostgreSQLConverter)
         {
             this.GISWebAPIConfigurationFileWatcher = GISWebAPIConfigurationFileWatcher;
             this.buildingDataPostgreSQLConverter = buildingDataPostgreSQLConverter;
             this.building2DPostgreSQLConverter = building2DPostgreSQLConverter;
             this.administrativeAreal2DPostgreSQLConverter = administrativeAreal2DPostgreSQLConverter;
+            this.addressPointPostgreSQLConverter = addressPointPostgreSQLConverter;
         }
 
         /// <summary>
@@ -126,6 +131,276 @@ namespace DiGi.GIS.WebAPI.Classes
                 default:
                     Serilog.Modify.Log("Area not found, or no connection; answering NotFound");
                     return (NotFound(), null, null);
+            }
+        }
+
+        /// <summary>
+        /// Resolves the caller's <c>columns</c> query value to the projection a read runs with, or to the answer to give instead, before the read opens a connection (DiGi-Organization/DiGi.GIS.WebAPI#85).
+        /// <para>Each element is split on commas, trimmed and de-duplicated, so a repeated key (<c>?columns=storeys&amp;columns=floor_area</c>) and one comma-separated value (<c>?columns=storeys,floor_area</c>) name the same projection.</para>
+        /// <para><paramref name="columns"/> null means the caller named no projection: <paramref name="columnUniqueIds_Default"/> is then used, and a default column the stored table no longer holds is dropped with a warning, because a constant of this API must not be able to fail a request. A projection the caller did supply is answered strictly: an id the stored table does not hold, or an entry that names no id at all, is refused with 400 naming it, and a stored column list that could not be read is refused with 500. A projection is never checked silently and never silently narrowed.</para>
+        /// </summary>
+        /// <param name="columns">The value the caller sent, or null when none was sent.</param>
+        /// <param name="columnUniqueIds_Default">The projection to read with when the caller sent none; null means every stored column.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the column list read. A value of 0 disables the timeout.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>A task whose result carries the answer to give instead (400 or 500), or the projection to read with - null meaning every stored column.</returns>
+        private async Task<(IActionResult? ActionResult, List<string>? ColumnUniqueIds)> ColumnUniqueIdsAsync(List<string>? columns, List<string>? columnUniqueIds_Default, int commandTimeout, CancellationToken cancellationToken)
+        {
+            bool suppliedByCaller = columns is not null;
+            List<string>? columnUniqueIds_Source = columns ?? columnUniqueIds_Default;
+            if (columnUniqueIds_Source is null)
+            {
+                return (null, null);
+            }
+
+            List<string> columnUniqueIds = [];
+            foreach (string? column in columnUniqueIds_Source)
+            {
+                foreach (string part in (column ?? string.Empty).Split(','))
+                {
+                    string part_Trimmed = part.Trim();
+                    if (part_Trimmed.Length == 0)
+                    {
+                        if (suppliedByCaller)
+                        {
+                            Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "A columns entry names no column id");
+                            return (Problem(detail: "Every columns entry must name at least one column id; an empty id is refused.", statusCode: 400), null);
+                        }
+
+                        continue;
+                    }
+
+                    if (!columnUniqueIds.Contains(part_Trimmed, StringComparer.Ordinal))
+                    {
+                        columnUniqueIds.Add(part_Trimmed);
+                    }
+                }
+            }
+
+            if (columnUniqueIds.Count == 0)
+            {
+                if (suppliedByCaller)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Columns were sent but name no column id");
+                    return (Problem(detail: "columns was sent but names no column id.", statusCode: 400), null);
+                }
+
+                return (null, null);
+            }
+
+            List<Column>? columns_Stored = await buildingDataPostgreSQLConverter.GetColumnsByUniqueIdsAsync(columnUniqueIds, commandTimeout, cancellationToken);
+            if (columns_Stored is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "The stored column list could not be read");
+                return (Problem(detail: "The stored column list could not be read.", statusCode: 500), null);
+            }
+
+            HashSet<string> storedColumnUniqueIds = [];
+            foreach (Column column_Stored in columns_Stored)
+            {
+                if (DiGi.PostgreSQL.Table.Query.UniqueId(column_Stored) is string uniqueId && !string.IsNullOrWhiteSpace(uniqueId))
+                {
+                    storedColumnUniqueIds.Add(uniqueId);
+                }
+            }
+
+            List<string> columnUniqueIds_Unknown = [.. columnUniqueIds.Where(x => !storedColumnUniqueIds.Contains(x))];
+            if (columnUniqueIds_Unknown.Count == 0)
+            {
+                return (null, columnUniqueIds);
+            }
+
+            if (suppliedByCaller)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "The stored table does not hold the column(s): {Columns}", string.Join(", ", columnUniqueIds_Unknown));
+                return (Problem(detail: $"The stored table does not hold: {string.Join(", ", columnUniqueIds_Unknown)}.", statusCode: 400), null);
+            }
+
+            Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Default projection column(s) {Columns} are not stored and were dropped", string.Join(", ", columnUniqueIds_Unknown));
+            columnUniqueIds.RemoveAll(x => columnUniqueIds_Unknown.Contains(x, StringComparer.Ordinal));
+            if (columnUniqueIds.Count == 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "None of the default projection columns is stored");
+                return (Problem(detail: "None of the default projection columns is stored.", statusCode: 500), null);
+            }
+
+            return (null, columnUniqueIds);
+        }
+
+        /// <summary>
+        /// Builds the projected building data of one row: one key per column of the table, named by the stored column unique id and holding the row's value, or null where the row holds none.
+        /// </summary>
+        /// <param name="table">The projected table the row belongs to.</param>
+        /// <param name="row">The row to convert.</param>
+        /// <returns>The row as a <see cref="JsonObject"/>, or null when no table was read.</returns>
+        private static JsonObject? ToJsonObject(Table? table, Row? row)
+        {
+            if (table is null || row is null)
+            {
+                return null;
+            }
+
+            JsonObject jsonObject = [];
+            foreach (Column column in table.Columns)
+            {
+                if (DiGi.PostgreSQL.Table.Query.UniqueId(column) is not string uniqueId || string.IsNullOrWhiteSpace(uniqueId))
+                {
+                    continue;
+                }
+
+                jsonObject[uniqueId] = Core.Create.JsonNode(row[column.Index]);
+            }
+
+            return jsonObject;
+        }
+
+        /// <summary>
+        /// Answers an address search with the projected building data of the matched buildings in one call: for each matched address point, the match itself and the stored columns the caller names (DiGi-Organization/DiGi.GIS.WebAPI#85).
+        /// <para>Ranking and limits are those of <c>addresspoint/buildingsbyaddress</c> - similarity first, then an exact house number before a prefix match, from <see cref="Constants.BuildingData.ByAddressLimit_Minimum"/> to <see cref="Constants.BuildingData.ByAddressLimit_Maximum"/> matches - and the answer keeps that rank order. Every match carries its county part, so the building data is read one county partition at a time: the reads run one after another, never in parallel, because concurrent requests exhaust the Npgsql pool, and a question that spans two counties costs two scoped reads instead of one cross-partition scan.</para>
+        /// <para><paramref name="columns"/> takes stored column unique ids as repeated query keys or as one comma-separated value and is validated like any other projection: an id the stored table does not hold answers 400 naming it, an entry naming no id answers 400, and a stored column list that could not be read answers 500. Omitted, it defaults to <see cref="Constants.BuildingData.ByAddressDefaultColumnUniqueIds"/>; a default column the stored table no longer holds is dropped with a warning rather than refused.</para>
+        /// <para>Every item carries <c>reference</c>, and <c>county_id</c> as well because the read is always confined to one county part, so <c>BuildingData</c> repeats what its match already carries. A key whose value is null means the stored row holds no value for that column; a building with no building data row answers every projected key as null, and the answer does not separate the two.</para>
+        /// </summary>
+        /// <param name="text">The street or locality name to search for, as typed. Required; a text with no letter or digit is refused with 400.</param>
+        /// <param name="houseNumber">The house number to narrow the result to, or null for any.</param>
+        /// <param name="countyId">The county part id to narrow the address search to, or null for every county. Whichever it is, each match's own part is what its building data is read from.</param>
+        /// <param name="limit">The maximum number of address matches, from 1 to 100. Out-of-range values are refused, not clamped.</param>
+        /// <param name="columns">The projected building data columns, as repeated query keys or as one comma-separated value; null for the default projection.</param>
+        /// <param name="commandTimeout">The timeout in seconds for each command - the address search and every building data read. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with one item per matched address point in rank order (an empty array when none), 400 for a missing or empty text, a text that normalises to nothing, an out-of-range limit or county id, a negative timeout, an unknown column or an entry naming no column, 404 when a building data read could not run, 503 for a transient database failure, or 500.</returns>
+        [HttpGet("byaddress", Name = $"{nameof(BuildingDataController)}_{nameof(GetByAddressAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<BuildingDataByAddressItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The text is missing or normalises to nothing, the limit or county id is out of range, the command timeout is negative, or the projection names a column the stored table does not hold.")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetByAddressAsync([BindRequired, FromQuery(Name = "text")] string? text, [FromQuery(Name = "housenumber")] string? houseNumber, [Minimum(1), FromQuery(Name = "countyid")] int? countyId, [Range(Constants.BuildingData.ByAddressLimit_Minimum, Constants.BuildingData.ByAddressLimit_Maximum), FromQuery(Name = "limit")] int? limit = 20, [FromQuery(Name = "columns")] List<string>? columns = null, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingDataController), nameof(GetByAddressAsync));
+            Serilog.Modify.Log("Text provided: {Text}, HouseNumber provided: {HouseNumber}, CountyId provided: {CountyId}, Limit provided: {Limit}", text ?? string.Empty, houseNumber ?? string.Empty, countyId?.ToString(CultureInfo.CurrentCulture) ?? string.Empty, limit?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
+
+            if (string.IsNullOrWhiteSpace(text) || PostgreSQL.Query.SearchText(text) is null)
+            {
+                return BadRequest();
+            }
+
+            if (limit is null || limit.Value < Constants.BuildingData.ByAddressLimit_Minimum || limit.Value > Constants.BuildingData.ByAddressLimit_Maximum)
+            {
+                return BadRequest();
+            }
+
+            if (countyId is not null && countyId.Value <= 0)
+            {
+                return BadRequest();
+            }
+
+            if (commandTimeout < 0)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                (IActionResult? actionResult_Columns, List<string>? columnUniqueIds) = await ColumnUniqueIdsAsync(columns, Constants.BuildingData.ByAddressDefaultColumnUniqueIds, commandTimeout, cancellationToken);
+                if (actionResult_Columns is not null)
+                {
+                    return actionResult_Columns;
+                }
+
+                List<GIS.Classes.AddressPointMatch>? addressPointMatches = await addressPointPostgreSQLConverter.GetAddressPointMatchesByAddressAsync(text, houseNumber, countyId, limit.Value, commandTimeout, cancellationToken);
+                if (addressPointMatches is null)
+                {
+                    // The text was proved to normalise above, so null here means no connection could be built - never a client error.
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Address points could not be searched: no connection could be built");
+                    return StatusCode(500, "Address points could not be searched.");
+                }
+
+                List<GIS.Classes.AddressPointMatch> addressPointMatches_Matched = [.. addressPointMatches.Where(x => !string.IsNullOrWhiteSpace(x?.Reference))];
+                if (addressPointMatches_Matched.Count == 0)
+                {
+                    return Content(new JsonArray().ToJsonString(), "application/json");
+                }
+
+                Dictionary<string, JsonObject?> buildingData_ByReference = new(StringComparer.Ordinal);
+                foreach (IGrouping<int?, GIS.Classes.AddressPointMatch> grouping in addressPointMatches_Matched.GroupBy(x => x.CountyId))
+                {
+                    List<string> references = [];
+                    foreach (GIS.Classes.AddressPointMatch addressPointMatch in grouping)
+                    {
+                        if (addressPointMatch.Reference is string reference && !references.Contains(reference, StringComparer.Ordinal))
+                        {
+                            references.Add(reference);
+                        }
+                    }
+
+                    // One county part at a time, one read after another: the match carries the part (DiGi-GIS.WebAPI#85 item 1), so the read is confined to that partition instead of scanning every partition the way countyidsbyreference has to.
+                    Table? table = await buildingDataPostgreSQLConverter.PullAsync(references, grouping.Key, columnUniqueIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                    if (table is null)
+                    {
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "Building data could not be read for county part {CountyId}", grouping.Key?.ToString(CultureInfo.CurrentCulture) ?? string.Empty);
+                        return NotFound();
+                    }
+
+                    Column? column_Reference = null;
+                    foreach (Column column in table.Columns)
+                    {
+                        if (string.Equals(DiGi.PostgreSQL.Table.Query.UniqueId(column), DiGi.GIS.IO.Constants.Column.Reference.UniqueId(), StringComparison.Ordinal))
+                        {
+                            column_Reference = column;
+                            break;
+                        }
+                    }
+
+                    if (column_Reference is null)
+                    {
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "The projected table holds no reference column");
+                        return StatusCode(500, "The projected building data holds no reference column.");
+                    }
+
+                    foreach (Row row in table.Rows)
+                    {
+                        if (row[column_Reference.Index] is string reference_Row && reference_Row.Length != 0 && !buildingData_ByReference.ContainsKey(reference_Row))
+                        {
+                            buildingData_ByReference[reference_Row] = ToJsonObject(table, row);
+                        }
+                    }
+                }
+
+                List<BuildingDataByAddressItem> buildingDataByAddressItems = [];
+                foreach (GIS.Classes.AddressPointMatch addressPointMatch in addressPointMatches_Matched)
+                {
+                    JsonObject? buildingData = null;
+                    if (addressPointMatch.Reference is string reference_Match && buildingData_ByReference.TryGetValue(reference_Match, out JsonObject? buildingData_Temp))
+                    {
+                        buildingData = buildingData_Temp;
+                    }
+
+                    buildingDataByAddressItems.Add(new BuildingDataByAddressItem(addressPointMatch, buildingData));
+                }
+
+                string? json = Core.Convert.ToSystem_String(buildingDataByAddressItems);
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    return StatusCode(500, "The answer could not be serialized.");
+                }
+
+                return Content(json, "application/json");
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingDataController), nameof(GetByAddressAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetByAddressAsync));
+                return StatusCode(500, "Internal server error during database query");
             }
         }
 
@@ -1542,21 +1817,24 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
-        /// Retrieves a building data table for one specific building.
+        /// Retrieves the building data table row of one building, optionally projected to the columns the caller names.
+        /// <para><paramref name="columns"/> takes stored column unique ids as repeated query keys (<c>?columns=storeys&amp;columns=floor_area</c>) or as one comma-separated value (<c>?columns=storeys,floor_area</c>), and is checked against the stored column list before the table is read: an id the stored table does not hold answers 400 naming it, an entry naming no id answers 400, and a projection that cannot be checked because the stored column list could not be read answers 500 - never a silently narrowed read. Omitting it keeps every stored column, which is what this endpoint has always returned.</para>
+        /// <para>The answer always carries <c>reference</c>, and <c>county_id</c> as well whenever <paramref name="countyId"/> is given: the read is keyed by <c>(county_id, reference)</c>, so <paramref name="countyId"/> is what confines it to one partition. Without it the reference is read across every partition, but a projection that contains <c>county_id</c> then answers nulls for every data column (DiGi-Organization/DiGi.GIS.PostgreSQL#140) - pass <paramref name="countyId"/> whenever you project <c>county_id</c>, which is what <c>byaddress</c> and the address search (<c>AddressPointMatch.CountyId</c>) make free.</para>
         /// </summary>
-        /// <param name="reference">Building reference</param>
-        /// <param name="countyId">The unique identifier of the county for which building belongs to.</param>
+        /// <param name="reference">The <c>building_2d</c> reference of the building. Required.</param>
+        /// <param name="countyId">The county part the building belongs to, which is the partition the row is read from; null reads the reference across partitions (DiGi-Organization/DiGi.GIS.PostgreSQL#140).</param>
+        /// <param name="columns">The projected columns, as repeated query keys or as one comma-separated value; null for every stored column.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
-        /// <returns>A task representing the asynchronous operation, returning the populated filtered table with data for sigle building.</returns>
+        /// <returns>A task representing the asynchronous operation: 200 with the table of the building, 400 for a missing reference, a negative timeout, an unknown column or an entry naming no column, 404 when the table could not be read, or 503/500 on the failure paths.</returns>
         [HttpGet("tablebyreference", Name = $"{nameof(BuildingDataController)}_{nameof(GetTableByReferenceAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(DiGi.Core.IO.Table.Classes.Table), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The reference is missing, the timeout is negative, or the projection names a column the stored table does not hold (the body names it).")]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetTableByReferenceAsync([BindRequired, FromQuery(Name = "reference")] string reference, [FromQuery(Name = "countyid")] int? countyId = null, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetTableByReferenceAsync([BindRequired, FromQuery(Name = "reference")] string reference, [FromQuery(Name = "countyid")] int? countyId = null, [FromQuery(Name = "columns")] List<string>? columns = null, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
         {
             Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingDataController), nameof(GetTableByReferenceAsync));
 
@@ -1577,10 +1855,17 @@ namespace DiGi.GIS.WebAPI.Classes
                     return BadRequest();
                 }
 
+                (IActionResult? actionResult_Columns, List<string>? columnUniqueIds) = await ColumnUniqueIdsAsync(columns, null, commandTimeout, cancellationToken);
+                if (actionResult_Columns is not null)
+                {
+                    return actionResult_Columns;
+                }
+
                 BuildingDataByReferencesParameter buildingDataByReferencesParameter = new()
                 {
                     References = [reference],
-                    CountyId = countyId
+                    CountyId = countyId,
+                    ColumnUniqueIds = columnUniqueIds
                 };
 
                 return await GetTableByBuildingDataByReferencesParameterAsync(buildingDataByReferencesParameter, commandTimeout, cancellationToken);

@@ -3139,6 +3139,107 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') representing the result of the update operation\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem'></a>
+
+## BuildingDataByAddressItem Class
+
+One row of the `GET gis/buildingdata/byaddress` answer: the address point matched to a building, together with the projected building data of that building \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#85\)\.
+
+[AddressPointMatch](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.AddressPointMatch 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByAddressItem\.AddressPointMatch') is the same object `addresspoint/buildingsbyaddress` answers, its county part included, so the caller never has to ask which partition the building data was read from. [BuildingData](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingData 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByAddressItem\.BuildingData') carries one key per projected column, named by the stored column unique id, plus `reference` and - when the read was confined to one partition - `county_id`.
+
+A key whose value is null means the stored row holds no value for that column; a building with no `building_data` row answers every projected key as null, which reads the same way. The answer does not separate the two.
+
+```csharp
+public class BuildingDataByAddressItem : DiGi.Core.Classes.SerializableObject
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [DiGi\.Core\.Classes\.Object](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.object 'DiGi\.Core\.Classes\.Object') → [DiGi\.Core\.Classes\.SerializableObject](https://learn.microsoft.com/en-us/dotnet/api/digi.core.classes.serializableobject 'DiGi\.Core\.Classes\.SerializableObject') → BuildingDataByAddressItem
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingDataByAddressItem(DiGi.GIS.Classes.AddressPointMatch,System.Text.Json.Nodes.JsonObject)'></a>
+
+## BuildingDataByAddressItem\(AddressPointMatch, JsonObject\) Constructor
+
+Initializes a new instance of the [BuildingDataByAddressItem](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByAddressItem') class\.
+
+```csharp
+public BuildingDataByAddressItem(DiGi.GIS.Classes.AddressPointMatch? addressPointMatch, System.Text.Json.Nodes.JsonObject? buildingData);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingDataByAddressItem(DiGi.GIS.Classes.AddressPointMatch,System.Text.Json.Nodes.JsonObject).addressPointMatch'></a>
+
+`addressPointMatch` [DiGi\.GIS\.Classes\.AddressPointMatch](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.addresspointmatch 'DiGi\.GIS\.Classes\.AddressPointMatch')
+
+The matched address point\. It is cloned\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingDataByAddressItem(DiGi.GIS.Classes.AddressPointMatch,System.Text.Json.Nodes.JsonObject).buildingData'></a>
+
+`buildingData` [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
+The projected building data of the matched building, keyed by stored column unique id, or null when there is none\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingDataByAddressItem(DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem)'></a>
+
+## BuildingDataByAddressItem\(BuildingDataByAddressItem\) Constructor
+
+Initializes a new instance of the [BuildingDataByAddressItem](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByAddressItem') class by copying an existing instance\.
+
+```csharp
+public BuildingDataByAddressItem(DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem? buildingDataByAddressItem);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingDataByAddressItem(DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem).buildingDataByAddressItem'></a>
+
+`buildingDataByAddressItem` [BuildingDataByAddressItem](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByAddressItem')
+
+The source item to copy from\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingDataByAddressItem(System.Text.Json.Nodes.JsonObject)'></a>
+
+## BuildingDataByAddressItem\(JsonObject\) Constructor
+
+Initializes a new instance of the [BuildingDataByAddressItem](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataByAddressItem') class from a JSON object\.
+
+```csharp
+public BuildingDataByAddressItem(System.Text.Json.Nodes.JsonObject? jsonObject);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingDataByAddressItem(System.Text.Json.Nodes.JsonObject).jsonObject'></a>
+
+`jsonObject` [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
+The JSON object containing the item data\.
+### Properties
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.AddressPointMatch'></a>
+
+## BuildingDataByAddressItem\.AddressPointMatch Property
+
+Gets a clone of the matched address point: the address, how it was matched, the building it points at and the county part the data was read from\.
+
+```csharp
+public DiGi.GIS.Classes.AddressPointMatch? AddressPointMatch { get; }
+```
+
+#### Property Value
+[DiGi\.GIS\.Classes\.AddressPointMatch](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.addresspointmatch 'DiGi\.GIS\.Classes\.AddressPointMatch')
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataByAddressItem.BuildingData'></a>
+
+## BuildingDataByAddressItem\.BuildingData Property
+
+Gets a deep copy of the projected building data of the matched building, keyed by stored column unique id, or null when there is none\.
+
+```csharp
+public System.Text.Json.Nodes.JsonObject? BuildingData { get; }
+```
+
+#### Property Value
+[System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataByFilterGroupParameter'></a>
 
 ## BuildingDataByFilterGroupParameter Class
@@ -3618,42 +3719,48 @@ public class BuildingDataController : DiGi.WebAPI.Classes.WebAPIController
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [Microsoft\.AspNetCore\.Mvc\.ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase 'Microsoft\.AspNetCore\.Mvc\.ControllerBase') → [DiGi\.WebAPI\.Classes\.WebAPIController](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.webapicontroller 'DiGi\.WebAPI\.Classes\.WebAPIController') → BuildingDataController
 ### Constructors
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter)'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter)'></a>
 
-## BuildingDataController\(GISWebAPIConfigurationFileWatcher, BuildingDataPostgreSQLConverter, Building2DPostgreSQLConverter, AdministrativeAreal2DPostgreSQLConverter\) Constructor
+## BuildingDataController\(GISWebAPIConfigurationFileWatcher, BuildingDataPostgreSQLConverter, Building2DPostgreSQLConverter, AdministrativeAreal2DPostgreSQLConverter, AddressPointPostgreSQLConverter\) Constructor
 
 Initializes a new instance of the BuildingDataController class\.
 
-Both converters and the configuration watcher are taken on the one constructor, because the coverage read compares two tables that sit in different databases and write operations require authorization. A second constructor is not an option: a controller with more than one public constructor fails activation and answers 500 on every one of its endpoints.
+All converters and the configuration watcher are taken on the one constructor, because the coverage read compares two tables that sit in different databases, `byaddress` reads a third, and write operations require authorization. A second constructor is not an option: a controller with more than one public constructor fails activation and answers 500 on every one of its endpoints.
 
 ```csharp
-public BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter buildingDataPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter);
+public BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher GISWebAPIConfigurationFileWatcher, DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter buildingDataPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter building2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter, DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter addressPointPostgreSQLConverter);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).GISWebAPIConfigurationFileWatcher'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter).GISWebAPIConfigurationFileWatcher'></a>
 
 `GISWebAPIConfigurationFileWatcher` [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher')
 
 The [GISWebAPIConfigurationFileWatcher](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher') used to verify authorization and permissions for write operations\.
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).buildingDataPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter).buildingDataPostgreSQLConverter'></a>
 
 `buildingDataPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.BuildingDataPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.buildingdatapostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.BuildingDataPostgreSQLConverter')
 
 The [DiGi\.GIS\.PostgreSQL\.Classes\.BuildingDataPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.buildingdatapostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.BuildingDataPostgreSQLConverter') used to handle building data operations and database conversions\.
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).building2DPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter).building2DPostgreSQLConverter'></a>
 
 `building2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter')
 
 The [DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DPostgreSQLConverter') used to read the buildings a county holds, which is the other half of the coverage comparison\.
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter).administrativeAreal2DPostgreSQLConverter'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter).administrativeAreal2DPostgreSQLConverter'></a>
 
 `administrativeAreal2DPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter')
 
 The [DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2dpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2DPostgreSQLConverter') used to widen a row no named part holds to every part of the named county\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.BuildingDataController(DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher,DiGi.GIS.PostgreSQL.Classes.BuildingDataPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.Building2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DPostgreSQLConverter,DiGi.GIS.PostgreSQL.Classes.AddressPointPostgreSQLConverter).addressPointPostgreSQLConverter'></a>
+
+`addressPointPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.addresspointpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointPostgreSQLConverter')
+
+The [DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.addresspointpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.AddressPointPostgreSQLConverter') used by `byaddress` to search the address points the building data is read for\.
 ### Fields
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.referenceCount_Maximum'></a>
@@ -3719,6 +3826,49 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. The result carries either the answer to give instead of reading \(400, 404 or 204\), or the county partition and filter group to read with\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.ColumnUniqueIdsAsync(System.Collections.Generic.List_string_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken)'></a>
+
+## BuildingDataController\.ColumnUniqueIdsAsync\(List\<string\>, List\<string\>, int, CancellationToken\) Method
+
+Resolves the caller's `columns` query value to the projection a read runs with, or to the answer to give instead, before the read opens a connection \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#85\)\.
+
+Each element is split on commas, trimmed and de-duplicated, so a repeated key (`?columns=storeys&columns=floor_area`) and one comma-separated value (`?columns=storeys,floor_area`) name the same projection.
+
+[columns](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataController.ColumnUniqueIdsAsync(System.Collections.Generic.List_string_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).columns 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataController\.ColumnUniqueIdsAsync\(System\.Collections\.Generic\.List\<string\>, System\.Collections\.Generic\.List\<string\>, int, System\.Threading\.CancellationToken\)\.columns') null means the caller named no projection: [columnUniqueIds\_Default](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataController.ColumnUniqueIdsAsync(System.Collections.Generic.List_string_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).columnUniqueIds_Default 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataController\.ColumnUniqueIdsAsync\(System\.Collections\.Generic\.List\<string\>, System\.Collections\.Generic\.List\<string\>, int, System\.Threading\.CancellationToken\)\.columnUniqueIds\_Default') is then used, and a default column the stored table no longer holds is dropped with a warning, because a constant of this API must not be able to fail a request. A projection the caller did supply is answered strictly: an id the stored table does not hold, or an entry that names no id at all, is refused with 400 naming it, and a stored column list that could not be read is refused with 500. A projection is never checked silently and never silently narrowed.
+
+```csharp
+private System.Threading.Tasks.Task<(Microsoft.AspNetCore.Mvc.IActionResult? ActionResult,System.Collections.Generic.List<string>? ColumnUniqueIds)> ColumnUniqueIdsAsync(System.Collections.Generic.List<string>? columns, System.Collections.Generic.List<string>? columnUniqueIds_Default, int commandTimeout, System.Threading.CancellationToken cancellationToken);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.ColumnUniqueIdsAsync(System.Collections.Generic.List_string_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).columns'></a>
+
+`columns` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The value the caller sent, or null when none was sent\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.ColumnUniqueIdsAsync(System.Collections.Generic.List_string_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).columnUniqueIds_Default'></a>
+
+`columnUniqueIds_Default` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The projection to read with when the caller sent none; null means every stored column\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.ColumnUniqueIdsAsync(System.Collections.Generic.List_string_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the column list read\. A value of 0 disables the timeout\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.ColumnUniqueIdsAsync(System.Collections.Generic.List_string_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task whose result carries the answer to give instead \(400 or 500\), or the projection to read with \- null meaning every stored column\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetAggregateSummariesAsync(DiGi.GIS.WebAPI.Classes.AggregateSummariesRequestParameter,int,System.Threading.CancellationToken)'></a>
 
 ## BuildingDataController\.GetAggregateSummariesAsync\(AggregateSummariesRequestParameter, int, CancellationToken\) Method
@@ -3757,6 +3907,69 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task representing the asynchronous operation, returning the measures as a JSON array in request order\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken)'></a>
+
+## BuildingDataController\.GetByAddressAsync\(string, string, Nullable\<int\>, Nullable\<int\>, List\<string\>, int, CancellationToken\) Method
+
+Answers an address search with the projected building data of the matched buildings in one call: for each matched address point, the match itself and the stored columns the caller names \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#85\)\.
+
+Ranking and limits are those of `addresspoint/buildingsbyaddress` - similarity first, then an exact house number before a prefix match, from [ByAddressLimit\_Minimum](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.ByAddressLimit_Minimum 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.ByAddressLimit\_Minimum') to [ByAddressLimit\_Maximum](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.ByAddressLimit_Maximum 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.ByAddressLimit\_Maximum') matches - and the answer keeps that rank order. Every match carries its county part, so the building data is read one county partition at a time: the reads run one after another, never in parallel, because concurrent requests exhaust the Npgsql pool, and a question that spans two counties costs two scoped reads instead of one cross-partition scan.
+
+[columns](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).columns 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataController\.GetByAddressAsync\(string, string, System\.Nullable\<int\>, System\.Nullable\<int\>, System\.Collections\.Generic\.List\<string\>, int, System\.Threading\.CancellationToken\)\.columns') takes stored column unique ids as repeated query keys or as one comma-separated value and is validated like any other projection: an id the stored table does not hold answers 400 naming it, an entry naming no id answers 400, and a stored column list that could not be read answers 500. Omitted, it defaults to [ByAddressDefaultColumnUniqueIds](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingData.ByAddressDefaultColumnUniqueIds 'DiGi\.GIS\.WebAPI\.Constants\.BuildingData\.ByAddressDefaultColumnUniqueIds'); a default column the stored table no longer holds is dropped with a warning rather than refused.
+
+Every item carries `reference`, and `county_id` as well because the read is always confined to one county part, so `BuildingData` repeats what its match already carries. A key whose value is null means the stored row holds no value for that column; a building with no building data row answers every projected key as null, and the answer does not separate the two.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetByAddressAsync(string? text, string? houseNumber, System.Nullable<int> countyId, System.Nullable<int> limit=20, System.Collections.Generic.List<string>? columns=null, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).text'></a>
+
+`text` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The street or locality name to search for, as typed\. Required; a text with no letter or digit is refused with 400\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).houseNumber'></a>
+
+`houseNumber` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The house number to narrow the result to, or null for any\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The county part id to narrow the address search to, or null for every county\. Whichever it is, each match's own part is what its building data is read from\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).limit'></a>
+
+`limit` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The maximum number of address matches, from 1 to 100\. Out\-of\-range values are refused, not clamped\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).columns'></a>
+
+`columns` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The projected building data columns, as repeated query keys or as one comma\-separated value; null for the default projection\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for each command \- the address search and every building data read\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetByAddressAsync(string,string,System.Nullable_int_,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The cancellation token to observe\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with one item per matched address point in rank order \(an empty array when none\), 400 for a missing or empty text, a text that normalises to nothing, an out\-of\-range limit or county id, a negative timeout, an unknown column or an entry naming no column, 404 when a building data read could not run, 503 for a transient database failure, or 500\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCategoriesAsync(int,System.Threading.CancellationToken)'></a>
 
@@ -4455,36 +4668,46 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task representing the asynchronous operation, returning the populated filtered table\.
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,int,System.Threading.CancellationToken)'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken)'></a>
 
-## BuildingDataController\.GetTableByReferenceAsync\(string, Nullable\<int\>, int, CancellationToken\) Method
+## BuildingDataController\.GetTableByReferenceAsync\(string, Nullable\<int\>, List\<string\>, int, CancellationToken\) Method
 
-Retrieves a building data table for one specific building\.
+Retrieves the building data table row of one building, optionally projected to the columns the caller names\.
+
+[columns](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).columns 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataController\.GetTableByReferenceAsync\(string, System\.Nullable\<int\>, System\.Collections\.Generic\.List\<string\>, int, System\.Threading\.CancellationToken\)\.columns') takes stored column unique ids as repeated query keys (`?columns=storeys&columns=floor_area`) or as one comma-separated value (`?columns=storeys,floor_area`), and is checked against the stored column list before the table is read: an id the stored table does not hold answers 400 naming it, an entry naming no id answers 400, and a projection that cannot be checked because the stored column list could not be read answers 500 - never a silently narrowed read. Omitting it keeps every stored column, which is what this endpoint has always returned.
+
+The answer always carries `reference`, and `county_id` as well whenever [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataController\.GetTableByReferenceAsync\(string, System\.Nullable\<int\>, System\.Collections\.Generic\.List\<string\>, int, System\.Threading\.CancellationToken\)\.countyId') is given: the read is keyed by `(county_id, reference)`, so [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataController\.GetTableByReferenceAsync\(string, System\.Nullable\<int\>, System\.Collections\.Generic\.List\<string\>, int, System\.Threading\.CancellationToken\)\.countyId') is what confines it to one partition. Without it the reference is read across every partition, but a projection that contains `county_id` then answers nulls for every data column (DiGi-Organization/DiGi.GIS.PostgreSQL#140) - pass [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataController\.GetTableByReferenceAsync\(string, System\.Nullable\<int\>, System\.Collections\.Generic\.List\<string\>, int, System\.Threading\.CancellationToken\)\.countyId') whenever you project `county_id`, which is what `byaddress` and the address search (`AddressPointMatch.CountyId`) make free.
 
 ```csharp
-public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTableByReferenceAsync(string reference, System.Nullable<int> countyId=null, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetTableByReferenceAsync(string reference, System.Nullable<int> countyId=null, System.Collections.Generic.List<string>? columns=null, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,int,System.Threading.CancellationToken).reference'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).reference'></a>
 
 `reference` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
 
-Building reference
+The `building_2d` reference of the building\. Required\.
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,int,System.Threading.CancellationToken).countyId'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).countyId'></a>
 
 `countyId` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
 
-The unique identifier of the county for which building belongs to\.
+The county part the building belongs to, which is the partition the row is read from; null reads the reference across partitions \(DiGi\-Organization/DiGi\.GIS\.PostgreSQL\#140\)\.
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).columns'></a>
+
+`columns` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The projected columns, as repeated query keys or as one comma\-separated value; null for every stored column\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).commandTimeout'></a>
 
 `commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 
 The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\.
 
-<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetTableByReferenceAsync(string,System.Nullable_int_,System.Collections.Generic.List_string_,int,System.Threading.CancellationToken).cancellationToken'></a>
 
 `cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
 
@@ -4492,7 +4715,7 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
-A task representing the asynchronous operation, returning the populated filtered table with data for sigle building\.
+A task representing the asynchronous operation: 200 with the table of the building, 400 for a missing reference, a negative timeout, an unknown column or an entry naming no column, 404 when the table could not be read, or 503/500 on the failure paths\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetUniqueValuesAsync(string,System.Nullable_int_,int,System.Threading.CancellationToken)'></a>
 
@@ -4571,6 +4794,33 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') representing the result of the operation, typically a list of unique values or a not found status\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.ToJsonObject(DiGi.Core.IO.Table.Classes.Table,DiGi.Core.IO.Table.Classes.Row)'></a>
+
+## BuildingDataController\.ToJsonObject\(Table, Row\) Method
+
+Builds the projected building data of one row: one key per column of the table, named by the stored column unique id and holding the row's value, or null where the row holds none\.
+
+```csharp
+private static System.Text.Json.Nodes.JsonObject? ToJsonObject(DiGi.Core.IO.Table.Classes.Table? table, DiGi.Core.IO.Table.Classes.Row? row);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.ToJsonObject(DiGi.Core.IO.Table.Classes.Table,DiGi.Core.IO.Table.Classes.Row).table'></a>
+
+`table` [DiGi\.Core\.IO\.Table\.Classes\.Table](https://learn.microsoft.com/en-us/dotnet/api/digi.core.io.table.classes.table 'DiGi\.Core\.IO\.Table\.Classes\.Table')
+
+The projected table the row belongs to\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.ToJsonObject(DiGi.Core.IO.Table.Classes.Table,DiGi.Core.IO.Table.Classes.Row).row'></a>
+
+`row` [DiGi\.Core\.IO\.Table\.Classes\.Row](https://learn.microsoft.com/en-us/dotnet/api/digi.core.io.table.classes.row 'DiGi\.Core\.IO\.Table\.Classes\.Row')
+
+The row to convert\.
+
+#### Returns
+[System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')  
+The row as a [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject'), or null when no table was read\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.UpdateItemsByCountyIdsAsync(System.Text.Json.Nodes.JsonObject,int[],int,string,System.Threading.CancellationToken)'></a>
 
