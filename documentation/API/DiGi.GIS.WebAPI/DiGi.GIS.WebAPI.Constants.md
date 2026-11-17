@@ -164,6 +164,47 @@ public static readonly int MinimumLimit;
 #### Field Value
 [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 
+<a name='DiGi.GIS.WebAPI.Constants.BuildingModel'></a>
+
+## BuildingModel Class
+
+Provides the limits applied to building model queries served by the GIS PostgreSQL Web API\.
+
+```csharp
+public static class BuildingModel
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → BuildingModel
+### Fields
+
+<a name='DiGi.GIS.WebAPI.Constants.BuildingModel.DefaultItemsByCountyIdLimit'></a>
+
+## BuildingModel\.DefaultItemsByCountyIdLimit Field
+
+The default number of building models one page of `gis/buildingmodel/itemsbycountyid` holds \- the batch size of the server\-side solar solve\.
+
+```csharp
+public const int DefaultItemsByCountyIdLimit = 100;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+<a name='DiGi.GIS.WebAPI.Constants.BuildingModel.MaximumItemsByCountyIdLimit'></a>
+
+## BuildingModel\.MaximumItemsByCountyIdLimit Field
+
+The largest number of building models one page of `gis/buildingmodel/itemsbycountyid` may hold\.
+
+Every model travels with its full geometry, so a page is bounded to keep one response, and the server's copies of it, within a few tens of megabytes. A client walking a county part asks for more pages, not larger ones.
+
+```csharp
+public const int MaximumItemsByCountyIdLimit = 1000;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Constants.Compression'></a>
 
 ## Compression Class
@@ -249,6 +290,8 @@ public const string EPWFileId = "DiGi-EPWFile-Id";
 ## Header\.NextCursor Field
 
 The response header carrying the cursor of the next page of a physical\-order building data read\. Absent when the county part is exhausted, and absent when the endpoint answered in reference order instead\.
+
+`gis/buildingmodel/itemsbycountyid` answers it too, as the invariant row id to pass as the next `idafter`, present whenever the page is full.
 
 ```csharp
 public const string NextCursor = "DiGi-Next-Cursor";

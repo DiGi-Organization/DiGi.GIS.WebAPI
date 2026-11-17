@@ -375,6 +375,102 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Retrieves one page of the building models stored under a county part, in row id order.
+        /// <para>Keyset paging: the first page starts at <c>idafter=0</c>; a full page answers the <c>DiGi-Next-Cursor</c> header (<see cref="Constants.Header.NextCursor"/>) with the row id to pass as the next <paramref name="idAfter"/>, and the walk ends at a page without it. A page that ends exactly at the last row still carries the header, and the next page is empty. The cursor is the row id because a <see cref="BuildingModel"/> carries none of its own.</para>
+        /// <para>These are the models filed under the part - the receivers of a solar solve. Their neighbours cross county borders, so a client reads them by circle (<c>itemsbycircle</c>), not from here. A subset of known references is read with <c>itemsbyreferences</c>. Open to every visitor, like the other building model reads.</para>
+        /// </summary>
+        /// <param name="countyId">The identifier of the county part (<c>administrative_areal_2d.id</c>, never a county code).</param>
+        /// <param name="idAfter">The exclusive lower bound of the row ids: 0 for the first page, then the previous page's <c>DiGi-Next-Cursor</c>.</param>
+        /// <param name="limit">The largest number of models in the page, from 1 to <see cref="Constants.BuildingModel.MaximumItemsByCountyIdLimit"/>.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with the JSON list of <see cref="BuildingModel"/> (empty past the last row); 400 for a county id below 1, a negative <paramref name="idAfter"/>, a <paramref name="limit"/> out of range or a negative timeout; 404 when the building model table does not exist; 503 for a transient database failure; or 500.</returns>
+        [HttpGet("itemsbycountyid", Name = $"{nameof(BuildingModelController)}_{nameof(GetItemsByCountyIdAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<BuildingModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetItemsByCountyIdAsync([BindRequired, Minimum(1), FromQuery(Name = "countyid")] int countyId, [Minimum(0), FromQuery(Name = "idafter")] long idAfter = 0, [Minimum(1), FromQuery(Name = "limit")] int limit = Constants.BuildingModel.DefaultItemsByCountyIdLimit, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for county part {CountyId} after row {IdAfter}, limit {Limit}", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync), countyId, idAfter, limit);
+
+            if (countyId < 1 || idAfter < 0 || limit < 1 || limit > Constants.BuildingModel.MaximumItemsByCountyIdLimit || commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name} rejected: county part {CountyId}, idafter {IdAfter}, limit {Limit} (1 to {LimitMax}), commandtimeout {CommandTimeout}", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync), countyId, idAfter, limit, Constants.BuildingModel.MaximumItemsByCountyIdLimit, commandTimeout);
+                return BadRequest();
+            }
+
+            List<PostgreSQL.Classes.BuildingModel>? buildingModels_PostgreSQL;
+            try
+            {
+                buildingModels_PostgreSQL = await buildingModelPostgreSQLConverter.GetItemsByIdRangeAsync(countyId, idAfter, long.MaxValue, limit, commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (PostgresException postgresException) when (postgresException.SqlState == PostgresErrorCodes.UndefinedTable)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name}: table {TableName} does not exist", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync), buildingModelPostgreSQLConverter.TableName);
+                return NotFound();
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed for county part {CountyId}", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync), countyId);
+                return StatusCode(500, "Database read failed.");
+            }
+
+            // Null is a failure to reach the database, never "nothing stored" - an empty page says that (Coding - WebAPI Contracts.md).
+            if (buildingModels_PostgreSQL is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} failed: no connection to the Storage database", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync));
+                return StatusCode(500, "Building models could not be read.");
+            }
+
+            if (buildingModels_PostgreSQL.Count == 0)
+            {
+                return Content("[]", "application/json");
+            }
+
+            List<BuildingModel> buildingModels = [];
+            foreach (PostgreSQL.Classes.BuildingModel buildingModel_PostgreSQL in buildingModels_PostgreSQL)
+            {
+                BuildingModel? buildingModel = buildingModel_PostgreSQL?.ToDiGi();
+                if (buildingModel is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name}: row {Id} of county part {CountyId} does not read as a building model", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync), buildingModel_PostgreSQL?.Id ?? 0, countyId);
+                    continue;
+                }
+
+                buildingModels.Add(buildingModel);
+            }
+
+            string? json = Core.Convert.ToSystem_String(buildingModels);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name}: {Count} building models could not be serialized", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync), buildingModels.Count);
+                return StatusCode(500, "Building models could not be serialized.");
+            }
+
+            // The cursor follows the rows read, not the models converted, so an unreadable row never stalls the walk.
+            if (buildingModels_PostgreSQL.Count == limit)
+            {
+                HttpContext.Response.Headers[Constants.Header.NextCursor] = buildingModels_PostgreSQL[^1].Id.ToString(CultureInfo.InvariantCulture);
+            }
+
+            Serilog.Modify.Log("{Type}:{Name} returns {Count} building models of county part {CountyId}", nameof(BuildingModelController), nameof(GetItemsByCountyIdAsync), buildingModels.Count, countyId);
+            return Content(json, "application/json");
+        }
+
+        /// <summary>
         /// Updates multiple building model items in the database, keyed by administrative area code.
         /// <para>A county code does not identify a single county row: BDOT10k stores a county whose territory is disconnected as one feature per polygon part, and every part becomes its own row. Every part the code names is passed on, and each model is filed under the part it actually belongs to - see <see cref="UpdateItemsByCountyIdsAsync"/> for how that is decided.</para>
         /// </summary>

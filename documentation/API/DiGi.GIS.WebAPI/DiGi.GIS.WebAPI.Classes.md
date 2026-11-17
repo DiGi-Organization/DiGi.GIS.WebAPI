@@ -5148,6 +5148,55 @@ A cancellation token that can be used by the caller to cancel the asynchronous o
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken)'></a>
+
+## BuildingModelController\.GetItemsByCountyIdAsync\(int, long, int, int, CancellationToken\) Method
+
+Retrieves one page of the building models stored under a county part, in row id order\.
+
+Keyset paging: the first page starts at `idafter=0`; a full page answers the `DiGi-Next-Cursor` header ([NextCursor](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.Header.NextCursor 'DiGi\.GIS\.WebAPI\.Constants\.Header\.NextCursor')) with the row id to pass as the next [idAfter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken).idAfter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingModelController\.GetItemsByCountyIdAsync\(int, long, int, int, System\.Threading\.CancellationToken\)\.idAfter'), and the walk ends at a page without it. A page that ends exactly at the last row still carries the header, and the next page is empty. The cursor is the row id because a [DiGi\.Analytical\.Building\.Classes\.BuildingModel](https://learn.microsoft.com/en-us/dotnet/api/digi.analytical.building.classes.buildingmodel 'DiGi\.Analytical\.Building\.Classes\.BuildingModel') carries none of its own.
+
+These are the models filed under the part - the receivers of a solar solve. Their neighbours cross county borders, so a client reads them by circle (`itemsbycircle`), not from here. A subset of known references is read with `itemsbyreferences`. Open to every visitor, like the other building model reads.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetItemsByCountyIdAsync(int countyId, long idAfter=0L, int limit=100, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The identifier of the county part \(`administrative_areal_2d.id`, never a county code\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken).idAfter'></a>
+
+`idAfter` [System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')
+
+The exclusive lower bound of the row ids: 0 for the first page, then the previous page's `DiGi-Next-Cursor`\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken).limit'></a>
+
+`limit` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The largest number of models in the page, from 1 to [MaximumItemsByCountyIdLimit](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingModel.MaximumItemsByCountyIdLimit 'DiGi\.GIS\.WebAPI\.Constants\.BuildingModel\.MaximumItemsByCountyIdLimit')\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+A cancellation token that can be used by the caller to cancel the asynchronous operation\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the JSON list of [DiGi\.Analytical\.Building\.Classes\.BuildingModel](https://learn.microsoft.com/en-us/dotnet/api/digi.analytical.building.classes.buildingmodel 'DiGi\.Analytical\.Building\.Classes\.BuildingModel') \(empty past the last row\); 400 for a county id below 1, a negative [idAfter](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken).idAfter 'DiGi\.GIS\.WebAPI\.Classes\.BuildingModelController\.GetItemsByCountyIdAsync\(int, long, int, int, System\.Threading\.CancellationToken\)\.idAfter'), a [limit](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByCountyIdAsync(int,long,int,int,System.Threading.CancellationToken).limit 'DiGi\.GIS\.WebAPI\.Classes\.BuildingModelController\.GetItemsByCountyIdAsync\(int, long, int, int, System\.Threading\.CancellationToken\)\.limit') out of range or a negative timeout; 404 when the building model table does not exist; 503 for a transient database failure; or 500\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingModelController.GetItemsByReferencesAsync(System.Collections.Generic.IEnumerable_string_,System.Nullable_int_,System.Nullable_long_,System.Threading.CancellationToken)'></a>
 
 ## BuildingModelController\.GetItemsByReferencesAsync\(IEnumerable\<string\>, Nullable\<int\>, Nullable\<long\>, CancellationToken\) Method
@@ -6274,6 +6323,70 @@ A cancellation token that can be used by the caller to cancel the asynchronous o
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\.
+
+<a name='DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileByIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken)'></a>
+
+## EPWFileController\.GetEPWFileByIdAsync\(Nullable\<int\>, int, CancellationToken\) Method
+
+Asynchronously retrieves the EPW file of one `epw_file` row, addressed by its id\.
+
+The by-id counterpart of [GetEPWFileAsync\(double, double, CancellationToken\)](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileAsync(double,double,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Classes\.EPWFileController\.GetEPWFileAsync\(double, double, System\.Threading\.CancellationToken\)'): the same body and the same `DiGi-EPWFile-Id` header ([EPWFileId](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.Header.EPWFileId 'DiGi\.GIS\.WebAPI\.Constants\.Header\.EPWFileId')). A client that picked a station from [GetEPWFileLocationsAsync\(int, CancellationToken\)](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileLocationsAsync(int,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Classes\.EPWFileController\.GetEPWFileLocationsAsync\(int, System\.Threading\.CancellationToken\)') reads each station it uses once, by id, instead of resolving the location of every building (DiGi.GIS.WebAPI#93). The id is bound nullable, so an omitted one is refused rather than read as 0 (`Coding - WebAPI Contracts.md` §2).
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetEPWFileByIdAsync(System.Nullable<int> id, int commandTimeout=30, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileByIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).id'></a>
+
+`id` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The id of the `epw_file` row\.
+
+<a name='DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileByIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 30 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileByIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+A cancellation token that can be used by the caller to cancel the asynchronous operation\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the [DiGi\.EPW\.Classes\.EPWFile](https://learn.microsoft.com/en-us/dotnet/api/digi.epw.classes.epwfile 'DiGi\.EPW\.Classes\.EPWFile'); 400 for a missing or non\-positive id or a negative timeout; 404 when no row has the id or the table does not exist; 503 for a transient database failure; or 500\.
+
+<a name='DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileLocationsAsync(int,System.Threading.CancellationToken)'></a>
+
+## EPWFileController\.GetEPWFileLocationsAsync\(int, CancellationToken\) Method
+
+Asynchronously retrieves the id and location of every EPW station, without the weather files\.
+
+A client positioning many buildings picks each one's station in memory from this list - the smallest planar distance, as [GetEPWFileAsync\(double, double, CancellationToken\)](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileAsync(double,double,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Classes\.EPWFileController\.GetEPWFileAsync\(double, double, System\.Threading\.CancellationToken\)') and the server-side solar solve pick it (`Query.NearestEPWFileId`) - and then reads only the stations it uses with [GetEPWFileByIdAsync\(Nullable&lt;int&gt;, int, CancellationToken\)](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileByIdAsync(System.Nullable_int_,int,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Classes\.EPWFileController\.GetEPWFileByIdAsync\(System\.Nullable\<int\>, int, System\.Threading\.CancellationToken\)') (DiGi.GIS.WebAPI#93). Open to every visitor, like the by-location read.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetEPWFileLocationsAsync(int commandTimeout=30, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileLocationsAsync(int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 30 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.EPWFileController.GetEPWFileLocationsAsync(int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+A cancellation token that can be used by the caller to cancel the asynchronous operation\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the JSON list of [DiGi\.GIS\.PostgreSQL\.Classes\.EPWFileLocationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.epwfilelocationresult 'DiGi\.GIS\.PostgreSQL\.Classes\.EPWFileLocationResult') in id order \(empty when no station is stored\); 400 for a negative timeout; 404 when the table does not exist; 503 for a transient database failure; or 500\.
 
 <a name='DiGi.GIS.WebAPI.Classes.EPWFileController.UpdateItemsAsync(System.Text.Json.Nodes.JsonArray,string,System.Threading.CancellationToken)'></a>
 

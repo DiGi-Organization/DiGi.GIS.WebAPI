@@ -173,5 +173,160 @@ namespace DiGi.GIS.WebAPI.Classes
                 return StatusCode(500, "Internal server error during database query");
             }
         }
+
+        /// <summary>
+        /// Asynchronously retrieves the EPW file of one <c>epw_file</c> row, addressed by its id.
+        /// <para>The by-id counterpart of <see cref="GetEPWFileAsync"/>: the same body and the same <c>DiGi-EPWFile-Id</c> header (<see cref="Constants.Header.EPWFileId"/>). A client that picked a station from <see cref="GetEPWFileLocationsAsync"/> reads each station it uses once, by id, instead of resolving the location of every building (DiGi.GIS.WebAPI#93). The id is bound nullable, so an omitted one is refused rather than read as 0 (<c>Coding - WebAPI Contracts.md</c> §2).</para>
+        /// </summary>
+        /// <param name="id">The id of the <c>epw_file</c> row.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 30 seconds.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with the <see cref="EPWFile"/>; 400 for a missing or non-positive id or a negative timeout; 404 when no row has the id or the table does not exist; 503 for a transient database failure; or 500.</returns>
+        [HttpGet("itembyid", Name = $"{nameof(EPWFileController)}_{nameof(GetEPWFileByIdAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(EPWFile), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetEPWFileByIdAsync([FromQuery(Name = "id")] int? id, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 30, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for row {Id}", nameof(EPWFileController), nameof(GetEPWFileByIdAsync), id?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "-");
+
+            if (id is null || id.Value <= 0 || commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name} rejected: id is missing or not positive, or commandtimeout {CommandTimeout} is negative", nameof(EPWFileController), nameof(GetEPWFileByIdAsync), commandTimeout);
+                return BadRequest();
+            }
+
+            // The converter answers null both for a missing row and for no connection; only the first is a 404 (Coding - WebAPI Contracts.md §3).
+            if (ePWFilePostgreSQLConverter.ConnectionData is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} failed: the EPW file converter has no connection data", nameof(EPWFileController), nameof(GetEPWFileByIdAsync));
+                return StatusCode(500, "EPW file could not be read");
+            }
+
+            EPWFile? ePWFile;
+            try
+            {
+                ePWFile = await ePWFilePostgreSQLConverter.GetEPWFileByIdAsync(id.Value, commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (PostgresException postgresException) when (postgresException.SqlState == PostgresErrorCodes.UndefinedTable)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name}: table {TableName} does not exist", nameof(EPWFileController), nameof(GetEPWFileByIdAsync), EPWFilePostgreSQLConverter.TableName);
+                return NotFound();
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(EPWFileController), nameof(GetEPWFileByIdAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed for row {Id}", nameof(EPWFileController), nameof(GetEPWFileByIdAsync), id.Value);
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            if (ePWFile is null)
+            {
+                Serilog.Modify.Log("{Type}:{Name}: no row {Id}", nameof(EPWFileController), nameof(GetEPWFileByIdAsync), id.Value);
+                return NotFound();
+            }
+
+            string? json = ePWFile.ToJsonObject()?.ToJsonString();
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name}: the file of row {Id} could not be serialized", nameof(EPWFileController), nameof(GetEPWFileByIdAsync), id.Value);
+                return StatusCode(500, "EPW file could not be serialized");
+            }
+
+            HttpContext.Response.Headers[Constants.Header.EPWFileId] = id.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            return Content(json, "application/json");
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves the id and location of every EPW station, without the weather files.
+        /// <para>A client positioning many buildings picks each one's station in memory from this list - the smallest planar distance, as <see cref="GetEPWFileAsync"/> and the server-side solar solve pick it (<c>Query.NearestEPWFileId</c>) - and then reads only the stations it uses with <see cref="GetEPWFileByIdAsync"/> (DiGi.GIS.WebAPI#93). Open to every visitor, like the by-location read.</para>
+        /// </summary>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 30 seconds.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with the JSON list of <see cref="EPWFileLocationResult"/> in id order (empty when no station is stored); 400 for a negative timeout; 404 when the table does not exist; 503 for a transient database failure; or 500.</returns>
+        [HttpGet("locations", Name = $"{nameof(EPWFileController)}_{nameof(GetEPWFileLocationsAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<EPWFileLocationResult>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetEPWFileLocationsAsync([Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 30, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(EPWFileController), nameof(GetEPWFileLocationsAsync));
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name} rejected: commandtimeout cannot be negative", nameof(EPWFileController), nameof(GetEPWFileLocationsAsync));
+                return BadRequest();
+            }
+
+            List<(int Id, double X, double Y)>? ePWFileLocations;
+            try
+            {
+                ePWFileLocations = await ePWFilePostgreSQLConverter.GetEPWFileLocationsAsync(commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (PostgresException postgresException) when (postgresException.SqlState == PostgresErrorCodes.UndefinedTable)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name}: table {TableName} does not exist", nameof(EPWFileController), nameof(GetEPWFileLocationsAsync), EPWFilePostgreSQLConverter.TableName);
+                return NotFound();
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(EPWFileController), nameof(GetEPWFileLocationsAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(EPWFileController), nameof(GetEPWFileLocationsAsync));
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            // Null is a failure to reach the database, never "no station" - an empty list says that (Coding - WebAPI Contracts.md).
+            if (ePWFileLocations is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} failed: no connection to the database", nameof(EPWFileController), nameof(GetEPWFileLocationsAsync));
+                return StatusCode(500, "EPW station locations could not be read");
+            }
+
+            if (ePWFileLocations.Count == 0)
+            {
+                return Content("[]", "application/json");
+            }
+
+            List<EPWFileLocationResult> ePWFileLocationResults = [];
+            foreach ((int Id, double X, double Y) ePWFileLocation in ePWFileLocations)
+            {
+                ePWFileLocationResults.Add(new EPWFileLocationResult(ePWFileLocation.Id, ePWFileLocation.X, ePWFileLocation.Y));
+            }
+
+            string? json = Core.Convert.ToSystem_String(ePWFileLocationResults);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name}: {Count} station locations could not be serialized", nameof(EPWFileController), nameof(GetEPWFileLocationsAsync), ePWFileLocationResults.Count);
+                return StatusCode(500, "EPW station locations could not be serialized");
+            }
+
+            Serilog.Modify.Log("{Type}:{Name} returns {Count} station locations", nameof(EPWFileController), nameof(GetEPWFileLocationsAsync), ePWFileLocationResults.Count);
+            return Content(json, "application/json");
+        }
     }
 }

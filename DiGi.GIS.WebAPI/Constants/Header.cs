@@ -7,6 +7,7 @@ namespace DiGi.GIS.WebAPI.Constants
     {
         /// <summary>
         /// The response header carrying the cursor of the next page of a physical-order building data read. Absent when the county part is exhausted, and absent when the endpoint answered in reference order instead.
+        /// <para><c>gis/buildingmodel/itemsbycountyid</c> answers it too, as the invariant row id to pass as the next <c>idafter</c>, present whenever the page is full.</para>
         /// </summary>
         public const string NextCursor = "DiGi-Next-Cursor";
 
