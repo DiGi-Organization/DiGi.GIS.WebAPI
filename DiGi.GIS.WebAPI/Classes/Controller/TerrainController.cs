@@ -374,7 +374,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <param name="gridSize">The lattice spacing a sampling run used, in metres, when it is known. Strictly greater than zero when supplied.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
         /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
-        /// <returns>An <see cref="IActionResult"/> carrying the densities as JSON, or an error status.</returns>
+        /// <returns>An <see cref="IActionResult"/> carrying the densities as JSON, or an error status - HTTP 500 when the subdivisions could not be read at all, never an empty list.</returns>
         [HttpGet("densitiesbycountyids", Name = $"{nameof(TerrainController)}_{nameof(GetDensitiesByCountyIdsAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(List<TerrainPointDensityResult>), StatusCodes.Status200OK)]
@@ -414,11 +414,18 @@ namespace DiGi.GIS.WebAPI.Classes
                 // One batched read of every county's subdivisions rather than one per county, which was ~80 % of
                 // the request on production (DiGi.GIS.WebAPI#95).
                 Dictionary<int, List<AdministrativeAreal2D>>? administrativeAreal2Ds_ByCountyId = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByParentIdsAsync(AdministrativeArealType.Subdivision, countyIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                if (administrativeAreal2Ds_ByCountyId is null)
+                {
+                    // Null means the read itself failed (no connection could be created), not that the counties have
+                    // no subdivisions - answering an empty list here would report a failure as "nothing measured".
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} could not read the subdivisions of the requested counties", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync));
+                    return StatusCode(500, "Internal server error during database query");
+                }
 
                 foreach (int countyId in countyIds)
                 {
                     Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = null;
-                    if (administrativeAreal2Ds_ByCountyId is not null && administrativeAreal2Ds_ByCountyId.TryGetValue(countyId, out List<AdministrativeAreal2D>? administrativeAreal2Ds))
+                    if (administrativeAreal2Ds_ByCountyId.TryGetValue(countyId, out List<AdministrativeAreal2D>? administrativeAreal2Ds))
                     {
                         polygonalFace2Ds_ById = NonEmptyPolygonalFace2DsById(administrativeAreal2Ds);
                     }
