@@ -102,6 +102,8 @@ namespace DiGi.GIS.WebAPI.Classes
 
                     if (building2Ds_PostgreSQL is not null && building2Ds_PostgreSQL.Count > 0)
                     {
+                        int imagelessCount = 0;
+
                         foreach (PostgreSQL.Classes.Building2D building2D_PostgreSQL in building2Ds_PostgreSQL)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
@@ -118,6 +120,16 @@ namespace DiGi.GIS.WebAPI.Classes
                                 continue;
                             }
 
+                            // Geoportal answers an image even outside its coverage, so a series with none is a
+                            // fetch in which every request failed. Stored, it read as data and its claim was
+                            // acknowledged, which is how 407 image-less series came to floor the acquisition
+                            // backlog (#81). Skipped, its claim stays open and the reference is fetched again.
+                            if (!ortoDatas.Any())
+                            {
+                                imagelessCount++;
+                                continue;
+                            }
+
                             int? countyId = building2D_PostgreSQL.CountyId > 0 ? building2D_PostgreSQL.CountyId : null;
                             int? subdivisionId = building2D_PostgreSQL.SubdivisionId;
                             if (subdivisionId is null && building2DReferences is not null)
@@ -130,6 +142,11 @@ namespace DiGi.GIS.WebAPI.Classes
                             {
                                 ortoDatasList_PostgreSQL.Add(ortoDatas_PostgreSQL);
                             }
+                        }
+
+                        if (imagelessCount != 0)
+                        {
+                            Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}: {Count}/{Total} references fetched no images - left claimed and fetched again when their lease expires", nameof(OrtoDatasTask), imagelessCount, building2Ds_PostgreSQL.Count);
                         }
 
                         Serilog.Modify.Log("OrtoDatas extracted {Count}", ortoDatasList_PostgreSQL.Count);
@@ -176,9 +193,10 @@ namespace DiGi.GIS.WebAPI.Classes
                         }
 
                         // Only what actually reached the database is retired from the queue. A reference the
-                        // batch produced nothing for - no Building2D, or nothing from the imagery service -
-                        // and one the write rejected are both left claimed, so they come round again rather
-                        // than being deleted as though they had been stored.
+                        // batch produced nothing for - no Building2D, nothing from the imagery service, or a
+                        // series with no images (#81) - and one the write rejected (NoImages among the reasons)
+                        // are all left claimed, so they come round again rather than being deleted as though
+                        // they had been stored. After maxAttempts the claim retires them with an Error log.
                         HashSet<string> references_Rejected = [.. updateItemsResult.Rejected.Where(x => !string.IsNullOrWhiteSpace(x?.Reference)).Select(x => x.Reference!)];
 
                         HashSet<string> references_Stored = [];
