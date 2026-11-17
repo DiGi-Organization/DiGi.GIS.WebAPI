@@ -5854,6 +5854,55 @@ The user extension's security key manager; `null` when the user extension is not
 The user extension's token revocation store; `null` when the user extension is not loaded, in which case every write is refused with 401\.
 ### Methods
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetReferencesByCountyIdAsync(int,System.Nullable_double_,System.Nullable_int_,int,System.Threading.CancellationToken)'></a>
+
+## BuildingSolarRadiationController\.GetReferencesByCountyIdAsync\(int, Nullable\<double\>, Nullable\<int\>, int, CancellationToken\) Method
+
+Lists the references of the buildings of a county part that already hold a stored result for one neighbour radius and solver version\.
+
+The skip-existing read of a client-side solve (DiGi.GIS.WebAPI#93): what the server-side solve reads in one call per part before it decides what to solve, so a client resuming a run steps over the same buildings without one request per building. Open to every visitor, like the other reads of this controller; references only - no result leaves.
+
+Both filters are required: a client that dropped one would skip buildings solved for another variant. They are bound nullable so an omitted one is refused rather than read as 0 (`Coding - WebAPI Contracts.md` §2). The radius is compared exactly as stored (the producer rounds it to 0.1 m), and 0 - the isolated building - is a valid variant. A part with no result, or a table not created yet, answers an empty list.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetReferencesByCountyIdAsync(int countyId, System.Nullable<double> radius, System.Nullable<int> solverVersion, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetReferencesByCountyIdAsync(int,System.Nullable_double_,System.Nullable_int_,int,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The identifier of the county part \(`administrative_areal_2d.id`, never a county code\)\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetReferencesByCountyIdAsync(int,System.Nullable_double_,System.Nullable_int_,int,System.Threading.CancellationToken).radius'></a>
+
+`radius` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The neighbour radius, in m, exactly as stored; 0 for the isolated building\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetReferencesByCountyIdAsync(int,System.Nullable_double_,System.Nullable_int_,int,System.Threading.CancellationToken).solverVersion'></a>
+
+`solverVersion` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The solver version\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetReferencesByCountyIdAsync(int,System.Nullable_double_,System.Nullable_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetReferencesByCountyIdAsync(int,System.Nullable_double_,System.Nullable_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with a JSON array of references in ordinal order \(empty when none is stored\); 400 for a county id below 1, a missing, negative or non\-finite radius, a missing or non\-positive solver version, or a negative timeout; 503 for a transient database failure; or 500\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken)'></a>
 
 ## BuildingSolarRadiationController\.GetSolarRadiationByBuildingModelIdAsync\(Nullable\<long\>, Nullable\<int\>, Nullable\<double\>, Nullable\<int\>, Nullable\<bool\>, CancellationToken\) Method

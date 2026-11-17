@@ -1,6 +1,7 @@
 using DiGi.GIS.PostgreSQL.Classes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -195,6 +196,74 @@ namespace DiGi.GIS.WebAPI.Classes
 
             Serilog.Modify.Log("{Type}:{Name} returns {Count} summaries", nameof(BuildingSolarRadiationController), nameof(GetSummariesByCountyIdsAsync), buildingSolarRadiationCountyResults.Count);
             return Content(json, "application/json");
+        }
+
+        /// <summary>
+        /// Lists the references of the buildings of a county part that already hold a stored result for one neighbour radius and solver version.
+        /// <para>The skip-existing read of a client-side solve (DiGi.GIS.WebAPI#93): what the server-side solve reads in one call per part before it decides what to solve, so a client resuming a run steps over the same buildings without one request per building. Open to every visitor, like the other reads of this controller; references only - no result leaves.</para>
+        /// <para>Both filters are required: a client that dropped one would skip buildings solved for another variant. They are bound nullable so an omitted one is refused rather than read as 0 (<c>Coding - WebAPI Contracts.md</c> §2). The radius is compared exactly as stored (the producer rounds it to 0.1 m), and 0 - the isolated building - is a valid variant. A part with no result, or a table not created yet, answers an empty list.</para>
+        /// </summary>
+        /// <param name="countyId">The identifier of the county part (<c>administrative_areal_2d.id</c>, never a county code).</param>
+        /// <param name="radius">The neighbour radius, in m, exactly as stored; 0 for the isolated building.</param>
+        /// <param name="solverVersion">The solver version.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with a JSON array of references in ordinal order (empty when none is stored); 400 for a county id below 1, a missing, negative or non-finite radius, a missing or non-positive solver version, or a negative timeout; 503 for a transient database failure; or 500.</returns>
+        [HttpGet("referencesbycountyid", Name = $"{nameof(BuildingSolarRadiationController)}_{nameof(GetReferencesByCountyIdAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetReferencesByCountyIdAsync([BindRequired, Minimum(1), FromQuery(Name = "countyid")] int countyId, [FromQuery(Name = "radius")] double? radius, [FromQuery(Name = "solverversion")] int? solverVersion, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for county part {CountyId}", nameof(BuildingSolarRadiationController), nameof(GetReferencesByCountyIdAsync), countyId);
+
+            if (countyId < 1 || radius is null || !double.IsFinite(radius.Value) || radius.Value < 0 || solverVersion is null || solverVersion.Value <= 0 || commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "{Type}:{Name} rejected: county part {CountyId}, radius {Radius}, solver version {SolverVersion}, commandtimeout {CommandTimeout}", nameof(BuildingSolarRadiationController), nameof(GetReferencesByCountyIdAsync), countyId, radius?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "-", solverVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "-", commandTimeout);
+                return BadRequest();
+            }
+
+            HashSet<string>? references;
+            try
+            {
+                references = await buildingSolarRadiationPostgreSQLConverter.GetReferencesAsync(countyId, commandTimeout, radius.Value, solverVersion.Value, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingSolarRadiationController), nameof(GetReferencesByCountyIdAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed for county part {CountyId}", nameof(BuildingSolarRadiationController), nameof(GetReferencesByCountyIdAsync), countyId);
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            // Null is a failure to reach the database, never "nothing solved" - an empty list says that (Coding - WebAPI Contracts.md).
+            if (references is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} failed: no connection to the Storage database", nameof(BuildingSolarRadiationController), nameof(GetReferencesByCountyIdAsync));
+                return StatusCode(500, "Solved references could not be read");
+            }
+
+            List<string> references_Sorted = [.. references];
+            references_Sorted.Sort(StringComparer.Ordinal);
+
+            JsonArray jsonArray = [];
+            foreach (string reference in references_Sorted)
+            {
+                jsonArray.Add(reference);
+            }
+
+            Serilog.Modify.Log("{Type}:{Name} returns {Count} references of county part {CountyId}", nameof(BuildingSolarRadiationController), nameof(GetReferencesByCountyIdAsync), references_Sorted.Count, countyId);
+            return Content(jsonArray.ToJsonString(), "application/json");
         }
 
         /// <summary>
