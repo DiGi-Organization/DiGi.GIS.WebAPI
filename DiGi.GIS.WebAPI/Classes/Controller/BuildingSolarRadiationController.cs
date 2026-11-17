@@ -320,6 +320,194 @@ namespace DiGi.GIS.WebAPI.Classes
             }
         }
 
+        /// <summary>
+        /// Stores the solar radiation of several buildings on behalf of the signed-in visitor, replacing the results stored for the same keys: every result of the request is stored, or none is.
+        /// <para>The batch form of <see cref="SetSolarRadiationAsync"/>, for a client-side solve (DiGi.GIS.WebAPI#93): the same bearer token, the same <see cref="GISWebAPIConfigurationFileWatcher.AllowUpdateSolarRadiationData"/> gate in the same order, the same checks per result, and the same stamping - the user email from the token and one time for the whole request, never the body's.</para>
+        /// <para>The body is a JSON array of the DiGi JSON of <see cref="GIS.Classes.BuildingSolarRadiationResult"/> (<c>ToJsonObject()</c>, with <c>_type</c>), at most <see cref="Constants.SolarRadiation.MaximumBatchCount"/> of them. Everything is checked before anything is written: one result that cannot be stored, or two with one key (building model id, radius, solver version), refuses the whole request with 400. The results are then resolved to their county parts, each through <c>building_2d</c> within the parts of its own <c>CountyId</c>, as the single write does (<c>Coding - GIS Administrative Data.md</c>); one reference that no part holds refuses the whole request with 404. The write is one transaction over every part, so a failure or a cancellation leaves nothing of the request behind.</para>
+        /// </summary>
+        /// <param name="jsonArray">The results to store.</param>
+        /// <param name="commandTimeout">The timeout in seconds for each command of the county part lookups and of the write. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with the number of results stored, which is the number sent; 401 without a valid user token; 400 for a disabled flag, a negative timeout, a missing, empty or oversized body, a result that cannot be stored or a repeated key; 404 when a reference is held by no part of its county; 503 for a transient database failure; or 500 when nothing could be written.</returns>
+        [HttpPost("setsolarradiations", Name = $"{nameof(BuildingSolarRadiationController)}_{nameof(SetSolarRadiationsAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SetSolarRadiationsAsync([FromBody] JsonArray? jsonArray, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for {Count} results", nameof(BuildingSolarRadiationController), nameof(SetSolarRadiationsAsync), jsonArray?.Count ?? 0);
+
+            string? email = Query.GetUserEmail(securityKeyManager, tokenRevocationStore, HttpContext.Request.Headers.Authorization);
+            if (email is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: no valid user token");
+                return Unauthorized();
+            }
+
+            if (!GISWebAPIConfigurationFileWatcher.AllowUpdateSolarRadiationData)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: AllowUpdateSolarRadiationData is disabled");
+                return BadRequest();
+            }
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: commandtimeout cannot be negative");
+                return BadRequest();
+            }
+
+            if (jsonArray is null || jsonArray.Count == 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: body is missing or empty");
+                return BadRequest();
+            }
+
+            if (jsonArray.Count > Constants.SolarRadiation.MaximumBatchCount)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: {Count} results exceed the batch limit of {MaximumBatchCount}", jsonArray.Count, Constants.SolarRadiation.MaximumBatchCount);
+                return BadRequest();
+            }
+
+            // Every result is checked before anything is written, so a refused request never leaves part of itself stored.
+            List<GIS.Classes.BuildingSolarRadiationResult> buildingSolarRadiationResults = [];
+            HashSet<(long BuildingModelId, double Radius, int SolverVersion)> keys = [];
+            for (int i = 0; i < jsonArray.Count; i++)
+            {
+                if (jsonArray[i] is not JsonObject jsonObject)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: element {Index} is not a JSON object", i);
+                    return BadRequest();
+                }
+
+                GIS.Classes.BuildingSolarRadiationResult? buildingSolarRadiationResult;
+                try
+                {
+                    buildingSolarRadiationResult = Core.Create.SerializableObject<GIS.Classes.BuildingSolarRadiationResult>(jsonObject);
+                }
+                catch (Exception exception)
+                {
+                    Serilog.Modify.Log(exception, "SetSolarRadiations rejected: element {Index} could not be read as a BuildingSolarRadiationResult", i);
+                    return BadRequest();
+                }
+
+                if (buildingSolarRadiationResult is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: element {Index} is not a BuildingSolarRadiationResult", i);
+                    return BadRequest();
+                }
+
+                string? rejection = Rejection(buildingSolarRadiationResult);
+                if (rejection is not null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: element {Index}: {Rejection}", i, rejection);
+                    return BadRequest();
+                }
+
+                if (!keys.Add((buildingSolarRadiationResult.BuildingModelId, buildingSolarRadiationResult.Radius, buildingSolarRadiationResult.SolverVersion)))
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations rejected: element {Index} repeats building model {Id} at radius {Radius} m and solver version {SolverVersion}", i, buildingSolarRadiationResult.BuildingModelId, buildingSolarRadiationResult.Radius, buildingSolarRadiationResult.SolverVersion);
+                    return BadRequest();
+                }
+
+                buildingSolarRadiationResults.Add(buildingSolarRadiationResult);
+            }
+
+            try
+            {
+                // Resolved per candidate part, as the single write resolves one result: a reference is unique only within a county part, so it is looked for in its own county's parts only.
+                Dictionary<int, List<GIS.Classes.BuildingSolarRadiationResult>> buildingSolarRadiationResults_ByCandidateCountyId = [];
+                foreach (GIS.Classes.BuildingSolarRadiationResult buildingSolarRadiationResult in buildingSolarRadiationResults)
+                {
+                    if (!buildingSolarRadiationResults_ByCandidateCountyId.TryGetValue(buildingSolarRadiationResult.CountyId, out List<GIS.Classes.BuildingSolarRadiationResult>? buildingSolarRadiationResults_Candidate))
+                    {
+                        buildingSolarRadiationResults_Candidate = [];
+                        buildingSolarRadiationResults_ByCandidateCountyId[buildingSolarRadiationResult.CountyId] = buildingSolarRadiationResults_Candidate;
+                    }
+
+                    buildingSolarRadiationResults_Candidate.Add(buildingSolarRadiationResult);
+                }
+
+                DateTimeOffset createdAt = DateTimeOffset.UtcNow;
+                Dictionary<int, List<GIS.Classes.BuildingSolarRadiationResult>> buildingSolarRadiationResults_ByCountyId = [];
+                foreach (KeyValuePair<int, List<GIS.Classes.BuildingSolarRadiationResult>> keyValuePair in buildingSolarRadiationResults_ByCandidateCountyId)
+                {
+                    List<string?> references = [];
+                    foreach (GIS.Classes.BuildingSolarRadiationResult buildingSolarRadiationResult in keyValuePair.Value)
+                    {
+                        references.Add(buildingSolarRadiationResult.Reference);
+                    }
+
+                    Dictionary<string, int>? countyIds_ByReference = await PostgreSQL.Query.CountyIdsByReferencesWithSiblingFallbackAsync(building2DPostgreSQLConverter, administrativeAreal2DPostgreSQLConverter, references, [keyValuePair.Key], commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                    if (countyIds_ByReference is null)
+                    {
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "SetSolarRadiations: the county parts could not be resolved, the building_2d lookup could not run (check the Main database configuration)");
+                        return StatusCode(500, "County parts could not be resolved: the building_2d lookup could not run.");
+                    }
+
+                    foreach (GIS.Classes.BuildingSolarRadiationResult buildingSolarRadiationResult in keyValuePair.Value)
+                    {
+                        string reference = buildingSolarRadiationResult.Reference!;
+                        if (!countyIds_ByReference.TryGetValue(reference, out int countyId))
+                        {
+                            Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetSolarRadiations: no part of the county of {CountyId} holds reference {Reference}, so none of the {Count} results was stored", keyValuePair.Key, reference, buildingSolarRadiationResults.Count);
+                            return NotFound();
+                        }
+
+                        if (!buildingSolarRadiationResults_ByCountyId.TryGetValue(countyId, out List<GIS.Classes.BuildingSolarRadiationResult>? buildingSolarRadiationResults_CountyId))
+                        {
+                            buildingSolarRadiationResults_CountyId = [];
+                            buildingSolarRadiationResults_ByCountyId[countyId] = buildingSolarRadiationResults_CountyId;
+                        }
+
+                        // The user and the time come from the server, never from the body.
+                        buildingSolarRadiationResults_CountyId.Add(new GIS.Classes.BuildingSolarRadiationResult(
+                            reference,
+                            countyId,
+                            buildingSolarRadiationResult.BuildingModelId,
+                            buildingSolarRadiationResult.Radius,
+                            buildingSolarRadiationResult.SolverVersion,
+                            buildingSolarRadiationResult.WeatherSourceType,
+                            buildingSolarRadiationResult.WeatherSourceId,
+                            buildingSolarRadiationResult.WeatherPeriodStart,
+                            buildingSolarRadiationResult.WeatherPeriodEnd,
+                            email,
+                            createdAt,
+                            buildingSolarRadiationResult.SurfaceSolarRadiations));
+                    }
+                }
+
+                int? written = await buildingSolarRadiationPostgreSQLConverter.UpdateAsync(buildingSolarRadiationResults_ByCountyId, commandTimeout, cancellationToken);
+                if (written is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "SetSolarRadiations: the write of {Count} results over {CountyCount} county parts failed and was rolled back", buildingSolarRadiationResults.Count, buildingSolarRadiationResults_ByCountyId.Count);
+                    return StatusCode(500, "Stored solar radiation write failed; nothing was written.");
+                }
+
+                Serilog.Modify.Log("SetSolarRadiations stored {Written} results over {CountyCount} county parts for {User}", written.Value, buildingSolarRadiationResults_ByCountyId.Count, email);
+
+                return Ok(written.Value);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(BuildingSolarRadiationController), nameof(SetSolarRadiationsAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingSolarRadiationController), nameof(SetSolarRadiationsAsync));
+                return StatusCode(500, "Internal server error during stored solar radiation write");
+            }
+        }
+
         // The first reason the body cannot be stored, or null when it can: the members the key and the stored row need,
         // a defined weather source, a period in order, and every surface with finite values and a whole reference year
         // of shading factors.

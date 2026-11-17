@@ -624,6 +624,21 @@ public const int HourCount = 8760;
 #### Field Value
 [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 
+<a name='DiGi.GIS.WebAPI.Constants.SolarRadiation.MaximumBatchCount'></a>
+
+## SolarRadiation\.MaximumBatchCount Field
+
+The largest number of results one request to `gis/buildingsolarradiation/setsolarradiations` may carry\.
+
+Every result of a county part goes into one upsert of 13 parameters per result, and Npgsql allows 65 535 parameters per statement, so a part could take 5 041; the cap stays well under that. A client splits a larger batch by memory first (`SerializableObjectsPostOptions.BatchMemorySize`), which at 8 760 bytes of factors per surface keeps a request far below it in practice.
+
+```csharp
+public const int MaximumBatchCount = 1000;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Constants.Terrain'></a>
 
 ## Terrain Class

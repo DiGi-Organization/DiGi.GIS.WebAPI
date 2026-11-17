@@ -5981,6 +5981,43 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. 200 with the id of the stored row; 401 without a valid user token; 400 for a disabled flag or an invalid body; 404 when no part of the county holds the reference; 503 for a transient database failure; or 500 when the write failed\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationsAsync(System.Text.Json.Nodes.JsonArray,int,System.Threading.CancellationToken)'></a>
+
+## BuildingSolarRadiationController\.SetSolarRadiationsAsync\(JsonArray, int, CancellationToken\) Method
+
+Stores the solar radiation of several buildings on behalf of the signed\-in visitor, replacing the results stored for the same keys: every result of the request is stored, or none is\.
+
+The batch form of [SetSolarRadiationAsync\(JsonObject, CancellationToken\)](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationAsync(System.Text.Json.Nodes.JsonObject,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Classes\.BuildingSolarRadiationController\.SetSolarRadiationAsync\(System\.Text\.Json\.Nodes\.JsonObject, System\.Threading\.CancellationToken\)'), for a client-side solve (DiGi.GIS.WebAPI#93): the same bearer token, the same [AllowUpdateSolarRadiationData](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIConfigurationFileWatcher.AllowUpdateSolarRadiationData 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIConfigurationFileWatcher\.AllowUpdateSolarRadiationData') gate in the same order, the same checks per result, and the same stamping - the user email from the token and one time for the whole request, never the body's.
+
+The body is a JSON array of the DiGi JSON of [DiGi\.GIS\.Classes\.BuildingSolarRadiationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult') (`ToJsonObject()`, with `_type`), at most [MaximumBatchCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.SolarRadiation.MaximumBatchCount 'DiGi\.GIS\.WebAPI\.Constants\.SolarRadiation\.MaximumBatchCount') of them. Everything is checked before anything is written: one result that cannot be stored, or two with one key (building model id, radius, solver version), refuses the whole request with 400. The results are then resolved to their county parts, each through `building_2d` within the parts of its own `CountyId`, as the single write does (`Coding - GIS Administrative Data.md`); one reference that no part holds refuses the whole request with 404. The write is one transaction over every part, so a failure or a cancellation leaves nothing of the request behind.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> SetSolarRadiationsAsync(System.Text.Json.Nodes.JsonArray? jsonArray, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationsAsync(System.Text.Json.Nodes.JsonArray,int,System.Threading.CancellationToken).jsonArray'></a>
+
+`jsonArray` [System\.Text\.Json\.Nodes\.JsonArray](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonarray 'System\.Text\.Json\.Nodes\.JsonArray')
+
+The results to store\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationsAsync(System.Text.Json.Nodes.JsonArray,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for each command of the county part lookups and of the write\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.SetSolarRadiationsAsync(System.Text.Json.Nodes.JsonArray,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with the number of results stored, which is the number sent; 401 without a valid user token; 400 for a disabled flag, a negative timeout, a missing, empty or oversized body, a result that cannot be stored or a repeated key; 404 when a reference is held by no part of its county; 503 for a transient database failure; or 500 when nothing could be written\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingsPostTask'></a>
 
 ## BuildingsPostTask Class
