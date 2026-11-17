@@ -10547,6 +10547,35 @@ A cancellation token that can be used by the caller to cancel the asynchronous o
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the [DiGi\.Geometry\.Spatial\.Classes\.Mesh3D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.spatial.classes.mesh3d 'DiGi\.Geometry\.Spatial\.Classes\.Mesh3D') as JSON, or an error status\.
 
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.GetRequestAbortedProbeAsync(int,System.Threading.CancellationToken)'></a>
+
+## TerrainController\.GetRequestAbortedProbeAsync\(int, CancellationToken\) Method
+
+Waits on the request's cancellation token and logs whether, and how soon, the token was cancelled\. Touches no database\.
+
+A temporary diagnostic for DiGi-Organization/DiGi.GIS.WebAPI#77: a client closes its socket part-way through, and the log shows whether `HttpContext.RequestAborted` reached an action of this extension on the deployed host.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetRequestAbortedProbeAsync(int seconds=60, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.GetRequestAbortedProbeAsync(int,System.Threading.CancellationToken).seconds'></a>
+
+`seconds` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+How long to wait, in seconds\. Greater than zero and at most 120\. Defaults to 60\.
+
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.GetRequestAbortedProbeAsync(int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+A cancellation token that can be used by the caller to cancel the asynchronous operation\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An empty 200 when the wait ran to the end, or 400 for an out\-of\-range [seconds](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TerrainController.GetRequestAbortedProbeAsync(int,System.Threading.CancellationToken).seconds 'DiGi\.GIS\.WebAPI\.Classes\.TerrainController\.GetRequestAbortedProbeAsync\(int, System\.Threading\.CancellationToken\)\.seconds')\.
+
 <a name='DiGi.GIS.WebAPI.Classes.TerrainController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,int,System.Threading.CancellationToken)'></a>
 
 ## TerrainController\.GetSummariesByCountyIdsAsync\(List\<int\>, int, CancellationToken\) Method
