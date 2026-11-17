@@ -52,7 +52,7 @@ namespace DiGi.GIS.WebAPI.Classes
         /// </summary>
         /// <param name="id">The id of the building model.</param>
         /// <param name="countyId">The county part the building is filed under.</param>
-        /// <param name="radius">The neighbour radius, in m, exactly as stored (the producer rounds it to 0.1 m); it is not rounded here.</param>
+        /// <param name="radius">The neighbour radius, in m, exactly as stored (the producer rounds it to 0.1 m); it is not rounded here. 0 reads the isolated building (DiGi.GIS.PostgreSQL#136).</param>
         /// <param name="solverVersion">The solver version.</param>
         /// <param name="includeShadingFactors">True to include every surface's shading factors (8 760 bytes each, base64); omitted or false leaves them null, which is all a client needs when the stored summary matches its weather source.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
@@ -80,9 +80,10 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
-            if (radius is null || !double.IsFinite(radius.Value) || radius.Value <= 0)
+            // 0 is the isolated building, a variant the solve stores (DiGi.GIS.PostgreSQL#136); only a negative or non-finite radius is refused.
+            if (radius is null || !double.IsFinite(radius.Value) || radius.Value < 0)
             {
-                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SolarRadiationByBuildingModelId rejected: radius is missing or not a positive number");
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SolarRadiationByBuildingModelId rejected: radius is missing, negative or not a number");
                 return BadRequest();
             }
 
@@ -597,9 +598,10 @@ namespace DiGi.GIS.WebAPI.Classes
                 return "BuildingModelId is missing";
             }
 
-            if (!double.IsFinite(buildingSolarRadiationResult.Radius) || buildingSolarRadiationResult.Radius <= 0)
+            // 0 is the isolated building, a variant the server-side solve stores too (DiGi.GIS.PostgreSQL#136).
+            if (!double.IsFinite(buildingSolarRadiationResult.Radius) || buildingSolarRadiationResult.Radius < 0)
             {
-                return "Radius is missing or not a positive number";
+                return "Radius is negative or not a number";
             }
 
             if (buildingSolarRadiationResult.SolverVersion <= 0)

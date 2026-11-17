@@ -5932,7 +5932,7 @@ The county part the building is filed under\.
 
 `radius` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
 
-The neighbour radius, in m, exactly as stored \(the producer rounds it to 0\.1 m\); it is not rounded here\.
+The neighbour radius, in m, exactly as stored \(the producer rounds it to 0\.1 m\); it is not rounded here\. 0 reads the isolated building \(DiGi\.GIS\.PostgreSQL\#136\)\.
 
 <a name='DiGi.GIS.WebAPI.Classes.BuildingSolarRadiationController.GetSolarRadiationByBuildingModelIdAsync(System.Nullable_long_,System.Nullable_int_,System.Nullable_double_,System.Nullable_int_,System.Nullable_bool_,System.Threading.CancellationToken).solverVersion'></a>
 

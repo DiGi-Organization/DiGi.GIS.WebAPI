@@ -18,7 +18,7 @@ namespace DiGi.GIS.WebAPI
         /// <param name="gISWebAPIManager">The manager that creates the HTTP client.</param>
         /// <param name="buildingModelId">The id of the building model.</param>
         /// <param name="countyId">The county part the building is filed under.</param>
-        /// <param name="radius">The neighbour radius, in m, exactly as stored (rounded by the producer to 0.1 m).</param>
+        /// <param name="radius">The neighbour radius, in m, exactly as stored (rounded by the producer to 0.1 m); 0 for the isolated building.</param>
         /// <param name="solverVersion">The solver version.</param>
         /// <param name="includeShadingFactors">True to read every surface's shading factors too.</param>
         /// <param name="postOptions">The options of the request; null for the defaults.</param>
@@ -34,7 +34,7 @@ namespace DiGi.GIS.WebAPI
             PostOptions? postOptions = null,
             CancellationToken cancellationToken = default)
         {
-            if (gISWebAPIManager is null || buildingModelId <= 0 || !double.IsFinite(radius) || radius <= 0 || solverVersion <= 0)
+            if (gISWebAPIManager is null || buildingModelId <= 0 || !double.IsFinite(radius) || radius < 0 || solverVersion <= 0)
             {
                 return null;
             }

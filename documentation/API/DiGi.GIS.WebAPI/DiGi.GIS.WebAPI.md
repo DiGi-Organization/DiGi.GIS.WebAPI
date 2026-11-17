@@ -2489,7 +2489,7 @@ The county part the building is filed under\.
 
 `radius` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
 
-The neighbour radius, in m, exactly as stored \(rounded by the producer to 0\.1 m\)\.
+The neighbour radius, in m, exactly as stored \(rounded by the producer to 0\.1 m\); 0 for the isolated building\.
 
 <a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).solverVersion'></a>
 
