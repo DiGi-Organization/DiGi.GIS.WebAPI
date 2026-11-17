@@ -14,6 +14,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics; // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -402,10 +403,17 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
+            // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
+            long timestamp_Start = Stopwatch.GetTimestamp();
+            TimeSpan timeSpan_Counts = TimeSpan.Zero;
+            TimeSpan timeSpan_Subdivisions = TimeSpan.Zero;
+            TimeSpan timeSpan_Geometry = TimeSpan.Zero;
+
             List<TerrainPointDensityResult> terrainPointDensityResults = [];
             try
             {
                 Dictionary<int, long>? counts_ByCountyId = await terrainPointPostgreSQLConverter.GetCountsByCountyIdsAsync(countyIds, commandTimeout, cancellationToken);
+                timeSpan_Counts = Stopwatch.GetElapsedTime(timestamp_Start); // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
                 if (counts_ByCountyId is null)
                 {
                     return NotFound();
@@ -413,18 +421,23 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 foreach (int countyId in countyIds)
                 {
+                    long timestamp_County = Stopwatch.GetTimestamp(); // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
                     Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = await PolygonalFace2DsByIdAsync(countyId, cancellationToken);
+                    timeSpan_Subdivisions += Stopwatch.GetElapsedTime(timestamp_County); // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
                     if (polygonalFace2Ds_ById is null)
                     {
                         Serilog.Modify.Log("County {CountyId} has no subdivision outline, so there is no area to measure a density against", countyId);
                         continue;
                     }
 
+                    long timestamp_Geometry = Stopwatch.GetTimestamp(); // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
                     double area = 0;
                     foreach (PolygonalFace2D polygonalFace2D in polygonalFace2Ds_ById.Values)
                     {
                         area += polygonalFace2D.GetArea();
                     }
+
+                    timeSpan_Geometry += Stopwatch.GetElapsedTime(timestamp_Geometry); // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
 
                     // A county with no partition is absent from the counts and contributes a zero here, which is
                     // the answer wanted: a county a run never reached reports a density of nothing rather than
@@ -439,19 +452,28 @@ namespace DiGi.GIS.WebAPI.Classes
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
+                // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
+                Serilog.Modify.Log("{Type}:{Name} phases: counts {CountsMilliseconds} ms, subdivisions {SubdivisionsMilliseconds} ms, geometry {GeometryMilliseconds} ms, total {TotalMilliseconds} ms, cancelled {Cancelled}", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync), timeSpan_Counts.TotalMilliseconds, timeSpan_Subdivisions.TotalMilliseconds, timeSpan_Geometry.TotalMilliseconds, Stopwatch.GetElapsedTime(timestamp_Start).TotalMilliseconds, cancellationToken.IsCancellationRequested);
                 throw;
             }
             catch (NpgsqlException exception) when (exception.IsTransient)
             {
+                // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
+                Serilog.Modify.Log("{Type}:{Name} phases: counts {CountsMilliseconds} ms, subdivisions {SubdivisionsMilliseconds} ms, geometry {GeometryMilliseconds} ms, total {TotalMilliseconds} ms, cancelled {Cancelled}", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync), timeSpan_Counts.TotalMilliseconds, timeSpan_Subdivisions.TotalMilliseconds, timeSpan_Geometry.TotalMilliseconds, Stopwatch.GetElapsedTime(timestamp_Start).TotalMilliseconds, cancellationToken.IsCancellationRequested);
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync));
                 HttpContext.Response.Headers["Retry-After"] = "30";
                 return StatusCode(503, "Database temporarily unavailable; retry shortly");
             }
             catch (Exception exception)
             {
+                // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
+                Serilog.Modify.Log("{Type}:{Name} phases: counts {CountsMilliseconds} ms, subdivisions {SubdivisionsMilliseconds} ms, geometry {GeometryMilliseconds} ms, total {TotalMilliseconds} ms, cancelled {Cancelled}", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync), timeSpan_Counts.TotalMilliseconds, timeSpan_Subdivisions.TotalMilliseconds, timeSpan_Geometry.TotalMilliseconds, Stopwatch.GetElapsedTime(timestamp_Start).TotalMilliseconds, cancellationToken.IsCancellationRequested);
                 Serilog.Modify.Log(exception, "Database could not be queried");
                 return StatusCode(500, "Internal server error during database query");
             }
+
+            // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
+            Serilog.Modify.Log("{Type}:{Name} phases: counts {CountsMilliseconds} ms, subdivisions {SubdivisionsMilliseconds} ms, geometry {GeometryMilliseconds} ms, total {TotalMilliseconds} ms, cancelled {Cancelled}", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync), timeSpan_Counts.TotalMilliseconds, timeSpan_Subdivisions.TotalMilliseconds, timeSpan_Geometry.TotalMilliseconds, Stopwatch.GetElapsedTime(timestamp_Start).TotalMilliseconds, cancellationToken.IsCancellationRequested);
 
             string? json = Core.Convert.ToSystem_String(terrainPointDensityResults);
             if (string.IsNullOrWhiteSpace(json))
@@ -461,6 +483,42 @@ namespace DiGi.GIS.WebAPI.Classes
 
             Serilog.Modify.Log("Number of TerrainPointDensityResults to be returned: {Count}", terrainPointDensityResults.Count);
             return Content(json, "application/json");
+        }
+
+        /// <summary>
+        /// Waits on the request's cancellation token and logs whether, and how soon, the token was cancelled. Touches no database.
+        /// <para>A temporary diagnostic for DiGi-Organization/DiGi.GIS.WebAPI#77: a client closes its socket part-way through, and the log shows whether <c>HttpContext.RequestAborted</c> reached an action of this extension on the deployed host.</para>
+        /// </summary>
+        /// <param name="seconds">How long to wait, in seconds. Greater than zero and at most 120. Defaults to 60.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
+        /// <returns>An empty 200 when the wait ran to the end, or 400 for an out-of-range <paramref name="seconds"/>.</returns>
+        // TODO [RequestAbortedProbe]: remove once DiGi-Organization/DiGi.GIS.WebAPI#77 is closed
+        [HttpGet("requestabortedprobe", Name = $"{nameof(TerrainController)}_{nameof(GetRequestAbortedProbeAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetRequestAbortedProbeAsync([FromQuery(Name = "seconds")] int seconds = 60, CancellationToken cancellationToken = default)
+        {
+            if (seconds <= 0 || seconds > 120)
+            {
+                return BadRequest();
+            }
+
+            Serilog.Modify.Log("{Type}:{Name} started for {Seconds} s", nameof(TerrainController), nameof(GetRequestAbortedProbeAsync), seconds);
+
+            long timestamp_Start = Stopwatch.GetTimestamp();
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(seconds), cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                Serilog.Modify.Log("{Type}:{Name} cancelled after {ElapsedMilliseconds} ms", nameof(TerrainController), nameof(GetRequestAbortedProbeAsync), Stopwatch.GetElapsedTime(timestamp_Start).TotalMilliseconds);
+                throw;
+            }
+
+            Serilog.Modify.Log("{Type}:{Name} completed after {ElapsedMilliseconds} ms without cancellation", nameof(TerrainController), nameof(GetRequestAbortedProbeAsync), Stopwatch.GetElapsedTime(timestamp_Start).TotalMilliseconds);
+            return Ok();
         }
 
         /// <summary>
