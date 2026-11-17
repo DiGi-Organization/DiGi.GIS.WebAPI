@@ -767,6 +767,61 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. The task result contains the id of the stored row, or null when the request was refused or failed\.
 
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken)'></a>
+
+## Modify\.SetBuildingSolarRadiationsAsync\(this GISWebAPIManager, IEnumerable\<BuildingSolarRadiationResult\>, string, int, SerializableObjectsPostOptions, CancellationToken\) Method
+
+Stores the solar radiation of many buildings through `gis/buildingsolarradiation/setsolarradiations`, on behalf of the signed\-in user whose token is given \- the batch counterpart of [SetBuildingSolarRadiationAsync\(this GISWebAPIManager, BuildingSolarRadiationResult, string, PostOptions, CancellationToken\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.GIS.Classes.BuildingSolarRadiationResult,string,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Modify\.SetBuildingSolarRadiationAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, DiGi\.GIS\.Classes\.BuildingSolarRadiationResult, string, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)') \(DiGi\.GIS\.WebAPI\#93\)\.
+
+The results are grouped by their [DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\.CountyId](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult.countyid 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\.CountyId') - a request never mixes county parts - and each group is split into requests of at most [BatchMemorySize](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions.BatchMemorySize 'DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostOptions\.BatchMemorySize') bytes of DiGi JSON and [MaximumBatchCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.SolarRadiation.MaximumBatchCount 'DiGi\.GIS\.WebAPI\.Constants\.SolarRadiation\.MaximumBatchCount') results. Every request is all-or-nothing on the server, so a failure stops here and leaves only whole requests stored; a rerun that skips the stored references ([BuildingSolarRadiationReferencesAsync\(this GISWebAPIManager, int, double, int, int, PostOptions, CancellationToken\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Query\.BuildingSolarRadiationReferencesAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, double, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)')) resumes it.
+
+Each body is the DiGi JSON of the results (`ToJsonObject()`, keeping `_type` and the declared names), never `JsonContent.Create` (`Coding - WebAPI Contracts.md` §2). The host stamps the user email from the token and the time itself, and needs `AllowUpdateSolarRadiationData`. Without [serializableObjectsPostOptions](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).serializableObjectsPostOptions 'DiGi\.GIS\.WebAPI\.Modify\.SetBuildingSolarRadiationsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\>, string, int, DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostOptions, System\.Threading\.CancellationToken\)\.serializableObjectsPostOptions') one request may take [commandTimeout](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Modify\.SetBuildingSolarRadiationsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\>, string, int, DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostOptions, System\.Threading\.CancellationToken\)\.commandTimeout') seconds (no bound when it is 0), so the client never gives up before the server does (§3).
+
+```csharp
+public static System.Threading.Tasks.Task<System.Nullable<int>> SetBuildingSolarRadiationsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.BuildingSolarRadiationResult>? buildingSolarRadiationResults, string? tokenString, int commandTimeout=600, DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions? serializableObjectsPostOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
+
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The manager that creates the HTTP client\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).buildingSolarRadiationResults'></a>
+
+`buildingSolarRadiationResults` [System\.Collections\.Generic\.IEnumerable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')[DiGi\.GIS\.Classes\.BuildingSolarRadiationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.ienumerable-1 'System\.Collections\.Generic\.IEnumerable\`1')
+
+The results to store; every surface must carry 8 760 shading factors\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).tokenString'></a>
+
+`tokenString` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The signed\-in user's bearer token\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The server's timeout in seconds for the lookups and the write of one request; 0 disables it\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).serializableObjectsPostOptions'></a>
+
+`serializableObjectsPostOptions` [SerializableObjectsPostOptions](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions 'DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostOptions')
+
+The options of the requests, including the memory size of one; null for the defaults bounded by [commandTimeout](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Modify\.SetBuildingSolarRadiationsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, System\.Collections\.Generic\.IEnumerable\<DiGi\.GIS\.Classes\.BuildingSolarRadiationResult\>, string, int, DiGi\.GIS\.WebAPI\.Classes\.SerializableObjectsPostOptions, System\.Threading\.CancellationToken\)\.commandTimeout')\.
+
+<a name='DiGi.GIS.WebAPI.Modify.SetBuildingSolarRadiationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_DiGi.GIS.Classes.BuildingSolarRadiationResult_,string,int,DiGi.GIS.WebAPI.Classes.SerializableObjectsPostOptions,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result contains the number of results stored, which is the number given, or null when an argument is invalid, a result cannot be serialized, or a request was refused or failed \- the requests before it stay stored\.
+
 <a name='DiGi.GIS.WebAPI.Modify.UpdateBuildingDataYearBuiltAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,System.Collections.Generic.IEnumerable_int_,System.Collections.Generic.IEnumerable_string_,int,DiGi.WebAPI.Classes.PostOptions,string,System.Threading.CancellationToken)'></a>
 
 ## Modify\.UpdateBuildingDataYearBuiltAsync\(this GISWebAPIManager, IEnumerable\<int\>, IEnumerable\<string\>, int, PostOptions, string, CancellationToken\) Method
@@ -2454,6 +2509,67 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[AdministrativeAreal2DCountStatus](DiGi.GIS.WebAPI.Enums.md#DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus 'DiGi\.GIS\.WebAPI\.Enums\.AdministrativeAreal2DCountStatus')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[AdministrativeAreal2DScope](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope 'DiGi\.GIS\.WebAPI\.Classes\.AdministrativeAreal2DScope')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. The result carries how the resolution ended and, for [Counted](DiGi.GIS.WebAPI.Enums.md#DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus.Counted 'DiGi\.GIS\.WebAPI\.Enums\.AdministrativeAreal2DCountStatus\.Counted'), the scopes in the order a county partition was first met; on any other status the list is empty\.
 
+<a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
+
+## Query\.BuildingModelsByCountyIdAsync\(this GISWebAPIManager, int, long, int, int, PostOptions, CancellationToken\) Method
+
+Reads one page of the building models filed under a county part through `gis/buildingmodel/itemsbycountyid`, with the cursor of the next page\.
+
+One page, not the whole part: a part holds tens of thousands of models with full geometry, so the caller walks it - start at [idAfter](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).idAfter 'DiGi\.GIS\.WebAPI\.Query\.BuildingModelsByCountyIdAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, long, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.idAfter') 0, pass each answer's `IdAfter` back, stop when it is null - and keeps only what it needs. The cursor travels in the `DiGi-Next-Cursor` response header ([NextCursor](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.Header.NextCursor 'DiGi\.GIS\.WebAPI\.Constants\.Header\.NextCursor')), which [DiGi\.WebAPI\.Query\.GetAsync&lt;&gt;\.Net\.Http\.HttpClient,System\.String,DiGi\.WebAPI\.Classes\.PostOptions\)](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.query.getasync--1#digi-webapi-query-getasync--1(system-net-http-httpclient-system-string-digi-webapi-classes-postoptions) 'DiGi\.WebAPI\.Query\.GetAsync\`\`1\(System\.Net\.Http\.HttpClient,System\.String,DiGi\.WebAPI\.Classes\.PostOptions\)') does not expose, so the request is sent here directly. These are the receivers of a solar solve; their neighbours cross county borders and come from `itemsbycircle`.
+
+Without [postOptions](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions 'DiGi\.GIS\.WebAPI\.Query\.BuildingModelsByCountyIdAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, long, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.postOptions') one request may take [commandTimeout](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Query\.BuildingModelsByCountyIdAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, long, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.commandTimeout') seconds (no bound when it is 0), so the client never gives up before the server does (`Coding - WebAPI Contracts.md` §3). A failed page answers null - never a short page - and is not retried here.
+
+```csharp
+public static System.Threading.Tasks.Task<System.Nullable<(System.Collections.Generic.List<DiGi.Analytical.Building.Classes.BuildingModel> BuildingModels,System.Nullable<long> IdAfter)>> BuildingModelsByCountyIdAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, int countyId, long idAfter=0L, int limit=100, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
+
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The manager that creates the HTTP client\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The identifier of the county part \(`administrative_areal_2d.id`\)\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).idAfter'></a>
+
+`idAfter` [System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')
+
+The exclusive lower bound of the row ids: 0 for the first page, then the previous page's `IdAfter`\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).limit'></a>
+
+`limit` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The largest number of models in the page, from 1 to [MaximumItemsByCountyIdLimit](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.BuildingModel.MaximumItemsByCountyIdLimit 'DiGi\.GIS\.WebAPI\.Constants\.BuildingModel\.MaximumItemsByCountyIdLimit')\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The server's timeout in seconds for the read; 0 disables it\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions'></a>
+
+`postOptions` [DiGi\.WebAPI\.Classes\.PostOptions](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.postoptions 'DiGi\.WebAPI\.Classes\.PostOptions')
+
+The options of the request; null to bound it by [commandTimeout](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Query\.BuildingModelsByCountyIdAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, long, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.commandTimeout')\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.Analytical\.Building\.Classes\.BuildingModel](https://learn.microsoft.com/en-us/dotnet/api/digi.analytical.building.classes.buildingmodel 'DiGi\.Analytical\.Building\.Classes\.BuildingModel')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result contains the models of the page and the row id to pass as the next [idAfter](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).idAfter 'DiGi\.GIS\.WebAPI\.Query\.BuildingModelsByCountyIdAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, long, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.idAfter') \(null after the last page\), or null when an argument is out of range or the request failed\.
+
 <a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,long,int,double,int,bool,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
 
 ## Query\.BuildingSolarRadiationAsync\(this GISWebAPIManager, long, int, double, int, bool, PostOptions, CancellationToken\) Method
@@ -2518,6 +2634,65 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[DiGi\.GIS\.Classes\.BuildingSolarRadiationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.classes.buildingsolarradiationresult 'DiGi\.GIS\.Classes\.BuildingSolarRadiationResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. The task result contains the stored result, or null when nothing is stored for the key or the request failed\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
+
+## Query\.BuildingSolarRadiationReferencesAsync\(this GISWebAPIManager, int, double, int, int, PostOptions, CancellationToken\) Method
+
+Reads the references of the buildings of a county part that already hold a stored solar radiation for one neighbour radius and solver version, through `gis/buildingsolarradiation/referencesbycountyid`\.
+
+The skip-existing read of a client-side solve (DiGi.GIS.WebAPI#93): one call per part and variant, as the server-side solve reads it. Without [postOptions](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions 'DiGi\.GIS\.WebAPI\.Query\.BuildingSolarRadiationReferencesAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, double, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.postOptions') the request may take [commandTimeout](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Query\.BuildingSolarRadiationReferencesAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, double, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.commandTimeout') seconds (no bound when it is 0), so the client never gives up before the server does.
+
+```csharp
+public static System.Threading.Tasks.Task<System.Collections.Generic.HashSet<string>?> BuildingSolarRadiationReferencesAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, int countyId, double radius, int solverVersion, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
+
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The manager that creates the HTTP client\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The identifier of the county part \(`administrative_areal_2d.id`\)\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).radius'></a>
+
+`radius` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The neighbour radius, in m, exactly as stored; 0 for the isolated building\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).solverVersion'></a>
+
+`solverVersion` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The solver version\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The server's timeout in seconds for the read; 0 disables it\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions'></a>
+
+`postOptions` [DiGi\.WebAPI\.Classes\.PostOptions](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.postoptions 'DiGi\.WebAPI\.Classes\.PostOptions')
+
+The options of the request; null to bound it by [commandTimeout](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Query\.BuildingSolarRadiationReferencesAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, double, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.commandTimeout')\.
+
+<a name='DiGi.GIS.WebAPI.Query.BuildingSolarRadiationReferencesAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,double,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Collections\.Generic\.HashSet&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1 'System\.Collections\.Generic\.HashSet\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1 'System\.Collections\.Generic\.HashSet\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result contains the references \(empty when none is stored\), or null when an argument is out of range or the request failed \- never read null as nothing solved\.
 
 <a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.Building2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,int,System.Threading.CancellationToken)'></a>
 
@@ -2591,6 +2766,82 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[AdministrativeAreal2DCountStatus](DiGi.GIS.WebAPI.Enums.md#DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus 'DiGi\.GIS\.WebAPI\.Enums\.AdministrativeAreal2DCountStatus')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Int64](https://learn.microsoft.com/en-us/dotnet/api/system.int64 'System\.Int64')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. The result carries how the count ended and, for [Counted](DiGi.GIS.WebAPI.Enums.md#DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus.Counted 'DiGi\.GIS\.WebAPI\.Enums\.AdministrativeAreal2DCountStatus\.Counted'), the summed count\.
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileByIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
+
+## Query\.EPWFileByIdAsync\(this GISWebAPIManager, int, PostOptions, CancellationToken\) Method
+
+Reads the EPW file of one `epw_file` row through `gis/epwfile/itembyid`\.
+
+A client picks each building's station from [EPWFileLocationsAsync\(this GISWebAPIManager, PostOptions, CancellationToken\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.EPWFileLocationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Query\.EPWFileLocationsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)') and reads every station it uses once, by id, instead of resolving the location of every building (DiGi.GIS.WebAPI#93).
+
+```csharp
+public static System.Threading.Tasks.Task<DiGi.EPW.Classes.EPWFile?> EPWFileByIdAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, int id, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileByIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
+
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The manager that creates the HTTP client\.
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileByIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).id'></a>
+
+`id` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The id of the `epw_file` row\.
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileByIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions'></a>
+
+`postOptions` [DiGi\.WebAPI\.Classes\.PostOptions](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.postoptions 'DiGi\.WebAPI\.Classes\.PostOptions')
+
+The options of the request; null for the defaults\.
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileByIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[DiGi\.EPW\.Classes\.EPWFile](https://learn.microsoft.com/en-us/dotnet/api/digi.epw.classes.epwfile 'DiGi\.EPW\.Classes\.EPWFile')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result contains the [DiGi\.EPW\.Classes\.EPWFile](https://learn.microsoft.com/en-us/dotnet/api/digi.epw.classes.epwfile 'DiGi\.EPW\.Classes\.EPWFile'), or null when the id is not positive, no row has it, or the request failed\.
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileLocationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
+
+## Query\.EPWFileLocationsAsync\(this GISWebAPIManager, PostOptions, CancellationToken\) Method
+
+Reads the id and location of every EPW station through `gis/epwfile/locations`, without the weather files\.
+
+A client positioning many buildings picks each one's station from this list - the smallest planar distance, as the server does - and reads only the stations it uses with [EPWFileByIdAsync\(this GISWebAPIManager, int, PostOptions, CancellationToken\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.EPWFileByIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Query\.EPWFileByIdAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)') (DiGi.GIS.WebAPI#93).
+
+```csharp
+public static System.Threading.Tasks.Task<System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.EPWFileLocationResult>?> EPWFileLocationsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileLocationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
+
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The manager that creates the HTTP client\.
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileLocationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions'></a>
+
+`postOptions` [DiGi\.WebAPI\.Classes\.PostOptions](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.postoptions 'DiGi\.WebAPI\.Classes\.PostOptions')
+
+The options of the request; null for the defaults\.
+
+<a name='DiGi.GIS.WebAPI.Query.EPWFileLocationsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.EPWFileLocationResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.epwfilelocationresult 'DiGi\.GIS\.PostgreSQL\.Classes\.EPWFileLocationResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result contains the stations in id order \(empty when none is stored\), or null when the request failed \- never read null as no station\.
 
 <a name='DiGi.GIS.WebAPI.Query.GetUserEmail(DiGi.WebAPI.Classes.SecurityKeyManager,DiGi.WebAPI.Classes.TokenRevocationStore,string)'></a>
 
