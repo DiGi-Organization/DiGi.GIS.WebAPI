@@ -411,9 +411,18 @@ namespace DiGi.GIS.WebAPI.Classes
                     return NotFound();
                 }
 
+                // One batched read of every county's subdivisions rather than one per county, which was ~80 % of
+                // the request on production (DiGi.GIS.WebAPI#95).
+                Dictionary<int, List<AdministrativeAreal2D>>? administrativeAreal2Ds_ByCountyId = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByParentIdsAsync(AdministrativeArealType.Subdivision, countyIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+
                 foreach (int countyId in countyIds)
                 {
-                    Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = await PolygonalFace2DsByIdAsync(countyId, cancellationToken);
+                    Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = null;
+                    if (administrativeAreal2Ds_ByCountyId is not null && administrativeAreal2Ds_ByCountyId.TryGetValue(countyId, out List<AdministrativeAreal2D>? administrativeAreal2Ds))
+                    {
+                        polygonalFace2Ds_ById = NonEmptyPolygonalFace2DsById(administrativeAreal2Ds);
+                    }
+
                     if (polygonalFace2Ds_ById is null)
                     {
                         Serilog.Modify.Log("County {CountyId} has no subdivision outline, so there is no area to measure a density against", countyId);
@@ -508,7 +517,7 @@ namespace DiGi.GIS.WebAPI.Classes
                     return NotFound();
                 }
 
-                Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = await PolygonalFace2DsByIdAsync(countyId, cancellationToken);
+                Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = await PolygonalFace2DsByIdAsync(countyId, commandTimeout, cancellationToken);
                 if (polygonalFace2Ds_ById is null)
                 {
                     Serilog.Modify.Log("County {CountyId} has no subdivision outline, so there is nothing to measure a coverage against", countyId);
@@ -624,7 +633,7 @@ namespace DiGi.GIS.WebAPI.Classes
                         break;
                     }
 
-                    Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = await PolygonalFace2DsByIdAsync(countyId, cancellationToken);
+                    Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = await PolygonalFace2DsByIdAsync(countyId, commandTimeout, cancellationToken);
                     if (polygonalFace2Ds_ById is null)
                     {
                         continue;
@@ -743,11 +752,23 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <para>Read from the administrative database rather than the terrain one, and derived through the same helper the sampling task uses, so an area measured here is the area a run would have sampled.</para>
         /// </summary>
         /// <param name="countyId">The identifier of the county whose subdivisions are wanted.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of each command. A value of 0 disables the timeout.</param>
         /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
         /// <returns>The outlines keyed by subdivision identifier, or <see langword="null"/> when the county has none.</returns>
-        private async Task<Dictionary<int, PolygonalFace2D>?> PolygonalFace2DsByIdAsync(int countyId, CancellationToken cancellationToken)
+        private async Task<Dictionary<int, PolygonalFace2D>?> PolygonalFace2DsByIdAsync(int countyId, int commandTimeout, CancellationToken cancellationToken)
         {
-            List<AdministrativeAreal2D>? administrativeAreal2Ds = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByAdministrativeArealType(AdministrativeArealType.Subdivision, countyId, cancellationToken: cancellationToken);
+            List<AdministrativeAreal2D>? administrativeAreal2Ds = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByAdministrativeArealType(AdministrativeArealType.Subdivision, countyId, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+
+            return NonEmptyPolygonalFace2DsById(administrativeAreal2Ds);
+        }
+
+        /// <summary>
+        /// Derives the outlines of a county's subdivisions, keyed by subdivision identifier, through the same helper the sampling task uses.
+        /// </summary>
+        /// <param name="administrativeAreal2Ds">The subdivisions of one county as read from the administrative database.</param>
+        /// <returns>The outlines keyed by subdivision identifier, or <see langword="null"/> when there are none.</returns>
+        private static Dictionary<int, PolygonalFace2D>? NonEmptyPolygonalFace2DsById(List<AdministrativeAreal2D>? administrativeAreal2Ds)
+        {
             if (administrativeAreal2Ds is null || administrativeAreal2Ds.Count == 0)
             {
                 return null;

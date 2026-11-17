@@ -10829,26 +10829,53 @@ The terrain points gathered for the requested area\.
 [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the [DiGi\.Geometry\.Spatial\.Classes\.Mesh3D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.spatial.classes.mesh3d 'DiGi\.Geometry\.Spatial\.Classes\.Mesh3D') as JSON, or a not found status\.
 
-<a name='DiGi.GIS.WebAPI.Classes.TerrainController.PolygonalFace2DsByIdAsync(int,System.Threading.CancellationToken)'></a>
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.NonEmptyPolygonalFace2DsById(System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2D_)'></a>
 
-## TerrainController\.PolygonalFace2DsByIdAsync\(int, CancellationToken\) Method
+## TerrainController\.NonEmptyPolygonalFace2DsById\(List\<AdministrativeAreal2D\>\) Method
+
+Derives the outlines of a county's subdivisions, keyed by subdivision identifier, through the same helper the sampling task uses\.
+
+```csharp
+private static System.Collections.Generic.Dictionary<int,DiGi.Geometry.Planar.Classes.PolygonalFace2D>? NonEmptyPolygonalFace2DsById(System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2D>? administrativeAreal2Ds);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.NonEmptyPolygonalFace2DsById(System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2D_).administrativeAreal2Ds'></a>
+
+`administrativeAreal2Ds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2D](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.administrativeareal2d 'DiGi\.GIS\.PostgreSQL\.Classes\.AdministrativeAreal2D')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The subdivisions of one county as read from the administrative database\.
+
+#### Returns
+[System\.Collections\.Generic\.Dictionary&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[,](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[DiGi\.Geometry\.Planar\.Classes\.PolygonalFace2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.polygonalface2d 'DiGi\.Geometry\.Planar\.Classes\.PolygonalFace2D')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')  
+The outlines keyed by subdivision identifier, or [null](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/null 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/keywords/null') when there are none\.
+
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.PolygonalFace2DsByIdAsync(int,int,System.Threading.CancellationToken)'></a>
+
+## TerrainController\.PolygonalFace2DsByIdAsync\(int, int, CancellationToken\) Method
 
 Reads the outlines of a county's subdivisions, keyed by subdivision identifier\.
 
 Read from the administrative database rather than the terrain one, and derived through the same helper the sampling task uses, so an area measured here is the area a run would have sampled.
 
 ```csharp
-private System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<int,DiGi.Geometry.Planar.Classes.PolygonalFace2D>?> PolygonalFace2DsByIdAsync(int countyId, System.Threading.CancellationToken cancellationToken);
+private System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<int,DiGi.Geometry.Planar.Classes.PolygonalFace2D>?> PolygonalFace2DsByIdAsync(int countyId, int commandTimeout, System.Threading.CancellationToken cancellationToken);
 ```
 #### Parameters
 
-<a name='DiGi.GIS.WebAPI.Classes.TerrainController.PolygonalFace2DsByIdAsync(int,System.Threading.CancellationToken).countyId'></a>
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.PolygonalFace2DsByIdAsync(int,int,System.Threading.CancellationToken).countyId'></a>
 
 `countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
 
 The identifier of the county whose subdivisions are wanted\.
 
-<a name='DiGi.GIS.WebAPI.Classes.TerrainController.PolygonalFace2DsByIdAsync(int,System.Threading.CancellationToken).cancellationToken'></a>
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.PolygonalFace2DsByIdAsync(int,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of each command\. A value of 0 disables the timeout\.
+
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.PolygonalFace2DsByIdAsync(int,int,System.Threading.CancellationToken).cancellationToken'></a>
 
 `cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
 
