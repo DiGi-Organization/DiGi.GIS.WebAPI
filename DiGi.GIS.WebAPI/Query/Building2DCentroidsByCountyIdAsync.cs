@@ -22,7 +22,7 @@ namespace DiGi.GIS.WebAPI
         /// <param name="postOptions">The options of the request; null to bound it by <paramref name="commandTimeout"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the centroids (empty when the part holds no building), or null when an argument is out of range or the request failed - never read null as no building.</returns>
-        public static async Task<List<Building2DCentroid>?> Building2DCentroidsAsync(this GISWebAPIManager? gISWebAPIManager, int countyId, int commandTimeout = 600, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
+        public static async Task<List<Building2DCentroid>?> Building2DCentroidsByCountyIdAsync(this GISWebAPIManager? gISWebAPIManager, int countyId, int commandTimeout = 600, PostOptions? postOptions = null, CancellationToken cancellationToken = default)
         {
             if (gISWebAPIManager is null || countyId < 1 || commandTimeout < 0)
             {

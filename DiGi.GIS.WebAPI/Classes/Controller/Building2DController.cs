@@ -386,16 +386,17 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <summary>
         /// Retrieves the bounding-box centre of every building filed under one county part, in the compact, columnar form of <c>centroidsbyadministrativeareal2Did</c>: <c>{"References":[…],"CountyIds":[…],"X":[…],"Y":[…]}</c>, coordinates rounded to 0.01 m.
         /// <para>Exactly the rows a server-side solar solve tiles a part by (<c>building_2d.county_id</c> equal to <paramref name="countyId"/>, no subdivision filter), so a client-side solve walks the same buildings (DiGi.GIS.PostgreSQL.UI#48). <c>centroidsbyadministrativeareal2Did</c> is not that set: it resolves a county part through its Subdivision children, so a part without subdivisions answers nothing and a building filed under a sibling part's subdivision is left out or mixed in.</para>
-        /// <para>Every row carries <paramref name="countyId"/>; rows without a reference or with a NULL or NaN bounding box are left out. A part with no buildings answers 200 with four empty arrays; a failure to read is 500 (503 when transient), never an empty answer.</para>
+        /// <para>Every row carries <paramref name="countyId"/>; rows without a reference or with a NULL or NaN bounding box are left out. A part with no buildings answers 200 with four empty arrays; a missing <c>building_2d</c> table answers 404; a failure to read is 500 (503 when transient), never an empty answer.</para>
         /// </summary>
         /// <param name="countyId">The identifier of the county part (<c>administrative_areal_2d.id</c>, never a county code).</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
         /// <param name="cancellationToken">The cancellation token to observe.</param>
-        /// <returns>A task that represents the asynchronous operation. 200 with the columnar centroids; 400 for a county id below 1 or a negative timeout; 503 for a transient database failure; or 500.</returns>
+        /// <returns>A task that represents the asynchronous operation. 200 with the columnar centroids; 400 for a county id below 1 or a negative timeout; 404 when the <c>building_2d</c> table does not exist; 503 for a transient database failure; or 500.</returns>
         [HttpGet("centroidsbycountyid", Name = $"{nameof(Building2DController)}_{nameof(GetCentroidsByCountyIdAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCentroidsByCountyIdAsync([BindRequired, Minimum(1), FromQuery(Name = "countyid")] int countyId, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
@@ -415,6 +416,11 @@ namespace DiGi.GIS.WebAPI.Classes
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
+            }
+            catch (PostgresException postgresException) when (postgresException.SqlState == PostgresErrorCodes.UndefinedTable)
+            {
+                Serilog.Modify.Log(postgresException, "{Type}:{Name} failed: the building_2d table does not exist", nameof(Building2DController), nameof(GetCentroidsByCountyIdAsync));
+                return NotFound();
             }
             catch (NpgsqlException exception) when (exception.IsTransient)
             {

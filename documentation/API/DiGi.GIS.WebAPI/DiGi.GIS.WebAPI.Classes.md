@@ -1836,7 +1836,7 @@ Retrieves the bounding\-box centre of every building filed under one county part
 
 Exactly the rows a server-side solar solve tiles a part by (`building_2d.county_id` equal to [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.Building2DController.GetCentroidsByCountyIdAsync(int,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.Building2DController\.GetCentroidsByCountyIdAsync\(int, int, System\.Threading\.CancellationToken\)\.countyId'), no subdivision filter), so a client-side solve walks the same buildings (DiGi.GIS.PostgreSQL.UI#48). `centroidsbyadministrativeareal2Did` is not that set: it resolves a county part through its Subdivision children, so a part without subdivisions answers nothing and a building filed under a sibling part's subdivision is left out or mixed in.
 
-Every row carries [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.Building2DController.GetCentroidsByCountyIdAsync(int,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.Building2DController\.GetCentroidsByCountyIdAsync\(int, int, System\.Threading\.CancellationToken\)\.countyId'); rows without a reference or with a NULL or NaN bounding box are left out. A part with no buildings answers 200 with four empty arrays; a failure to read is 500 (503 when transient), never an empty answer.
+Every row carries [countyId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.Building2DController.GetCentroidsByCountyIdAsync(int,int,System.Threading.CancellationToken).countyId 'DiGi\.GIS\.WebAPI\.Classes\.Building2DController\.GetCentroidsByCountyIdAsync\(int, int, System\.Threading\.CancellationToken\)\.countyId'); rows without a reference or with a NULL or NaN bounding box are left out. A part with no buildings answers 200 with four empty arrays; a missing `building_2d` table answers 404; a failure to read is 500 (503 when transient), never an empty answer.
 
 ```csharp
 public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetCentroidsByCountyIdAsync(int countyId, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
@@ -1863,7 +1863,7 @@ The cancellation token to observe\.
 
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
-A task that represents the asynchronous operation\. 200 with the columnar centroids; 400 for a county id below 1 or a negative timeout; 503 for a transient database failure; or 500\.
+A task that represents the asynchronous operation\. 200 with the columnar centroids; 400 for a county id below 1 or a negative timeout; 404 when the `building_2d` table does not exist; 503 for a transient database failure; or 500\.
 
 <a name='DiGi.GIS.WebAPI.Classes.Building2DController.GetCountyPartMismatchesAsync(string,int,System.Threading.CancellationToken)'></a>
 
