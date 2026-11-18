@@ -384,6 +384,62 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Retrieves the bounding-box centre of every building filed under one county part, in the compact, columnar form of <c>centroidsbyadministrativeareal2Did</c>: <c>{"References":[…],"CountyIds":[…],"X":[…],"Y":[…]}</c>, coordinates rounded to 0.01 m.
+        /// <para>Exactly the rows a server-side solar solve tiles a part by (<c>building_2d.county_id</c> equal to <paramref name="countyId"/>, no subdivision filter), so a client-side solve walks the same buildings (DiGi.GIS.PostgreSQL.UI#48). <c>centroidsbyadministrativeareal2Did</c> is not that set: it resolves a county part through its Subdivision children, so a part without subdivisions answers nothing and a building filed under a sibling part's subdivision is left out or mixed in.</para>
+        /// <para>Every row carries <paramref name="countyId"/>; rows without a reference or with a NULL or NaN bounding box are left out. A part with no buildings answers 200 with four empty arrays; a failure to read is 500 (503 when transient), never an empty answer.</para>
+        /// </summary>
+        /// <param name="countyId">The identifier of the county part (<c>administrative_areal_2d.id</c>, never a county code).</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <returns>A task that represents the asynchronous operation. 200 with the columnar centroids; 400 for a county id below 1 or a negative timeout; 503 for a transient database failure; or 500.</returns>
+        [HttpGet("centroidsbycountyid", Name = $"{nameof(Building2DController)}_{nameof(GetCentroidsByCountyIdAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCentroidsByCountyIdAsync([BindRequired, Minimum(1), FromQuery(Name = "countyid")] int countyId, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 600, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for county part {CountyId}, commandtimeout {CommandTimeout}", nameof(Building2DController), nameof(GetCentroidsByCountyIdAsync), countyId, commandTimeout);
+
+            if (countyId < 1 || commandTimeout < 0)
+            {
+                return BadRequest();
+            }
+
+            List<PostgreSQL.Classes.Building2DCentroid>? building2DCentroids;
+            try
+            {
+                building2DCentroids = building2DPostgreSQLConverter is null ? null : await building2DPostgreSQLConverter.GetBuilding2DCentroidsByCountyIdAsync(countyId, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(Building2DController), nameof(GetCentroidsByCountyIdAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed for county part {CountyId}", nameof(Building2DController), nameof(GetCentroidsByCountyIdAsync), countyId);
+                return StatusCode(500, "Database read failed.");
+            }
+
+            // Null is a failure to reach the database, never "no building" - four empty arrays say that (Coding - WebAPI Contracts.md).
+            JsonObject? jsonObject = Convert.ToSystem_JsonObject(building2DCentroids);
+            if (jsonObject is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} failed: no connection to the Storage database", nameof(Building2DController), nameof(GetCentroidsByCountyIdAsync));
+                return StatusCode(500, "Building centroids could not be read.");
+            }
+
+            return Content(jsonObject.ToJsonString(), "application/json");
+        }
+
+        /// <summary>
         /// Retrieves a paginated list of building 2D references.
         /// </summary>
         /// <param name="building2DReferencesByPagingParameter">The parameter containing paging options, including county identifier, cursor, and page size.</param>

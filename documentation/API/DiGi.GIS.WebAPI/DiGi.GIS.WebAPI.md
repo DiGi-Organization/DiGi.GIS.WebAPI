@@ -14,6 +14,29 @@ public static class Convert
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → Convert
 ### Methods
 
+<a name='DiGi.GIS.WebAPI.Convert.ToDiGi_Building2DCentroids(thisSystem.Text.Json.Nodes.JsonObject)'></a>
+
+## Convert\.ToDiGi\_Building2DCentroids\(this JsonObject\) Method
+
+Converts the compact, columnar answer of `gis/Building2D/centroidsbycountyid` and `centroidsbyadministrativeareal2Did` \- `{"References":[…],"CountyIds":[…],"X":[…],"Y":[…]}`, the i\-th entry of every array describing the same building \- back into building centroids; the inverse of [ToSystem\_JsonObject\(this IEnumerable&lt;Building2DCentroid&gt;\)](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Convert.ToSystem_JsonObject(thisSystem.Collections.Generic.IEnumerable_DiGi.GIS.PostgreSQL.Classes.Building2DCentroid_) 'DiGi\.GIS\.WebAPI\.Convert\.ToSystem\_JsonObject\(this System\.Collections\.Generic\.IEnumerable\<DiGi\.GIS\.PostgreSQL\.Classes\.Building2DCentroid\>\)')\.
+
+The arrays must be present and of one length, and every entry must hold its type - a reference string, an integer county id and finite coordinates. Anything else is a broken answer and gives null rather than a shorter list, so a caller never reads a damaged answer as fewer buildings. The order is kept.
+
+```csharp
+public static System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.Building2DCentroid>? ToDiGi_Building2DCentroids(this System.Text.Json.Nodes.JsonObject? jsonObject);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Convert.ToDiGi_Building2DCentroids(thisSystem.Text.Json.Nodes.JsonObject).jsonObject'></a>
+
+`jsonObject` [System\.Text\.Json\.Nodes\.JsonObject](https://learn.microsoft.com/en-us/dotnet/api/system.text.json.nodes.jsonobject 'System\.Text\.Json\.Nodes\.JsonObject')
+
+The columnar object\. This value can be null\.
+
+#### Returns
+[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.Building2DCentroid](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2dcentroid 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DCentroid')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')  
+The centroids \(empty for four empty arrays\), or [null](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/null 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/keywords/null') when [jsonObject](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Convert.ToDiGi_Building2DCentroids(thisSystem.Text.Json.Nodes.JsonObject).jsonObject 'DiGi\.GIS\.WebAPI\.Convert\.ToDiGi\_Building2DCentroids\(this System\.Text\.Json\.Nodes\.JsonObject\)\.jsonObject') is null or not a well\-formed columnar answer\.
+
 <a name='DiGi.GIS.WebAPI.Convert.ToSystem_JsonObject(thisSystem.Collections.Generic.IEnumerable_DiGi.GIS.PostgreSQL.Classes.Building2DCentroid_)'></a>
 
 ## Convert\.ToSystem\_JsonObject\(this IEnumerable\<Building2DCentroid\>\) Method
@@ -2508,6 +2531,53 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[AdministrativeAreal2DCountStatus](DiGi.GIS.WebAPI.Enums.md#DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus 'DiGi\.GIS\.WebAPI\.Enums\.AdministrativeAreal2DCountStatus')[,](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[AdministrativeAreal2DScope](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.AdministrativeAreal2DScope 'DiGi\.GIS\.WebAPI\.Classes\.AdministrativeAreal2DScope')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.valuetuple 'System\.ValueTuple')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. The result carries how the resolution ended and, for [Counted](DiGi.GIS.WebAPI.Enums.md#DiGi.GIS.WebAPI.Enums.AdministrativeAreal2DCountStatus.Counted 'DiGi\.GIS\.WebAPI\.Enums\.AdministrativeAreal2DCountStatus\.Counted'), the scopes in the order a county partition was first met; on any other status the list is empty\.
+
+<a name='DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
+
+## Query\.Building2DCentroidsAsync\(this GISWebAPIManager, int, int, PostOptions, CancellationToken\) Method
+
+Reads the bounding\-box centre of every building filed under one county part through `gis/building2d/centroidsbycountyid` \- the set a server\-side solar solve tiles the part by \(DiGi\.GIS\.PostgreSQL\.UI\#48\)\.
+
+Coordinates come rounded to 0.01 m. Without [postOptions](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions 'DiGi\.GIS\.WebAPI\.Query\.Building2DCentroidsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.postOptions') the request may take [commandTimeout](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Query\.Building2DCentroidsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.commandTimeout') seconds (no bound when it is 0), so the client never gives up before the server does (`Coding - WebAPI Contracts.md` §3). A failed request or a malformed answer is null, never an empty list.
+
+```csharp
+public static System.Threading.Tasks.Task<System.Collections.Generic.List<DiGi.GIS.PostgreSQL.Classes.Building2DCentroid>?> Building2DCentroidsAsync(this DiGi.GIS.WebAPI.Classes.GISWebAPIManager? gISWebAPIManager, int countyId, int commandTimeout=600, DiGi.WebAPI.Classes.PostOptions? postOptions=null, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).gISWebAPIManager'></a>
+
+`gISWebAPIManager` [GISWebAPIManager](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.GISWebAPIManager 'DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager')
+
+The manager that creates the HTTP client\.
+
+<a name='DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).countyId'></a>
+
+`countyId` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The identifier of the county part \(`administrative_areal_2d.id`, never a county code\)\.
+
+<a name='DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The server's timeout in seconds for the read; 0 disables it\.
+
+<a name='DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).postOptions'></a>
+
+`postOptions` [DiGi\.WebAPI\.Classes\.PostOptions](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.postoptions 'DiGi\.WebAPI\.Classes\.PostOptions')
+
+The options of the request; null to bound it by [commandTimeout](DiGi.GIS.WebAPI.md#DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).commandTimeout 'DiGi\.GIS\.WebAPI\.Query\.Building2DCentroidsAsync\(this DiGi\.GIS\.WebAPI\.Classes\.GISWebAPIManager, int, int, DiGi\.WebAPI\.Classes\.PostOptions, System\.Threading\.CancellationToken\)\.commandTimeout')\.
+
+<a name='DiGi.GIS.WebAPI.Query.Building2DCentroidsAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[DiGi\.GIS\.PostgreSQL\.Classes\.Building2DCentroid](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.building2dcentroid 'DiGi\.GIS\.PostgreSQL\.Classes\.Building2DCentroid')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. The task result contains the centroids \(empty when the part holds no building\), or null when an argument is out of range or the request failed \- never read null as no building\.
 
 <a name='DiGi.GIS.WebAPI.Query.BuildingModelsByCountyIdAsync(thisDiGi.GIS.WebAPI.Classes.GISWebAPIManager,int,long,int,int,DiGi.WebAPI.Classes.PostOptions,System.Threading.CancellationToken)'></a>
 
