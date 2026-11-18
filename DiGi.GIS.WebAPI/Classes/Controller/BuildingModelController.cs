@@ -230,7 +230,14 @@ namespace DiGi.GIS.WebAPI.Classes
                 return StatusCode(500, "Database read failed.");
             }
 
-            if (building2DReferences is null || building2DReferences.Count == 0)
+            // Null is a failure to reach the database, not an empty circle - answering 404 would read as "no neighbour" (Coding - WebAPI Contracts.md).
+            if (building2DReferences is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Building2DReferences could not be read within the circle: no connection to the Main database");
+                return StatusCode(500, "Database read failed.");
+            }
+
+            if (building2DReferences.Count == 0)
             {
                 return NotFound();
             }
@@ -259,7 +266,15 @@ namespace DiGi.GIS.WebAPI.Classes
                     return StatusCode(500, "Database read failed.");
                 }
 
-                if (buildingModels_PostgreSQL is null || buildingModels_PostgreSQL.Count == 0)
+                // A county that could not be read fails the answer, as a thrown read does above - skipping it would
+                // return a partial set of neighbours as though it were complete (DiGi.GIS.PostgreSQL.UI#48).
+                if (buildingModels_PostgreSQL is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "BuildingModels could not be read from {TableName} for CountyId {CountyId}: no connection to the Storage database", buildingModelPostgreSQLConverter.TableName, countyId);
+                    return StatusCode(500, "Database read failed.");
+                }
+
+                if (buildingModels_PostgreSQL.Count == 0)
                 {
                     Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "No BuildingModels stored for county {CountyId}. Requested references: {Count}", countyId, references.Count);
                     continue;
@@ -343,7 +358,14 @@ namespace DiGi.GIS.WebAPI.Classes
                 return StatusCode(500, "Database read failed.");
             }
 
-            if (buildingModels_PostgreSQL is null || buildingModels_PostgreSQL.Count == 0)
+            // Null is a failure to reach the database, never "no model stored" - the empty list says that and stays 404 (DiGi.GIS.PostgreSQL.UI#48).
+            if (buildingModels_PostgreSQL is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "BuildingModels could not be read from {TableName}: no connection to the Storage database", buildingModelPostgreSQLConverter.TableName);
+                return StatusCode(500, "Database read failed.");
+            }
+
+            if (buildingModels_PostgreSQL.Count == 0)
             {
                 return NotFound();
             }
