@@ -366,15 +366,17 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
-        /// Asynchronously reports how densely each of the named county partitions is sampled: the points it holds divided by the area of its subdivisions.
-        /// <para>The cheap sweep. It costs one aggregate per partition and the outlines of the counties named, where deciding the same question node by node costs the generating and the looking up of the whole lattice - so this is what narrows a country down to the few counties worth <see cref="GetCoverageByCountyIdAsync"/>.</para>
+        /// Asynchronously reports how densely each of the named county partitions is sampled: the points it holds divided by the area a sampling run would sample in it.
+        /// <para>That area is the part's own outline, holes excluded, less what none of the county's subdivisions covers. A run keeps a point only inside a subdivision of the county and files it under the part whose outline contains it, so this is the territory the partition's count belongs to: each part of a multi-part county is measured against its own piece, no nested subdivision is counted twice, and water or land outside every subdivision - never sampled - does not hold a complete part below one (DiGi.GIS.WebAPI#98).</para>
+        /// <para>A part whose county has no subdivisions is reported against its whole outline: a run skips it, so it holds nothing, and saying so is the answer a sweep needs. An identifier that is not a county part is not reported.</para>
+        /// <para>The cheap sweep. It costs one aggregate per partition, the outlines of the counties named and one overlay of each against its subdivisions, where deciding the same question node by node costs the generating and the looking up of the whole lattice - so this is what narrows a country down to the few counties worth <see cref="GetCoverageByCountyIdAsync"/>.</para>
         /// <para>Supplying <paramref name="gridSize"/> is what turns the density into a completeness. Without it the figure to read is the spacing, which needs no knowledge of what a run was asked for.</para>
         /// </summary>
         /// <param name="countyIds">The identifiers of the county partitions to measure, repeated once per county. At least one and at most <see cref="Constants.Terrain.MaximumDensityCountyCount"/>.</param>
         /// <param name="gridSize">The lattice spacing a sampling run used, in metres, when it is known. Strictly greater than zero when supplied.</param>
         /// <param name="commandTimeout">The timeout in seconds for the execution of the command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 600 seconds.</param>
         /// <param name="cancellationToken">A cancellation token that can be used by the caller to cancel the asynchronous operation.</param>
-        /// <returns>An <see cref="IActionResult"/> carrying the densities as JSON, or an error status - HTTP 500 when the subdivisions could not be read at all, never an empty list.</returns>
+        /// <returns>An <see cref="IActionResult"/> carrying the densities as JSON, or an error status - HTTP 500 when the county outlines or their subdivisions could not be read at all, or an outline could not be overlaid with its subdivisions; never an empty list or a figure measured against the wrong area.</returns>
         [HttpGet("densitiesbycountyids", Name = $"{nameof(TerrainController)}_{nameof(GetDensitiesByCountyIdsAsync)}")]
         [ApiExplorerSettings(IgnoreApi = false)]
         [ProducesResponseType(typeof(List<TerrainPointDensityResult>), StatusCodes.Status200OK)]
@@ -411,35 +413,58 @@ namespace DiGi.GIS.WebAPI.Classes
                     return NotFound();
                 }
 
-                // One batched read of every county's subdivisions rather than one per county, which was ~80 % of
-                // the request on production (DiGi.GIS.WebAPI#95).
-                Dictionary<int, List<AdministrativeAreal2D>>? administrativeAreal2Ds_ByCountyId = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByParentIdsAsync(AdministrativeArealType.Subdivision, countyIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
-                if (administrativeAreal2Ds_ByCountyId is null)
+                // The territory a sampling run files under a part is its own outline, as far as the county's
+                // subdivisions cover it: a run keeps a point only inside a subdivision and files it under the part
+                // whose outline contains it. Summing the subdivisions instead counted nested levels twice and, through
+                // the widening to sibling parts, put a whole multi-part county under each part's count; the outline
+                // alone counted water and land outside every subdivision, which no run samples (DiGi.GIS.WebAPI#98).
+                List<AdministrativeAreal2D>? administrativeAreal2Ds = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByIdsAsync(countyIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                if (administrativeAreal2Ds is null)
                 {
-                    // Null means the read itself failed (no connection could be created), not that the counties have
-                    // no subdivisions - answering an empty list here would report a failure as "nothing measured".
+                    // Null means the read itself failed (no connection could be created), not that the counties are
+                    // unknown - answering an empty list here would report a failure as "nothing measured".
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} could not read the outlines of the requested county parts", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync));
+                    return StatusCode(500, "Internal server error during database query");
+                }
+
+                // One batched read of every county's subdivisions rather than one per county (DiGi.GIS.WebAPI#95). A
+                // part is widened to every part sharing its code, as the run's land test is.
+                Dictionary<int, List<AdministrativeAreal2D>>? administrativeAreal2Ds_Subdivision_ByCountyId = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByParentIdsAsync(AdministrativeArealType.Subdivision, countyIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                if (administrativeAreal2Ds_Subdivision_ByCountyId is null)
+                {
                     Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} could not read the subdivisions of the requested counties", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync));
                     return StatusCode(500, "Internal server error during database query");
                 }
 
+                // Only county parts: an identifier of another level has no partition of its own and is not reported,
+                // as it was not when it had no subdivisions under it.
+                List<AdministrativeAreal2D> administrativeAreal2Ds_County = administrativeAreal2Ds.FindAll(x => x is not null && x.AdministrativeArealType == AdministrativeArealType.County);
+                Dictionary<int, PolygonalFace2D> polygonalFace2Ds_ById = administrativeAreal2Ds_County.PolygonalFace2DsById();
+
                 foreach (int countyId in countyIds)
                 {
-                    Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_ById = null;
-                    if (administrativeAreal2Ds_ByCountyId.TryGetValue(countyId, out List<AdministrativeAreal2D>? administrativeAreal2Ds))
-                    {
-                        polygonalFace2Ds_ById = NonEmptyPolygonalFace2DsById(administrativeAreal2Ds);
-                    }
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                    if (polygonalFace2Ds_ById is null)
+                    if (!polygonalFace2Ds_ById.TryGetValue(countyId, out PolygonalFace2D? polygonalFace2D))
                     {
-                        Serilog.Modify.Log("County {CountyId} has no subdivision outline, so there is no area to measure a density against", countyId);
+                        Serilog.Modify.Log("County {CountyId} is not a county part with a readable outline, so there is no area to measure a density against", countyId);
                         continue;
                     }
 
-                    double area = 0;
-                    foreach (PolygonalFace2D polygonalFace2D in polygonalFace2Ds_ById.Values)
+                    // No subdivision: the whole outline is measured, so the part reads as holding nothing of it.
+                    administrativeAreal2Ds_Subdivision_ByCountyId.TryGetValue(countyId, out List<AdministrativeAreal2D>? administrativeAreal2Ds_Subdivision);
+                    double? area = SampledArea(polygonalFace2D, NonEmptyPolygonalFace2DsById(administrativeAreal2Ds_Subdivision));
+                    if (area is null)
                     {
-                        area += polygonalFace2D.GetArea();
+                        // A figure against the whole outline would be wrong without saying so.
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} could not overlay county {CountyId} with its subdivisions", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync), countyId);
+                        return StatusCode(500, "Internal server error while measuring a county area");
+                    }
+
+                    if (!IsFinite(area.Value))
+                    {
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "County {CountyId} has an outline that bounds no area", countyId);
+                        continue;
                     }
 
                     // A county with no partition is absent from the counts and contributes a zero here, which is
@@ -447,7 +472,7 @@ namespace DiGi.GIS.WebAPI.Classes
                     // dropping out of a sweep that was asked about it.
                     counts_ByCountyId.TryGetValue(countyId, out long count);
 
-                    if (PostgreSQL.Create.TerrainPointDensityResult(countyId, count, area, gridSize) is TerrainPointDensityResult terrainPointDensityResult)
+                    if (PostgreSQL.Create.TerrainPointDensityResult(countyId, count, area.Value, gridSize) is TerrainPointDensityResult terrainPointDensityResult)
                     {
                         terrainPointDensityResults.Add(terrainPointDensityResult);
                     }
@@ -767,6 +792,56 @@ namespace DiGi.GIS.WebAPI.Classes
             List<AdministrativeAreal2D>? administrativeAreal2Ds = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByAdministrativeArealType(AdministrativeArealType.Subdivision, countyId, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
 
             return NonEmptyPolygonalFace2DsById(administrativeAreal2Ds);
+        }
+
+        /// <summary>
+        /// Measures the area a sampling run samples in one county part: its own outline, holes excluded, less what none of the county's subdivisions covers.
+        /// <para>A run keeps a point only inside a subdivision and files it under the part whose outline contains it, so this is the territory the part's count belongs to. A nested subdivision lies inside its container and adds nothing, so only the top-level ones are overlaid - nesting decided on one interior point each (<c>Coding - GIS Administrative Data.md</c> §7), which leaves the union, the cost, to the outermost faces. Coinciding subdivisions (a district and its part of a city) are covered once by the union.</para>
+        /// </summary>
+        /// <param name="polygonalFace2D">The outline of the county part.</param>
+        /// <param name="polygonalFace2Ds_Subdivision_ById">The outlines of the county's subdivisions keyed by identifier, or null when it has none - the whole outline is then measured.</param>
+        /// <returns>The sampled area, never below zero; not a number when the outline bounds no area; null when the outline could not be overlaid with the subdivisions.</returns>
+        private static double? SampledArea(PolygonalFace2D polygonalFace2D, Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_Subdivision_ById)
+        {
+            // Holes excluded: an enclave such as a city county inside a land county is not this part's territory.
+            double area = polygonalFace2D.GetArea();
+            if (!IsFinite(area) || area <= 0)
+            {
+                return double.NaN;
+            }
+
+            if (polygonalFace2Ds_Subdivision_ById is null)
+            {
+                return area;
+            }
+
+            Dictionary<int, List<int>> containerIds_ById = polygonalFace2Ds_Subdivision_ById.ContainerIds();
+            List<PolygonalFace2D> polygonalFace2Ds_Subdivision = [];
+            foreach (KeyValuePair<int, PolygonalFace2D> keyValuePair in polygonalFace2Ds_Subdivision_ById)
+            {
+                if (!containerIds_ById.TryGetValue(keyValuePair.Key, out List<int>? containerIds) || containerIds.Count == 0)
+                {
+                    polygonalFace2Ds_Subdivision.Add(keyValuePair.Value);
+                }
+            }
+
+            // United and subtracted in one overlay; what remains is never sampled.
+            List<PolygonalFace2D>? polygonalFace2Ds_Unsampled = DiGi.Geometry.Planar.Query.Difference(polygonalFace2D, polygonalFace2Ds_Subdivision);
+            if (polygonalFace2Ds_Unsampled is null)
+            {
+                return null;
+            }
+
+            foreach (PolygonalFace2D polygonalFace2D_Unsampled in polygonalFace2Ds_Unsampled)
+            {
+                double area_Unsampled = polygonalFace2D_Unsampled.GetArea();
+                if (IsFinite(area_Unsampled))
+                {
+                    area -= area_Unsampled;
+                }
+            }
+
+            return area < 0 ? 0 : area;
         }
 
         /// <summary>

@@ -10553,9 +10553,13 @@ An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us
 
 ## TerrainController\.GetDensitiesByCountyIdsAsync\(List\<int\>, Nullable\<double\>, int, CancellationToken\) Method
 
-Asynchronously reports how densely each of the named county partitions is sampled: the points it holds divided by the area of its subdivisions\.
+Asynchronously reports how densely each of the named county partitions is sampled: the points it holds divided by the area a sampling run would sample in it\.
 
-The cheap sweep. It costs one aggregate per partition and the outlines of the counties named, where deciding the same question node by node costs the generating and the looking up of the whole lattice - so this is what narrows a country down to the few counties worth [GetCoverageByCountyIdAsync\(int, double, double, double, Nullable&lt;double&gt;, int, int, CancellationToken\)](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TerrainController.GetCoverageByCountyIdAsync(int,double,double,double,System.Nullable_double_,int,int,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Classes\.TerrainController\.GetCoverageByCountyIdAsync\(int, double, double, double, System\.Nullable\<double\>, int, int, System\.Threading\.CancellationToken\)').
+That area is the part's own outline, holes excluded, less what none of the county's subdivisions covers. A run keeps a point only inside a subdivision of the county and files it under the part whose outline contains it, so this is the territory the partition's count belongs to: each part of a multi-part county is measured against its own piece, no nested subdivision is counted twice, and water or land outside every subdivision - never sampled - does not hold a complete part below one (DiGi.GIS.WebAPI#98).
+
+A part whose county has no subdivisions is reported against its whole outline: a run skips it, so it holds nothing, and saying so is the answer a sweep needs. An identifier that is not a county part is not reported.
+
+The cheap sweep. It costs one aggregate per partition, the outlines of the counties named and one overlay of each against its subdivisions, where deciding the same question node by node costs the generating and the looking up of the whole lattice - so this is what narrows a country down to the few counties worth [GetCoverageByCountyIdAsync\(int, double, double, double, Nullable&lt;double&gt;, int, int, CancellationToken\)](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TerrainController.GetCoverageByCountyIdAsync(int,double,double,double,System.Nullable_double_,int,int,System.Threading.CancellationToken) 'DiGi\.GIS\.WebAPI\.Classes\.TerrainController\.GetCoverageByCountyIdAsync\(int, double, double, double, System\.Nullable\<double\>, int, int, System\.Threading\.CancellationToken\)').
 
 Supplying [gridSize](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.TerrainController.GetDensitiesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_double_,int,System.Threading.CancellationToken).gridSize 'DiGi\.GIS\.WebAPI\.Classes\.TerrainController\.GetDensitiesByCountyIdsAsync\(System\.Collections\.Generic\.List\<int\>, System\.Nullable\<double\>, int, System\.Threading\.CancellationToken\)\.gridSize') is what turns the density into a completeness. Without it the figure to read is the spacing, which needs no knowledge of what a run was asked for.
 
@@ -10590,7 +10594,7 @@ A cancellation token that can be used by the caller to cancel the asynchronous o
 
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
-An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the densities as JSON, or an error status \- HTTP 500 when the subdivisions could not be read at all, never an empty list\.
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the densities as JSON, or an error status \- HTTP 500 when the county outlines or their subdivisions could not be read at all, or an outline could not be overlaid with its subdivisions; never an empty list or a figure measured against the wrong area\.
 
 <a name='DiGi.GIS.WebAPI.Classes.TerrainController.GetGapsByBoundingBoxAsync(double,double,double,double,double,double,double,System.Nullable_double_,int,int,System.Threading.CancellationToken)'></a>
 
@@ -10921,6 +10925,35 @@ A cancellation token that can be used by the caller to cancel the asynchronous o
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Collections\.Generic\.Dictionary&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[,](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[DiGi\.Geometry\.Planar\.Classes\.PolygonalFace2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.polygonalface2d 'DiGi\.Geometry\.Planar\.Classes\.PolygonalFace2D')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 The outlines keyed by subdivision identifier, or [null](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/null 'https://docs\.microsoft\.com/en\-us/dotnet/csharp/language\-reference/keywords/null') when the county has none\.
+
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.SampledArea(DiGi.Geometry.Planar.Classes.PolygonalFace2D,System.Collections.Generic.Dictionary_int,DiGi.Geometry.Planar.Classes.PolygonalFace2D_)'></a>
+
+## TerrainController\.SampledArea\(PolygonalFace2D, Dictionary\<int,PolygonalFace2D\>\) Method
+
+Measures the area a sampling run samples in one county part: its own outline, holes excluded, less what none of the county's subdivisions covers\.
+
+A run keeps a point only inside a subdivision and files it under the part whose outline contains it, so this is the territory the part's count belongs to. A nested subdivision lies inside its container and adds nothing, so only the top-level ones are overlaid - nesting decided on one interior point each (`Coding - GIS Administrative Data.md` §7), which leaves the union, the cost, to the outermost faces. Coinciding subdivisions (a district and its part of a city) are covered once by the union.
+
+```csharp
+private static System.Nullable<double> SampledArea(DiGi.Geometry.Planar.Classes.PolygonalFace2D polygonalFace2D, System.Collections.Generic.Dictionary<int,DiGi.Geometry.Planar.Classes.PolygonalFace2D>? polygonalFace2Ds_Subdivision_ById);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.SampledArea(DiGi.Geometry.Planar.Classes.PolygonalFace2D,System.Collections.Generic.Dictionary_int,DiGi.Geometry.Planar.Classes.PolygonalFace2D_).polygonalFace2D'></a>
+
+`polygonalFace2D` [DiGi\.Geometry\.Planar\.Classes\.PolygonalFace2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.polygonalface2d 'DiGi\.Geometry\.Planar\.Classes\.PolygonalFace2D')
+
+The outline of the county part\.
+
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.SampledArea(DiGi.Geometry.Planar.Classes.PolygonalFace2D,System.Collections.Generic.Dictionary_int,DiGi.Geometry.Planar.Classes.PolygonalFace2D_).polygonalFace2Ds_Subdivision_ById'></a>
+
+`polygonalFace2Ds_Subdivision_ById` [System\.Collections\.Generic\.Dictionary&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[,](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[DiGi\.Geometry\.Planar\.Classes\.PolygonalFace2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.polygonalface2d 'DiGi\.Geometry\.Planar\.Classes\.PolygonalFace2D')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')
+
+The outlines of the county's subdivisions keyed by identifier, or null when it has none \- the whole outline is then measured\.
+
+#### Returns
+[System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')  
+The sampled area, never below zero; not a number when the outline bounds no area; null when the outline could not be overlaid with the subdivisions\.
 
 <a name='DiGi.GIS.WebAPI.Classes.TerrainController.TerrainPointTableExistsAsync()'></a>
 
