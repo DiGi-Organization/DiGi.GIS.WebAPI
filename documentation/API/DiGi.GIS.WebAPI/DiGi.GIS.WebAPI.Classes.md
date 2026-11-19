@@ -5050,6 +5050,88 @@ public DiGi.PostgreSQL.Table.Classes.FilterGroup? FilterGroup { get; set; }
 #### Property Value
 [DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.table.classes.filtergroup 'DiGi\.PostgreSQL\.Table\.Classes\.FilterGroup')
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController'></a>
+
+## BuildingHeatDemandController Class
+
+Serves the summary of the stored heat\-demand results \(`building_heat_demand`\)\.
+
+A read open to every visitor: counts and aggregates only, no building data leaves. The production measure of a heat-demand run (DiGi.Analytical#10): the run keeps its counts in memory, and production is read only through this API, never through a configuration file (`Coding - PostgreSQL.md` §6).
+
+```csharp
+public class BuildingHeatDemandController : DiGi.WebAPI.Classes.WebAPIController
+```
+
+Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → [Microsoft\.AspNetCore\.Mvc\.ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase 'Microsoft\.AspNetCore\.Mvc\.ControllerBase') → [DiGi\.WebAPI\.Classes\.WebAPIController](https://learn.microsoft.com/en-us/dotnet/api/digi.webapi.classes.webapicontroller 'DiGi\.WebAPI\.Classes\.WebAPIController') → BuildingHeatDemandController
+### Constructors
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController.BuildingHeatDemandController(DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter)'></a>
+
+## BuildingHeatDemandController\(BuildingSolarRadiationPostgreSQLConverter\) Constructor
+
+Initializes a new instance of the [BuildingHeatDemandController](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController 'DiGi\.GIS\.WebAPI\.Classes\.BuildingHeatDemandController') class\. This is the controller's only public constructor: MVC activates it through `ActivatorUtilities`, and a second one would answer every action with 500 \(`Coding - WebAPI Contracts.md` §5\)\.
+
+```csharp
+public BuildingHeatDemandController(DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter buildingSolarRadiationPostgreSQLConverter);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController.BuildingHeatDemandController(DiGi.GIS.PostgreSQL.Classes.BuildingSolarRadiationPostgreSQLConverter).buildingSolarRadiationPostgreSQLConverter'></a>
+
+`buildingSolarRadiationPostgreSQLConverter` [DiGi\.GIS\.PostgreSQL\.Classes\.BuildingSolarRadiationPostgreSQLConverter](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.buildingsolarradiationpostgresqlconverter 'DiGi\.GIS\.PostgreSQL\.Classes\.BuildingSolarRadiationPostgreSQLConverter')
+
+The Storage\-database converter holding the [DiGi\.PostgreSQL\.Classes\.ConnectionData](https://learn.microsoft.com/en-us/dotnet/api/digi.postgresql.classes.connectiondata 'DiGi\.PostgreSQL\.Classes\.ConnectionData') this controller uses to open its own connection for the heat\-demand summary query\.
+### Methods
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,System.Collections.Generic.List_short_,int,System.Threading.CancellationToken)'></a>
+
+## BuildingHeatDemandController\.GetSummariesByCountyIdsAsync\(List\<int\>, Nullable\<int\>, List\<short\>, int, CancellationToken\) Method
+
+Summarises what each of the named county parts holds per method version, building type and year\-built band: the rows stored, the shaded and unshaded counts, the total and per\-area heating energy need with its deciles, the design heat load, the quality counts \(excluded components, glazing fallbacks, missing irradiation\), and the first and last write\.
+
+The production measure of a heat-demand run (DiGi.Analytical#10): the run keeps its counts in memory, and production is read only through this API, never through a configuration file (`Coding - PostgreSQL.md` §6). Counts and aggregates only - no building data leaves. Open to every visitor, like the other `summariesbycountyids` reads.
+
+Naming no county part summarises every part holding results. A part holding none is absent rather than present with zeros, and a missing table answers an empty list.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSummariesByCountyIdsAsync(System.Collections.Generic.List<int>? countyIds, System.Nullable<int> methodVersion=null, System.Collections.Generic.List<short>? yearBuiltBounds=null, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,System.Collections.Generic.List_short_,int,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The identifiers of the county parts to summarise, repeated once per part \(`countyids=55417&countyids=53477`\)\. Omit to summarise every part\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,System.Collections.Generic.List_short_,int,System.Threading.CancellationToken).methodVersion'></a>
+
+`methodVersion` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The method version to summarise; omit to summarise every version, one row each\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,System.Collections.Generic.List_short_,int,System.Threading.CancellationToken).yearBuiltBounds'></a>
+
+`yearBuiltBounds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int16](https://learn.microsoft.com/en-us/dotnet/api/system.int16 'System\.Int16')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The ascending band bounds of the year built \(e\.g\. the TABULA PL periods\), repeated once per bound\. Omit for one band of every year\. Must be strictly ascending after de\-duplication; a non\-ascending sequence is refused with HTTP 400\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,System.Collections.Generic.List_short_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of each command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingHeatDemandController.GetSummariesByCountyIdsAsync(System.Collections.Generic.List_int_,System.Nullable_int_,System.Collections.Generic.List_short_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe for cancellation requests\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+A task that represents the asynchronous operation\. 200 with a JSON list of [DiGi\.GIS\.PostgreSQL\.Classes\.BuildingHeatDemandCountyResult](https://learn.microsoft.com/en-us/dotnet/api/digi.gis.postgresql.classes.buildingheatdemandcountyresult 'DiGi\.GIS\.PostgreSQL\.Classes\.BuildingHeatDemandCountyResult') \(empty when nothing is stored or the table is missing\), 400 for a negative timeout or non\-ascending year\-built bounds, 503 for a transient database failure, or 500\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingModelController'></a>
 
 ## BuildingModelController Class
