@@ -4194,6 +4194,31 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\.
 
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetColumnValues(string)'></a>
+
+## BuildingDataController\.GetColumnValues\(string\) Method
+
+Retrieves the complete set of values every limited\-choice building data column can hold, answered from the code without reading the database \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#102\)\.
+
+Without `columnuniqueid` the answer is an object with one key per limited-choice column - `building_general_function`, `building_specific_functions`, `building_phase`, `cardinal_direction`, `settlement_type`, the three building-shape columns, `is_residential`, `is_occupied` and `solar_weather_source_type` - each holding its value array; with one, the answer is that column's array alone, shaped like `uniquevalues`. Every value is exactly what the stored column holds, so a filter built from these answers matches stored rows, and `building_specific_functions` answers one value per function rather than the comma-joined combination a row carries.
+
+The domain comes from the enumerations of `DiGi.GIS` instead of a scan, so no connection is opened and no `commandtimeout` applies: a value no stored row holds yet is still listed, and the answer costs the same on the largest partition as on the smallest. `uniquevalues` keeps its own place - it answers what is actually stored, scoped to a county or an administrative area.
+
+```csharp
+public Microsoft.AspNetCore.Mvc.IActionResult GetColumnValues(string? columnUniqueId=null);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetColumnValues(string).columnUniqueId'></a>
+
+`columnUniqueId` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The unique id of one limited\-choice column to answer values for, or null to answer for all of them\. A blank id, or an id that names no limited\-choice column, is refused with 400 naming it\.
+
+#### Returns
+[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult'): 200 with the values as JSON \(an object of arrays for every column, one array for a single column\), 400 naming an unsupported [columnUniqueId](DiGi.GIS.WebAPI.Classes.md#DiGi.GIS.WebAPI.Classes.BuildingDataController.GetColumnValues(string).columnUniqueId 'DiGi\.GIS\.WebAPI\.Classes\.BuildingDataController\.GetColumnValues\(string\)\.columnUniqueId'), or 500\.
+
 <a name='DiGi.GIS.WebAPI.Classes.BuildingDataController.GetCountByAdministrativeAreal2DIdAsync(DiGi.GIS.WebAPI.Classes.BuildingDataCountByAdministrativeAreal2DIdParameter,int,System.Threading.CancellationToken)'></a>
 
 ## BuildingDataController\.GetCountByAdministrativeAreal2DIdAsync\(BuildingDataCountByAdministrativeAreal2DIdParameter, int, CancellationToken\) Method

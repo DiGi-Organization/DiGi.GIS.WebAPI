@@ -2764,6 +2764,24 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[System\.Collections\.Generic\.HashSet&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1 'System\.Collections\.Generic\.HashSet\`1')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1 'System\.Collections\.Generic\.HashSet\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. The task result contains the references \(empty when none is stored\), or null when an argument is out of range or the request failed \- never read null as nothing solved\.
 
+<a name='DiGi.GIS.WebAPI.Query.ColumnValues()'></a>
+
+## Query\.ColumnValues\(\) Method
+
+Gets every building data column that holds a bounded choice list, together with the complete set of values it can hold \(DiGi\-Organization/DiGi\.GIS\.WebAPI\#102\)\.
+
+The answer is built from the code alone - the enumerations of `DiGi.GIS` the columns are written from - so no connection is opened, a value no stored row holds yet is still listed, and the answer costs the same on the largest partition as on the smallest. Each value is what the writer stores: the description text for the columns `Modify/Update_Building2D.cs` writes through `Description()`, the member name for `cardinal_direction`, which the enum-to-string conversion stores instead of the description, the underlying integer for `solar_weather_source_type`, and `false` then `true` for the two boolean columns.
+
+Values come out in enum declaration order and never repeat; the integer column comes out ascending, so its documented `-1, 0, 1` reads in that order instead of the unsigned order [System\.Enum\.GetValues&lt;&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.enum.getvalues--1 'System\.Enum\.GetValues\`\`1') yields. `building_specific_functions` carries its functions one by one - one value per `BuildingSpecificFunction` member - never the comma-joined combination a stored row holds, because a caller filters on one function at a time.
+
+```csharp
+public static System.Collections.Generic.Dictionary<string,System.Collections.Generic.List<object?>> ColumnValues();
+```
+
+#### Returns
+[System\.Collections\.Generic\.Dictionary&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')[,](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')[System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.dictionary-2 'System\.Collections\.Generic\.Dictionary\`2')  
+The value sets keyed by column unique id \(the normalized name of the matching `DiGi.GIS.IO.Constants.Column` member\), one entry per limited\-choice column; never null and never empty\.
+
 <a name='DiGi.GIS.WebAPI.Query.CountByAdministrativeAreal2DIdAsync(int,DiGi.PostgreSQL.Table.Classes.FilterGroup,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference__,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.AdministrativeAreal2DReference___,System.Func_int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Collections.Generic.List_DiGi.GIS.PostgreSQL.Classes.Building2DReference___,System.Func_DiGi.PostgreSQL.Table.Classes.FilterGroup,int,System.Threading.CancellationToken,System.Threading.Tasks.Task_System.Nullable_long___,int,int,System.Threading.CancellationToken)'></a>
 
 ## Query\.CountByAdministrativeAreal2DIdAsync\(int, FilterGroup, Func\<int,CancellationToken,Task\<AdministrativeAreal2DReference\>\>, Func\<int,CancellationToken,Task\<List\<AdministrativeAreal2DReference\>\>\>, Func\<int,CancellationToken,Task\<List\<Building2DReference\>\>\>, Func\<FilterGroup,int,CancellationToken,Task\<Nullable\<long\>\>\>, int, int, CancellationToken\) Method

@@ -764,6 +764,59 @@ namespace DiGi.GIS.WebAPI.Classes
         }
 
         /// <summary>
+        /// Retrieves the complete set of values every limited-choice building data column can hold, answered from the code without reading the database (DiGi-Organization/DiGi.GIS.WebAPI#102).
+        /// <para>Without <c>columnuniqueid</c> the answer is an object with one key per limited-choice column - <c>building_general_function</c>, <c>building_specific_functions</c>, <c>building_phase</c>, <c>cardinal_direction</c>, <c>settlement_type</c>, the three building-shape columns, <c>is_residential</c>, <c>is_occupied</c> and <c>solar_weather_source_type</c> - each holding its value array; with one, the answer is that column's array alone, shaped like <c>uniquevalues</c>. Every value is exactly what the stored column holds, so a filter built from these answers matches stored rows, and <c>building_specific_functions</c> answers one value per function rather than the comma-joined combination a row carries.</para>
+        /// <para>The domain comes from the enumerations of <c>DiGi.GIS</c> instead of a scan, so no connection is opened and no <c>commandtimeout</c> applies: a value no stored row holds yet is still listed, and the answer costs the same on the largest partition as on the smallest. <c>uniquevalues</c> keeps its own place - it answers what is actually stored, scoped to a county or an administrative area.</para>
+        /// </summary>
+        /// <param name="columnUniqueId">The unique id of one limited-choice column to answer values for, or null to answer for all of them. A blank id, or an id that names no limited-choice column, is refused with 400 naming it.</param>
+        /// <returns>An <see cref="IActionResult"/>: 200 with the values as JSON (an object of arrays for every column, one array for a single column), 400 naming an unsupported <paramref name="columnUniqueId"/>, or 500.</returns>
+        [HttpGet("columnvalues", Name = $"{nameof(BuildingDataController)}_{nameof(GetColumnValues)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status200OK, Description = "Without columnuniqueid: one key per limited-choice column holding its value array. With columnuniqueid: that column's value array alone.")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Description = "The columnuniqueid was sent but names no limited-choice column, a blank id among them.")]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult GetColumnValues([FromQuery(Name = "columnuniqueid")] string? columnUniqueId = null)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started", nameof(BuildingDataController), nameof(GetColumnValues));
+            Serilog.Modify.Log("ColumnUniqueId provided: {ColumnUniqueId}", columnUniqueId ?? string.Empty);
+
+            try
+            {
+                Dictionary<string, List<object?>> columnValues = Query.ColumnValues();
+
+                JsonNode? jsonNode;
+                if (columnUniqueId is null)
+                {
+                    jsonNode = Core.Create.JsonNode(columnValues);
+                }
+                else
+                {
+                    string columnUniqueId_Trimmed = columnUniqueId.Trim();
+                    if (columnUniqueId_Trimmed.Length == 0 || !columnValues.TryGetValue(columnUniqueId_Trimmed, out List<object?>? values) || values is null)
+                    {
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "No limited-choice column is known as {ColumnUniqueId}", columnUniqueId_Trimmed);
+                        return Problem(detail: $"The limited-choice columns do not include: {columnUniqueId_Trimmed}.", statusCode: 400);
+                    }
+
+                    jsonNode = Core.Create.JsonNode(values);
+                }
+
+                if (jsonNode is null)
+                {
+                    Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "The column values could not be serialized");
+                    return StatusCode(500, "The answer could not be serialized.");
+                }
+
+                return Content(jsonNode.ToJsonString(), "application/json");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(BuildingDataController), nameof(GetColumnValues));
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        /// <summary>
         /// Asynchronously retrieves the number of building data rows stored for one county.
         /// <para>The cheapest question that can be asked of the table. A county part that holds no rows answers 0, the same as <c>coveragebycountyid</c>; only an identifier that is not a county part answers 404.</para>
         /// </summary>
