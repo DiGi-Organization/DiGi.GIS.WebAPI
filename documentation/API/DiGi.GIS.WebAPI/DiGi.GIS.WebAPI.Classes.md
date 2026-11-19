@@ -8087,7 +8087,7 @@ public System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? V
 
 ## OpenBuildingController Class
 
-Web API controller for the open building datasets \(EUBUCCO, Overture, OSM, DBSM, Microsoft, GHS\-OBAT\) stored beside BDOT10k: the release register and per\-county summaries of the footprint tables \(DiGi\.GIS\.PostgreSQL\#121\)\.
+Web API controller for the open building datasets \(EUBUCCO, Overture, OSM, DBSM, Microsoft, GHS\-OBAT\) stored beside BDOT10k: the release register, per\-county summaries of the footprint tables and their disk use \(DiGi\.GIS\.PostgreSQL\#121\)\.
 
 Read-only. It exposes the evidence paper 01 needs to state which release of each dataset was compared, when it was fetched, and how much of it comes from a register, OpenStreetMap or a detector.
 
@@ -8156,6 +8156,47 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the releases as JSON \(an empty list when none is registered for the key\), 404 when the register does not exist yet, or an error status\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSizesAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken)'></a>
+
+## OpenBuildingController\.GetSizesAsync\(string, List\<int\>, int, CancellationToken\) Method
+
+Asynchronously retrieves the disk use of the open building tables: the total size in bytes \(table, TOAST and indexes\) and the planner's row estimate of every county partition of a footprint table, and of the unpartitioned GHS\-OBAT table as a whole \(DiGi\.GIS\.PostgreSQL\#150\)\.
+
+Read from the system catalog only, so it answers in milliseconds however large the tables are. The sizes of a table's partitions sum to the table's size. The measured disk use of the pilot imports (DiGi.GIS.PostgreSQL#126) and the per-county figure a full-country roll-out is extrapolated from.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetSizesAsync(string? datasetKey=null, System.Collections.Generic.List<int>? countyIds=null, int commandTimeout=30, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSizesAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).datasetKey'></a>
+
+`datasetKey` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The dataset key to measure \(`eubucco`, `overture`, `osm`, `dbsm`, `microsoft`, `ghs_obat`\)\. Omit to measure all six tables\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSizesAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The identifiers of the county parts whose partitions are reported, repeated once per part\. At most [MaximumSummaryCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoDatas.MaximumSummaryCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.OrtoDatas\.MaximumSummaryCountyCount'); omit to report every partition\. The GHS\-OBAT table has no partitions and is reported whole either way, with a null `CountyId`\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSizesAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of each command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 30 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSizesAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the sizes as JSON, 404 when none of the measured tables exists yet, or an error status\.
 
 <a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken)'></a>
 

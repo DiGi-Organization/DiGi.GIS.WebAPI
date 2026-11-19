@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DiGi.GIS.WebAPI.Classes
 {
     /// <summary>
-    /// Web API controller for the open building datasets (EUBUCCO, Overture, OSM, DBSM, Microsoft, GHS-OBAT) stored beside BDOT10k: the release register and per-county summaries of the footprint tables (DiGi.GIS.PostgreSQL#121).
+    /// Web API controller for the open building datasets (EUBUCCO, Overture, OSM, DBSM, Microsoft, GHS-OBAT) stored beside BDOT10k: the release register, per-county summaries of the footprint tables and their disk use (DiGi.GIS.PostgreSQL#121).
     /// <para>Read-only. It exposes the evidence paper 01 needs to state which release of each dataset was compared, when it was fetched, and how much of it comes from a register, OpenStreetMap or a detector.</para>
     /// </summary>
     [ApiController]
@@ -184,6 +184,87 @@ namespace DiGi.GIS.WebAPI.Classes
             }
 
             Serilog.Modify.Log("Number of OpenBuildingCountyResults to be returned: {Count}", openBuildingCountyResults.Count);
+            return Content(json, "application/json");
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves the disk use of the open building tables: the total size in bytes (table, TOAST and indexes) and the planner's row estimate of every county partition of a footprint table, and of the unpartitioned GHS-OBAT table as a whole (DiGi.GIS.PostgreSQL#150).
+        /// <para>Read from the system catalog only, so it answers in milliseconds however large the tables are. The sizes of a table's partitions sum to the table's size. The measured disk use of the pilot imports (DiGi.GIS.PostgreSQL#126) and the per-county figure a full-country roll-out is extrapolated from.</para>
+        /// </summary>
+        /// <param name="datasetKey">The dataset key to measure (<c>eubucco</c>, <c>overture</c>, <c>osm</c>, <c>dbsm</c>, <c>microsoft</c>, <c>ghs_obat</c>). Omit to measure all six tables.</param>
+        /// <param name="countyIds">The identifiers of the county parts whose partitions are reported, repeated once per part. At most <see cref="Constants.OrtoDatas.MaximumSummaryCountyCount"/>; omit to report every partition. The GHS-OBAT table has no partitions and is reported whole either way, with a null <c>CountyId</c>.</param>
+        /// <param name="commandTimeout">The timeout in seconds for the execution of each command. A value of 0 disables the timeout; a negative value is refused with HTTP 400. Defaults to 30 seconds.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>An <see cref="IActionResult"/> carrying the sizes as JSON, 404 when none of the measured tables exists yet, or an error status.</returns>
+        [HttpGet("sizes", Name = $"{nameof(OpenBuildingController)}_{nameof(GetSizesAsync)}")]
+        [ApiExplorerSettings(IgnoreApi = false)]
+        [ProducesResponseType(typeof(List<PostgreSQL.Classes.OpenBuildingTableSizeResult>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetSizesAsync([FromQuery(Name = "datasetkey")] string? datasetKey = null, [FromQuery(Name = "countyids")] List<int>? countyIds = null, [Minimum(0), FromQuery(Name = "commandtimeout")] int commandTimeout = 30, CancellationToken cancellationToken = default)
+        {
+            Serilog.Modify.Log("{Type}:{Name} started for dataset {DatasetKey} and {CountyCount} counties", nameof(OpenBuildingController), nameof(GetSizesAsync), datasetKey ?? string.Empty, countyIds?.Count ?? 0);
+
+            if (openBuildingPostgreSQLConverter is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "OpenBuildingPostgreSQLConverter cannot be null");
+                return BadRequest();
+            }
+
+            if (commandTimeout < 0)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "CommandTimeout cannot be negative");
+                return BadRequest();
+            }
+
+            if (datasetKey is not null && PostgreSQL.Query.OpenBuildingTableName(datasetKey) is null)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Unknown dataset key {DatasetKey}", datasetKey);
+                return BadRequest($"Unknown dataset key '{datasetKey}'.");
+            }
+
+            if (countyIds is not null && countyIds.Count > Constants.OrtoDatas.MaximumSummaryCountyCount)
+            {
+                Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "Too many counties named: {Count}, the limit is {Maximum}", countyIds.Count, Constants.OrtoDatas.MaximumSummaryCountyCount);
+                return BadRequest($"At most {Constants.OrtoDatas.MaximumSummaryCountyCount} counties may be named. Omit the parameter to report every one.");
+            }
+
+            List<PostgreSQL.Classes.OpenBuildingTableSizeResult>? openBuildingTableSizeResults;
+            try
+            {
+                openBuildingTableSizeResults = await openBuildingPostgreSQLConverter.GetSizesAsync(datasetKey, countyIds is null || countyIds.Count == 0 ? null : countyIds, commandTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (NpgsqlException exception) when (exception.IsTransient)
+            {
+                Serilog.Modify.Log(exception, "{Type}:{Name} failed (transient database failure)", nameof(OpenBuildingController), nameof(GetSizesAsync));
+                HttpContext.Response.Headers["Retry-After"] = "30";
+                return StatusCode(503, "Database temporarily unavailable; retry shortly");
+            }
+            catch (Exception exception)
+            {
+                Serilog.Modify.Log(exception, "Database could not be queried");
+                return StatusCode(500, "Internal server error during database query");
+            }
+
+            if (openBuildingTableSizeResults is null)
+            {
+                Serilog.Modify.Log("No open building table of dataset {DatasetKey} exists", datasetKey ?? "(all)");
+                return NotFound();
+            }
+
+            string? json = Core.Convert.ToSystem_String(openBuildingTableSizeResults);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return StatusCode(500, "Internal server error during serialization");
+            }
+
+            Serilog.Modify.Log("Number of OpenBuildingTableSizeResults to be returned: {Count}", openBuildingTableSizeResults.Count);
             return Content(json, "application/json");
         }
     }
