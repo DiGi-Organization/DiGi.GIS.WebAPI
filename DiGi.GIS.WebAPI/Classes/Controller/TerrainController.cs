@@ -14,6 +14,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics; // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,6 +34,9 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <para>The default the sampling task writes with, so a coverage tile lines up with a sampled tile and a shortfall is reported against the same batches the run worked in.</para>
         /// </summary>
         private const int tileSize = 128;
+
+        // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+        private static int densitiesInFlight;
 
         private readonly TerrainPointPostgreSQLConverter terrainPointPostgreSQLConverter;
         private readonly AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;
@@ -404,10 +408,28 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
+            // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+            int count_InFlight_Start = Interlocked.Increment(ref densitiesInFlight);
+            int count_InFlight_Max = count_InFlight_Start;
+            long timestamp_Start = Stopwatch.GetTimestamp();
+            long bytes_Start = GC.GetTotalAllocatedBytes(false);
+            int count_Gen0_Start = GC.CollectionCount(0);
+            int count_Gen2_Start = GC.CollectionCount(2);
+            TimeSpan timeSpan_GCPause_Start = GC.GetTotalPauseDuration();
+            TimeSpan timeSpan_Counts = TimeSpan.Zero;
+            TimeSpan timeSpan_Outlines = TimeSpan.Zero;
+            TimeSpan timeSpan_Subdivisions = TimeSpan.Zero;
+            TimeSpan timeSpan_Faces = TimeSpan.Zero;
+            TimeSpan timeSpan_Overlay = TimeSpan.Zero;
+            TimeSpan timeSpan_Overlay_Max = TimeSpan.Zero;
+            int count_Subdivisions = 0;
+
             List<TerrainPointDensityResult> terrainPointDensityResults = [];
             try
             {
+                long timestamp_Phase = Stopwatch.GetTimestamp(); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
                 Dictionary<int, long>? counts_ByCountyId = await terrainPointPostgreSQLConverter.GetCountsByCountyIdsAsync(countyIds, commandTimeout, cancellationToken);
+                timeSpan_Counts = Stopwatch.GetElapsedTime(timestamp_Phase); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
                 if (counts_ByCountyId is null)
                 {
                     return NotFound();
@@ -418,7 +440,9 @@ namespace DiGi.GIS.WebAPI.Classes
                 // whose outline contains it. Summing the subdivisions instead counted nested levels twice and, through
                 // the widening to sibling parts, put a whole multi-part county under each part's count; the outline
                 // alone counted water and land outside every subdivision, which no run samples (DiGi.GIS.WebAPI#98).
+                timestamp_Phase = Stopwatch.GetTimestamp(); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
                 List<AdministrativeAreal2D>? administrativeAreal2Ds = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByIdsAsync(countyIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                timeSpan_Outlines = Stopwatch.GetElapsedTime(timestamp_Phase); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
                 if (administrativeAreal2Ds is null)
                 {
                     // Null means the read itself failed (no connection could be created), not that the counties are
@@ -429,7 +453,9 @@ namespace DiGi.GIS.WebAPI.Classes
 
                 // One batched read of every county's subdivisions rather than one per county (DiGi.GIS.WebAPI#95). A
                 // part is widened to every part sharing its code, as the run's land test is.
+                timestamp_Phase = Stopwatch.GetTimestamp(); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
                 Dictionary<int, List<AdministrativeAreal2D>>? administrativeAreal2Ds_Subdivision_ByCountyId = await administrativeAreal2DPostgreSQLConverter.GetAdministrativeAreal2DsByParentIdsAsync(AdministrativeArealType.Subdivision, countyIds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
+                timeSpan_Subdivisions = Stopwatch.GetElapsedTime(timestamp_Phase); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
                 if (administrativeAreal2Ds_Subdivision_ByCountyId is null)
                 {
                     Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} could not read the subdivisions of the requested counties", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync));
@@ -453,7 +479,18 @@ namespace DiGi.GIS.WebAPI.Classes
 
                     // No subdivision: the whole outline is measured, so the part reads as holding nothing of it.
                     administrativeAreal2Ds_Subdivision_ByCountyId.TryGetValue(countyId, out List<AdministrativeAreal2D>? administrativeAreal2Ds_Subdivision);
-                    double? area = SampledArea(polygonalFace2D, NonEmptyPolygonalFace2DsById(administrativeAreal2Ds_Subdivision));
+
+                    timestamp_Phase = Stopwatch.GetTimestamp(); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+                    Dictionary<int, PolygonalFace2D>? polygonalFace2Ds_Subdivision_ById = NonEmptyPolygonalFace2DsById(administrativeAreal2Ds_Subdivision);
+                    timeSpan_Faces += Stopwatch.GetElapsedTime(timestamp_Phase); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+                    count_Subdivisions += polygonalFace2Ds_Subdivision_ById?.Count ?? 0; // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+
+                    timestamp_Phase = Stopwatch.GetTimestamp(); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+                    double? area = SampledArea(polygonalFace2D, polygonalFace2Ds_Subdivision_ById);
+                    TimeSpan timeSpan_Part = Stopwatch.GetElapsedTime(timestamp_Phase); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+                    timeSpan_Overlay += timeSpan_Part; // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+                    timeSpan_Overlay_Max = timeSpan_Part > timeSpan_Overlay_Max ? timeSpan_Part : timeSpan_Overlay_Max; // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+                    count_InFlight_Max = Math.Max(count_InFlight_Max, Volatile.Read(ref densitiesInFlight)); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
                     if (area is null)
                     {
                         // A figure against the whole outline would be wrong without saying so.
@@ -493,6 +530,13 @@ namespace DiGi.GIS.WebAPI.Classes
                 Serilog.Modify.Log(exception, "Database could not be queried");
                 return StatusCode(500, "Internal server error during database query");
             }
+            finally
+            {
+                Interlocked.Decrement(ref densitiesInFlight); // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed
+            }
+
+            // TODO [DensitiesPhaseLog]: remove once DiGi-Organization/DiGi.GIS.WebAPI#103 is closed. The allocation, collection and pause figures are process-wide, so they include whatever else the host did meanwhile; read them against InFlight.
+            Serilog.Modify.Log("{Type}:{Name} phases: parts {PartCount}, subdivisions {SubdivisionCount}, counts {CountsMilliseconds} ms, outlines {OutlinesMilliseconds} ms, subdivisionsRead {SubdivisionsMilliseconds} ms, faces {FacesMilliseconds} ms, overlay {OverlayMilliseconds} ms (slowest part {OverlayMaxMilliseconds} ms), total {TotalMilliseconds} ms, inFlightAtStart {InFlightAtStart}, inFlightMax {InFlightMax}, allocated {AllocatedMegabytes} MB, gen0 {Gen0Collections}, gen2 {Gen2Collections}, gcPause {GCPauseMilliseconds} ms, threads {ThreadCount}, pendingWork {PendingWorkItemCount}", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync), countyIds.Count, count_Subdivisions, timeSpan_Counts.TotalMilliseconds, timeSpan_Outlines.TotalMilliseconds, timeSpan_Subdivisions.TotalMilliseconds, timeSpan_Faces.TotalMilliseconds, timeSpan_Overlay.TotalMilliseconds, timeSpan_Overlay_Max.TotalMilliseconds, Stopwatch.GetElapsedTime(timestamp_Start).TotalMilliseconds, count_InFlight_Start, count_InFlight_Max, (GC.GetTotalAllocatedBytes(false) - bytes_Start) / 1048576, GC.CollectionCount(0) - count_Gen0_Start, GC.CollectionCount(2) - count_Gen2_Start, (GC.GetTotalPauseDuration() - timeSpan_GCPause_Start).TotalMilliseconds, ThreadPool.ThreadCount, ThreadPool.PendingWorkItemCount);
 
             string? json = Core.Convert.ToSystem_String(terrainPointDensityResults);
             if (string.IsNullOrWhiteSpace(json))
