@@ -143,6 +143,13 @@ namespace DiGi.GIS.WebAPI.Classes
                 return exception.GetType() == typeof(Exception) && exception.Message.StartsWith(string.Format(CultureInfo.CurrentCulture, "Server returned {0}.", System.Net.HttpStatusCode.NotFound), StringComparison.Ordinal);
             }
 
+            // TODO [PostAsyncStatusCode]: a server that answered with a non-transient failure status is recognised by the same message
+            // as IsNotFound above. Remove once DiGi.WebAPI.Modify.PostAsync exposes the status code of a failed response.
+            static bool IsServerFailure(Exception exception)
+            {
+                return exception.GetType() == typeof(Exception) && exception.Message.StartsWith("Server returned ", StringComparison.Ordinal);
+            }
+
             // A factory rather than a single-use HttpContent - the body is rebuilt per attempt, so a dropped pooled connection is retried
             // instead of skipping the batch. The endpoint answers 404 when none of the references is found, which is an empty result,
             // not a fault: answered as an empty list. Null means the fetch did not succeed; any other failure is thrown.
@@ -346,6 +353,14 @@ namespace DiGi.GIS.WebAPI.Classes
                         {
                             Serilog.Modify.Log(httpRequestException, "HTTP error during OrtoDatas processing in county {CountyId}; {Count} references stay claimed until lease expiry", countyId.Value, building2DReferences_Claimed.Count);
                             RegisterFailure(string.Format(CultureInfo.CurrentCulture, "HTTP error in county {0}", countyId.Value), httpRequestException);
+                        }
+                        catch (Exception exception) when (IsServerFailure(exception))
+                        {
+                            // The server answered and refused this batch - e.g. every OrtoDatas rejected before the database. That is
+                            // about these references, not the run: rethrown, one batch ended a multi-hour upload. Counted instead, the
+                            // references stay claimed, return on lease expiry and are retired at the queue's attempt ceiling.
+                            Serilog.Modify.Log(exception, "Server refused the OrtoDatas batch in county {CountyId}; {Count} references stay claimed until lease expiry", countyId.Value, building2DReferences_Claimed.Count);
+                            RegisterFailure(string.Format(CultureInfo.CurrentCulture, "server refused the batch in county {0}", countyId.Value), exception);
                         }
                         catch (Exception exception) when (exception is not TimeoutException)
                         {
