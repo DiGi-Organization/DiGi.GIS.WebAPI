@@ -10595,6 +10595,21 @@ The converter used for reading terrain points from the PostgreSQL database\.
 The converter used for resolving which counties an area covers\.
 ### Fields
 
+<a name='DiGi.GIS.WebAPI.Classes.TerrainController.maximumDegreeOfParallelism'></a>
+
+## TerrainController\.maximumDegreeOfParallelism Field
+
+The largest number of county parts whose sampled area is measured at the same time within one densities request\.
+
+The overlays are independent, so the single-threaded loop was 52 % of the whole read (DiGi-Organization/DiGi.GIS.WebAPI#103). `SampledArea_Parallel_Performance` scales to 2.85x at 4 and barely more at 8 on the development machine, while the request is one of three in flight (`DiGi.GIS.PostgreSQL.UI``Constants.TerrainPointDensity.MaxConcurrentRequests`) against a database server that also runs PostgreSQL: 3 x 4 workers is what its 8 physical / 16 logical cores take without squeezing either. The figure that decides it is the live re-measurement against 162.5 s that follows the deploy.
+
+```csharp
+private const int maximumDegreeOfParallelism = 4;
+```
+
+#### Field Value
+[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
 <a name='DiGi.GIS.WebAPI.Classes.TerrainController.tileSize'></a>
 
 ## TerrainController\.tileSize Field

@@ -14,6 +14,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,6 +34,12 @@ namespace DiGi.GIS.WebAPI.Classes
         /// <para>The default the sampling task writes with, so a coverage tile lines up with a sampled tile and a shortfall is reported against the same batches the run worked in.</para>
         /// </summary>
         private const int tileSize = 128;
+
+        /// <summary>
+        /// The largest number of county parts whose sampled area is measured at the same time within one densities request.
+        /// <para>The overlays are independent, so the single-threaded loop was 52 % of the whole read (DiGi-Organization/DiGi.GIS.WebAPI#103). <c>SampledArea_Parallel_Performance</c> scales to 2.85x at 4 and barely more at 8 on the development machine, while the request is one of three in flight (<c>DiGi.GIS.PostgreSQL.UI</c> <c>Constants.TerrainPointDensity.MaxConcurrentRequests</c>) against a database server that also runs PostgreSQL: 3 x 4 workers is what its 8 physical / 16 logical cores take without squeezing either. The figure that decides it is the live re-measurement against 162.5 s that follows the deploy.</para>
+        /// </summary>
+        private const int maximumDegreeOfParallelism = 4;
 
         private readonly TerrainPointPostgreSQLConverter terrainPointPostgreSQLConverter;
         private readonly AdministrativeAreal2DPostgreSQLConverter administrativeAreal2DPostgreSQLConverter;
@@ -441,38 +448,93 @@ namespace DiGi.GIS.WebAPI.Classes
                 List<AdministrativeAreal2D> administrativeAreal2Ds_County = administrativeAreal2Ds.FindAll(x => x is not null && x.AdministrativeArealType == AdministrativeArealType.County);
                 Dictionary<int, PolygonalFace2D> polygonalFace2Ds_ById = administrativeAreal2Ds_County.PolygonalFace2DsById();
 
-                foreach (int countyId in countyIds)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
+                // One slot and one failure flag per requested part: every worker writes only its own, and the answer
+                // is read back in request order afterwards, so finishing order never reaches the response
+                // (DiGi-Organization/DiGi.GIS.WebAPI#105).
+                TerrainPointDensityResult?[] terrainPointDensityResults_ByIndex = new TerrainPointDensityResult?[countyIds.Count];
+                bool[] failed = new bool[countyIds.Count];
 
-                    if (!polygonalFace2Ds_ById.TryGetValue(countyId, out PolygonalFace2D? polygonalFace2D))
+                // Measuring the parts side by side is what shortens the read: one part's overlay never touches
+                // another's, and every dictionary it reads was built above this loop and written by nobody inside it
+                // (DiGi-Organization/DiGi.GIS.WebAPI#105). The token reaches the workers through the options and
+                // through every iteration.
+                ParallelOptions parallelOptions = new() { CancellationToken = cancellationToken, MaxDegreeOfParallelism = maximumDegreeOfParallelism };
+                try
+                {
+                    Parallel.For(0, countyIds.Count, parallelOptions, (index, parallelLoopState) =>
                     {
-                        Serilog.Modify.Log("County {CountyId} is not a county part with a readable outline, so there is no area to measure a density against", countyId);
-                        continue;
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        int countyId = countyIds[index];
+
+                        if (!polygonalFace2Ds_ById.TryGetValue(countyId, out PolygonalFace2D? polygonalFace2D))
+                        {
+                            Serilog.Modify.Log("County {CountyId} is not a county part with a readable outline, so there is no area to measure a density against", countyId);
+                            return;
+                        }
+
+                        // No subdivision: the whole outline is measured, so the part reads as holding nothing of it.
+                        administrativeAreal2Ds_Subdivision_ByCountyId.TryGetValue(countyId, out List<AdministrativeAreal2D>? administrativeAreal2Ds_Subdivision);
+                        double? area = SampledArea(polygonalFace2D, NonEmptyPolygonalFace2DsById(administrativeAreal2Ds_Subdivision));
+                        if (area is null)
+                        {
+                            // Flagged rather than returned: which worker met it first must not decide whether the
+                            // request fails, and the loop after this one names the lowest flagged part, so the answer
+                            // stays the same whichever order the parts finished in.
+                            failed[index] = true;
+                            parallelLoopState.Stop();
+                            return;
+                        }
+
+                        if (!IsFinite(area.Value))
+                        {
+                            Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "County {CountyId} has an outline that bounds no area", countyId);
+                            return;
+                        }
+
+                        // A county with no partition is absent from the counts and contributes a zero here, which is
+                        // the answer wanted: a county a run never reached reports a density of nothing rather than
+                        // dropping out of a sweep that was asked about it.
+                        counts_ByCountyId.TryGetValue(countyId, out long count);
+
+                        terrainPointDensityResults_ByIndex[index] = PostgreSQL.Create.TerrainPointDensityResult(countyId, count, area.Value, gridSize);
+                    });
+                }
+                catch (OperationCanceledException)
+                {
+                    // Raised by the token above or by the options: the outer catch decides, exactly as it did when
+                    // this loop ran one part after another.
+                    throw;
+                }
+                catch (AggregateException exception)
+                {
+                    // A single failed part is the failure the sequential loop would have met - rethrown unwrapped so
+                    // the outer chain still maps it to the same status (a transient database failure to 503, any
+                    // other exception to 500). Several failures at once leave as the aggregate and the outer catch
+                    // reports a 500.
+                    AggregateException aggregateException = exception.Flatten();
+                    if (aggregateException.InnerExceptions.Count == 1)
+                    {
+                        ExceptionDispatchInfo.Capture(aggregateException.InnerExceptions[0]).Throw();
                     }
 
-                    // No subdivision: the whole outline is measured, so the part reads as holding nothing of it.
-                    administrativeAreal2Ds_Subdivision_ByCountyId.TryGetValue(countyId, out List<AdministrativeAreal2D>? administrativeAreal2Ds_Subdivision);
-                    double? area = SampledArea(polygonalFace2D, NonEmptyPolygonalFace2DsById(administrativeAreal2Ds_Subdivision));
-                    if (area is null)
+                    throw;
+                }
+
+                for (int index = 0; index < failed.Length; index++)
+                {
+                    if (failed[index])
                     {
-                        // A figure against the whole outline would be wrong without saying so.
-                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} could not overlay county {CountyId} with its subdivisions", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync), countyId);
+                        // A figure against the whole outline would be wrong without saying so. The lowest failing part
+                        // names the error, never whichever worker happened to finish first.
+                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Error, "{Type}:{Name} could not overlay county {CountyId} with its subdivisions", nameof(TerrainController), nameof(GetDensitiesByCountyIdsAsync), countyIds[index]);
                         return StatusCode(500, "Internal server error while measuring a county area");
                     }
+                }
 
-                    if (!IsFinite(area.Value))
-                    {
-                        Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "County {CountyId} has an outline that bounds no area", countyId);
-                        continue;
-                    }
-
-                    // A county with no partition is absent from the counts and contributes a zero here, which is
-                    // the answer wanted: a county a run never reached reports a density of nothing rather than
-                    // dropping out of a sweep that was asked about it.
-                    counts_ByCountyId.TryGetValue(countyId, out long count);
-
-                    if (PostgreSQL.Create.TerrainPointDensityResult(countyId, count, area.Value, gridSize) is TerrainPointDensityResult terrainPointDensityResult)
+                foreach (TerrainPointDensityResult? terrainPointDensityResult in terrainPointDensityResults_ByIndex)
+                {
+                    if (terrainPointDensityResult is not null)
                     {
                         terrainPointDensityResults.Add(terrainPointDensityResult);
                     }
