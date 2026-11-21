@@ -86,7 +86,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 {
                     await npgsqlConnection.OpenAsync(cancellationToken);
                 }
-                buildingHeatDemandCountyResults = await npgsqlConnection.BuildingHeatDemandCountyResultsAsync(countyIds is null || countyIds.Count == 0 ? null : countyIds, methodVersion, yearBuiltBounds, commandTimeout, cancellationToken);
+                buildingHeatDemandCountyResults = await npgsqlConnection.BuildingHeatDemandCountyResultsAsync(countyIds is null || countyIds.Count == 0 ? null : countyIds, methodVersion, yearBuiltBounds, commandTimeout: commandTimeout, cancellationToken: cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
