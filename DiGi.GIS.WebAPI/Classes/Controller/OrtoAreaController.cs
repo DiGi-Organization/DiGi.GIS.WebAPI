@@ -144,7 +144,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return Unauthorized();
             }
 
-            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(x_1, y_1, x_2, y_2);
+            BoundingBox2D? boundingBox2D = Create.BoundingBox2D(x_1, y_1, x_2, y_2);
             if (boundingBox2D is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "AvailableYearsByBoundingBox rejected: bounding box is not finite, not ordered, or exceeds the maximum area side");
@@ -219,7 +219,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return Unauthorized();
             }
 
-            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(x_1, y_1, x_2, y_2);
+            BoundingBox2D? boundingBox2D = Create.BoundingBox2D(x_1, y_1, x_2, y_2);
             if (boundingBox2D is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "ImageByBoundingBox rejected: bounding box is not finite, not ordered, or exceeds the maximum area side");
@@ -395,7 +395,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return Unauthorized();
             }
 
-            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(x_1, y_1, x_2, y_2);
+            BoundingBox2D? boundingBox2D = Create.BoundingBox2D(x_1, y_1, x_2, y_2);
             if (boundingBox2D is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "AreaByBoundingBox rejected: bounding box is not finite, not ordered, or exceeds the maximum area side");
@@ -565,7 +565,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest("Body is missing.");
             }
 
-            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(parameter.X_1, parameter.Y_1, parameter.X_2, parameter.Y_2);
+            BoundingBox2D? boundingBox2D = Create.BoundingBox2D(parameter.X_1, parameter.Y_1, parameter.X_2, parameter.Y_2);
             if (boundingBox2D is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "CreateObject rejected: bounding box is missing, not finite, not ordered, or exceeds the maximum area side");
@@ -695,7 +695,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest("objectid is required.");
             }
 
-            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(x_1, y_1, x_2, y_2);
+            BoundingBox2D? boundingBox2D = Create.BoundingBox2D(x_1, y_1, x_2, y_2);
             string? areaKey = boundingBox2D?.OrtoLocationKey();
             if (boundingBox2D is null || string.IsNullOrWhiteSpace(areaKey))
             {
@@ -769,7 +769,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return Unauthorized();
             }
 
-            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(x_1, y_1, x_2, y_2);
+            BoundingBox2D? boundingBox2D = Create.BoundingBox2D(x_1, y_1, x_2, y_2);
             if (boundingBox2D is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "LabelsByBoundingBox rejected: bounding box is not finite, not ordered, or exceeds the maximum area side");
@@ -861,7 +861,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest();
             }
 
-            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(x_1, y_1, x_2, y_2);
+            BoundingBox2D? boundingBox2D = Create.BoundingBox2D(x_1, y_1, x_2, y_2);
             string? areaKey = boundingBox2D?.OrtoLocationKey();
             if (boundingBox2D is null || string.IsNullOrWhiteSpace(areaKey))
             {
@@ -970,7 +970,7 @@ namespace DiGi.GIS.WebAPI.Classes
                 return BadRequest("Body is missing.");
             }
 
-            BoundingBox2D? boundingBox2D = CreateBoundingBox2D(parameter.X_1, parameter.Y_1, parameter.X_2, parameter.Y_2);
+            BoundingBox2D? boundingBox2D = Create.BoundingBox2D(parameter.X_1, parameter.Y_1, parameter.X_2, parameter.Y_2);
             if (boundingBox2D is null)
             {
                 Serilog.Modify.Log(Serilog.Enums.LogEventLevel.Warning, "SetLabel rejected: bounding box is missing, not finite, not ordered, or exceeds the maximum area side");
@@ -1115,40 +1115,6 @@ namespace DiGi.GIS.WebAPI.Classes
                 Serilog.Modify.Log(exception, "{Type}:{Name} failed", nameof(OrtoAreaController), nameof(SetLabelAsync));
                 return StatusCode(500, "Internal server error during interpretation label write");
             }
-        }
-
-        /// <summary>
-        /// Validates four bounding-box corners and builds their box, applied to every <c>gis/ortoarea</c> route.
-        /// <para>Refuses non-finite values, a box whose minimum corner is not below its maximum, and any side longer than <see cref="Constants.OrtoArea.MaximumAreaSide"/>; each refusal is answered 400 by the caller. A box degenerate to a point or a line is accepted - it simply holds no grid cell and the WMS answers it.</para>
-        /// </summary>
-        /// <param name="x_1">The easting of the first corner, or <c>null</c> when omitted.</param>
-        /// <param name="y_1">The northing of the first corner, or <c>null</c> when omitted.</param>
-        /// <param name="x_2">The easting of the second corner, or <c>null</c> when omitted.</param>
-        /// <param name="y_2">The northing of the second corner, or <c>null</c> when omitted.</param>
-        /// <returns>The bounding box, or null when a corner is missing or non-finite, the corners are not ordered, or a side exceeds the maximum.</returns>
-        private static BoundingBox2D? CreateBoundingBox2D(double? x_1, double? y_1, double? x_2, double? y_2)
-        {
-            if (x_1 is not double x_1_Value || y_1 is not double y_1_Value || x_2 is not double x_2_Value || y_2 is not double y_2_Value)
-            {
-                return null;
-            }
-
-            if (!double.IsFinite(x_1_Value) || !double.IsFinite(y_1_Value) || !double.IsFinite(x_2_Value) || !double.IsFinite(y_2_Value))
-            {
-                return null;
-            }
-
-            if (x_1_Value > x_2_Value || y_1_Value > y_2_Value)
-            {
-                return null;
-            }
-
-            if (x_2_Value - x_1_Value > Constants.OrtoArea.MaximumAreaSide || y_2_Value - y_1_Value > Constants.OrtoArea.MaximumAreaSide)
-            {
-                return null;
-            }
-
-            return new BoundingBox2D(new Point2D(x_1_Value, y_1_Value), new Point2D(x_2_Value, y_2_Value));
         }
 
         /// <summary>

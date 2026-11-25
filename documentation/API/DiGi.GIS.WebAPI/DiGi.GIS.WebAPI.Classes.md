@@ -8150,7 +8150,7 @@ public System.Collections.Generic.IEnumerable<DiGi.GIS.Classes.OccupancyData>? V
 
 ## OpenBuildingController Class
 
-Web API controller for the open building datasets \(EUBUCCO, Overture, OSM, DBSM, Microsoft, GHS\-OBAT\) stored beside BDOT10k: the release register, per\-county summaries of the footprint tables and their disk use \(DiGi\.GIS\.PostgreSQL\#121\)\.
+Web API controller for the open building datasets \(EUBUCCO, Overture, OSM, DBSM, Microsoft, GHS\-OBAT\) stored beside BDOT10k: the release register, per\-county summaries of the footprint tables, their disk use \(DiGi\.GIS\.PostgreSQL\#121\) and the match summaries against BDOT10k \(DiGi\.GIS\.WebAPI\#108\)\.
 
 Read-only. It exposes the evidence paper 01 needs to state which release of each dataset was compared, when it was fetched, and how much of it comes from a register, OpenStreetMap or a detector.
 
@@ -8219,6 +8219,110 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the releases as JSON \(an empty list when none is registered for the key\), 404 when the register does not exist yet, or an error status\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesAsync(string,double,double,double,double,int,System.Threading.CancellationToken)'></a>
+
+## OpenBuildingController\.GetMatchSummariesAsync\(string, double, double, double, double, int, CancellationToken\) Method
+
+Asynchronously reads the completeness and geometry measures of one open dataset against BDOT10k over a bounding box \(paper 01, DiGi\.GIS\.WebAPI\#108\): one total row per release of the dataset, then one row per primary source in ordinal order\.
+
+The scope is the box: a building component is in it when its representative point - the centroid of its owning footprint, the BDOT10k one when it has one - lies in the box, boundary included. A component is counted whole or not at all, so two adjacent boxes never share one. The answer carries no stratum; the caller attaches it.
+
+An omission is a BDOT10k footprint no dataset footprint reached, so it belongs to no source: the BDOT10k-side figures (`BDOTCount`, `OmissionCount`, `Completeness`, `Quality`, `AreaCompleteness`, ...) are null on the per-source rows. Null means unknown, never zero - the area figures and the size classes are also null when a link in scope was stored before the areas were added. `DatasetCount`, `DatasetExcludedCount` and `CommissionCount` sum over the sources to the total row; the class counts do not, because a component whose footprints come from two sources counts under each. `ComputedAt` tells a reader whether a BDOT10k re-import has outdated the links; the match parameters are null when the scope mixes snapshots computed with different parameters.
+
+Read-only: the figures exist only after the match run has stored the links. An empty list means no link in the box.
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetMatchSummariesAsync(string? datasetKey, double x_1, double y_1, double x_2, double y_2, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesAsync(string,double,double,double,double,int,System.Threading.CancellationToken).datasetKey'></a>
+
+`datasetKey` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The dataset key to read \(`eubucco`, `overture`, `osm`, `dbsm`, `microsoft`\)\. Required; `ghs_obat` holds attributes, not footprints, and is refused\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesAsync(string,double,double,double,double,int,System.Threading.CancellationToken).x_1'></a>
+
+`x_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesAsync(string,double,double,double,double,int,System.Threading.CancellationToken).y_1'></a>
+
+`y_1` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the first corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesAsync(string,double,double,double,double,int,System.Threading.CancellationToken).x_2'></a>
+
+`x_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The easting of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesAsync(string,double,double,double,double,int,System.Threading.CancellationToken).y_2'></a>
+
+`y_2` [System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')
+
+The northing of the second corner of the bounding box, in EPSG:2180 metres\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesAsync(string,double,double,double,double,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesAsync(string,double,double,double,double,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the summaries as JSON \(an empty list when no link is in the box\), 400 for a missing or unknown dataset key or an invalid box, 404 when the link table does not exist yet, 503 on a transient database failure, or 500 when the read failed\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken)'></a>
+
+## OpenBuildingController\.GetMatchSummariesByCountyIdsAsync\(string, List\<int\>, int, CancellationToken\) Method
+
+Asynchronously reads the completeness and geometry measures of one open dataset against BDOT10k over county parts \(paper 01, DiGi\.GIS\.WebAPI\#108\): the county\-scoped variant of `matchsummary`, with the same rows and the same meaning of null\.
+
+The scope is the named county parts, never a code: name every sibling part to read a whole multi-part county. The paper states which scope a figure comes from - per box (`matchsummary`) or per county (this route).
+
+```csharp
+public System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult> GetMatchSummariesByCountyIdsAsync(string? datasetKey, System.Collections.Generic.List<int>? countyIds, int commandTimeout=600, System.Threading.CancellationToken cancellationToken=default(System.Threading.CancellationToken));
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).datasetKey'></a>
+
+`datasetKey` [System\.String](https://learn.microsoft.com/en-us/dotnet/api/system.string 'System\.String')
+
+The dataset key to read \(`eubucco`, `overture`, `osm`, `dbsm`, `microsoft`\)\. Required; `ghs_obat` holds attributes, not footprints, and is refused\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).countyIds'></a>
+
+`countyIds` [System\.Collections\.Generic\.List&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')[System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1 'System\.Collections\.Generic\.List\`1')
+
+The identifiers of the county parts to read, repeated once per part\. Required, at most [MaximumSummaryCountyCount](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoDatas.MaximumSummaryCountyCount 'DiGi\.GIS\.WebAPI\.Constants\.OrtoDatas\.MaximumSummaryCountyCount')\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).commandTimeout'></a>
+
+`commandTimeout` [System\.Int32](https://learn.microsoft.com/en-us/dotnet/api/system.int32 'System\.Int32')
+
+The timeout in seconds for the execution of the command\. A value of 0 disables the timeout; a negative value is refused with HTTP 400\. Defaults to 600 seconds\.
+
+<a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetMatchSummariesByCountyIdsAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken).cancellationToken'></a>
+
+`cancellationToken` [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken')
+
+The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken 'System\.Threading\.CancellationToken') to observe while waiting for the task to complete\.
+
+#### Returns
+[System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
+An [Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult') carrying the summaries as JSON \(an empty list when no link is in scope\), 400 for a missing or unknown dataset key or a missing, empty or oversized county list, 404 when the link table does not exist yet, 503 on a transient database failure, or 500 when the read failed\.
 
 <a name='DiGi.GIS.WebAPI.Classes.OpenBuildingController.GetSizesAsync(string,System.Collections.Generic.List_int_,int,System.Threading.CancellationToken)'></a>
 
@@ -8528,47 +8632,6 @@ The [System\.Threading\.CancellationToken](https://learn.microsoft.com/en-us/dot
 #### Returns
 [System\.Threading\.Tasks\.Task&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')[Microsoft\.AspNetCore\.Mvc\.IActionResult](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.iactionresult 'Microsoft\.AspNetCore\.Mvc\.IActionResult')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task-1 'System\.Threading\.Tasks\.Task\`1')  
 A task that represents the asynchronous operation\. 200 with the distinct years ascending \(an empty list when no sheet covers\), 401 without a valid user token, 400 for an invalid bounding box, 503 on a transient database failure, or 500 when the read failed\.
-
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_)'></a>
-
-## OrtoAreaController\.CreateBoundingBox2D\(Nullable\<double\>, Nullable\<double\>, Nullable\<double\>, Nullable\<double\>\) Method
-
-Validates four bounding\-box corners and builds their box, applied to every `gis/ortoarea` route\.
-
-Refuses non-finite values, a box whose minimum corner is not below its maximum, and any side longer than [MaximumAreaSide](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoArea.MaximumAreaSide 'DiGi\.GIS\.WebAPI\.Constants\.OrtoArea\.MaximumAreaSide'); each refusal is answered 400 by the caller. A box degenerate to a point or a line is accepted - it simply holds no grid cell and the WMS answers it.
-
-```csharp
-private static DiGi.Geometry.Planar.Classes.BoundingBox2D? CreateBoundingBox2D(System.Nullable<double> x_1, System.Nullable<double> y_1, System.Nullable<double> x_2, System.Nullable<double> y_2);
-```
-#### Parameters
-
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).x_1'></a>
-
-`x_1` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
-
-The easting of the first corner, or `null` when omitted\.
-
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).y_1'></a>
-
-`y_1` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
-
-The northing of the first corner, or `null` when omitted\.
-
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).x_2'></a>
-
-`x_2` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
-
-The easting of the second corner, or `null` when omitted\.
-
-<a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateBoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).y_2'></a>
-
-`y_2` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
-
-The northing of the second corner, or `null` when omitted\.
-
-#### Returns
-[DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.boundingbox2d 'DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D')  
-The bounding box, or null when a corner is missing or non\-finite, the corners are not ordered, or a side exceeds the maximum\.
 
 <a name='DiGi.GIS.WebAPI.Classes.OrtoAreaController.CreateObjectAsync(DiGi.GIS.WebAPI.Classes.Parameter.OrtoAreaObjectParameter,System.Threading.CancellationToken)'></a>
 

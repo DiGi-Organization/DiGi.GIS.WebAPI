@@ -73,6 +73,47 @@ public static class Create
 Inheritance [System\.Object](https://learn.microsoft.com/en-us/dotnet/api/system.object 'System\.Object') → Create
 ### Methods
 
+<a name='DiGi.GIS.WebAPI.Create.BoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_)'></a>
+
+## Create\.BoundingBox2D\(Nullable\<double\>, Nullable\<double\>, Nullable\<double\>, Nullable\<double\>\) Method
+
+Validates four bounding\-box corners and builds their box, applied to every `gis/ortoarea` route and to the open building match summary\.
+
+Refuses non-finite values, a box whose minimum corner is not below its maximum, and any side longer than [MaximumAreaSide](DiGi.GIS.WebAPI.Constants.md#DiGi.GIS.WebAPI.Constants.OrtoArea.MaximumAreaSide 'DiGi\.GIS\.WebAPI\.Constants\.OrtoArea\.MaximumAreaSide'); each refusal is answered 400 by the caller. A box degenerate to a point or a line is accepted - it simply holds no grid cell and the WMS answers it.
+
+```csharp
+public static DiGi.Geometry.Planar.Classes.BoundingBox2D? BoundingBox2D(System.Nullable<double> x_1, System.Nullable<double> y_1, System.Nullable<double> x_2, System.Nullable<double> y_2);
+```
+#### Parameters
+
+<a name='DiGi.GIS.WebAPI.Create.BoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).x_1'></a>
+
+`x_1` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The easting of the first corner, or `null` when omitted\.
+
+<a name='DiGi.GIS.WebAPI.Create.BoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).y_1'></a>
+
+`y_1` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The northing of the first corner, or `null` when omitted\.
+
+<a name='DiGi.GIS.WebAPI.Create.BoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).x_2'></a>
+
+`x_2` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The easting of the second corner, or `null` when omitted\.
+
+<a name='DiGi.GIS.WebAPI.Create.BoundingBox2D(System.Nullable_double_,System.Nullable_double_,System.Nullable_double_,System.Nullable_double_).y_2'></a>
+
+`y_2` [System\.Nullable&lt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')[System\.Double](https://learn.microsoft.com/en-us/dotnet/api/system.double 'System\.Double')[&gt;](https://learn.microsoft.com/en-us/dotnet/api/system.nullable-1 'System\.Nullable\`1')
+
+The northing of the second corner, or `null` when omitted\.
+
+#### Returns
+[DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D](https://learn.microsoft.com/en-us/dotnet/api/digi.geometry.planar.classes.boundingbox2d 'DiGi\.Geometry\.Planar\.Classes\.BoundingBox2D')  
+The bounding box, or null when a corner is missing or non\-finite, the corners are not ordered, or a side exceeds the maximum\.
+
 <a name='DiGi.GIS.WebAPI.Create.GISWebAPIConfigurationFileWatcher()'></a>
 
 ## Create\.GISWebAPIConfigurationFileWatcher\(\) Method
